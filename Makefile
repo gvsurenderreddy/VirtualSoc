@@ -31,6 +31,7 @@ clean:
 	rm -rf build/client/*
 	rm -rf bin/*
 
-mem:
+mem-server:
 	valgrind ./bin/server 1
-	valgrind ./bin/client 1
+mem-client:
+	valgrind ./bin/client 127.0.0.1 6047
