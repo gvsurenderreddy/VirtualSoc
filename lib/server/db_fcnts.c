@@ -22,6 +22,7 @@ int dbRegCheckUser(char *ID) {
   }
 
   int check = atoi((char *)&data);
+  free(sql);
   printf("check:%d", check);
   return check;
 }
@@ -48,11 +49,13 @@ int dbInsertUser(char *ID, char *PASS, char *FULLNAME, char *SEX, char *ABOUT,
                "VALUES (\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\");",
           ID, PASS, FULLNAME, SEX, ABOUT, TYPE);
   rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
   if (rc != SQLITE_OK) {
     fprintf(stderr, "SQL error: %s\n", zErrMsg);
     sqlite3_free(zErrMsg);
   } else {
     fprintf(stdout, "Records created successfully\n");
   }
+
   free(sql);
 }
