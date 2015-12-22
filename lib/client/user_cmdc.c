@@ -1,5 +1,5 @@
 #define CLIENT 1
-#include "../vsoc.h"
+#include "vsoc.h"
 
 void myRead(char *text, int size) {
   char buf[BUFSIZ];

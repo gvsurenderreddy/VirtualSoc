@@ -1,5 +1,4 @@
-#include "lib/vsoc.h"
-#define SERVER 1
+#include "vsoc.h"
 
 static void *treat(void *arg);
 

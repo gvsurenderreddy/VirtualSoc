@@ -1,5 +1,5 @@
 #define SERVER 1 
-#include "../vsoc.h"
+#include "vsoc.h"
 
 int cbRegCheckUser(char *data, int argc, char **argv, char **azColName) {
   strcpy(data, argv[0]);

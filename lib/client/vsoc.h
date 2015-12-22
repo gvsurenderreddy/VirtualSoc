@@ -41,7 +41,6 @@
 
 #define PORT 6047
 
-//extern int errno;
 
 int port;
 
@@ -52,27 +51,7 @@ typedef struct thData {
 
 void answer(void *arg); // functie de deservire pentru fiecare client
 
-sqlite3 *db;
-int rc;
-char *zErrMsg = 0;
 
-// functions server
-#if SERVER
-int cbRegCheckUser(char *, int, char **, char **);
-int callback(void *, int, char **, char **);
-int dbInsertUser(char *, char *, char *, char *, char *, char *);
-int dbRegCheckUser(char *);
-int createConnSocketR();
-void register_now(int);
-void login(int);
-int logout(int);
-void viewProfile(int);
-void addFriend(int);
-void addPost(int);
-void answer(void *);
-#endif
-
-#if CLIENT
 void myRead(char *, int);
 void help(int);
 int login(int, int, char *);
@@ -84,6 +63,5 @@ void addPost(int, int);
 void setProfile(int, int);
 int encodeCommand(const char *);
 void quit(void);
-#endif
 
 #endif
