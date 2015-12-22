@@ -1,8 +1,10 @@
 #include "lib/vsoc.h"
 #define SERVER 1
+
 static void *treat(void *arg);
 
-int main(int argc, char *argv[]) {
+int 
+main(int argc, char *argv[]) {
   int nr, pid, i = 0;
   pthread_t th[100];
   if (argc < 2) {

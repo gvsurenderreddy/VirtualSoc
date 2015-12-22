@@ -220,7 +220,7 @@ void answer(void *arg) {
     clientAnswer = -1;
     if (read(tdL.client, &clientCommand, sizeof(int)) <= 0) {
       printf("[Thread %d]\n", tdL.idThread);
-      perror("Disconnect \ Eroare la read() de la "
+      perror("Disconnect  Eroare la read() de la "
              "client.\n");
       break;
     }

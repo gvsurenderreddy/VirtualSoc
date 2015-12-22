@@ -1,6 +1,9 @@
 #include "lib/vsoc.h"
+
 #define CLIENT 1
-int main(int argc, char *argv[]) {
+
+int
+main(int argc, char *argv[]) {
 
   if (argc != 3) {
     printf("[client] Run:   %s ServerAddr Port \n", argv[0]);

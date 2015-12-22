@@ -58,7 +58,7 @@ char *zErrMsg = 0;
 
 // functions server
 #if SERVER
-int cbRegCheckUser(int *, int, char **, char **);
+int cbRegCheckUser(char *, int, char **, char **);
 int callback(void *, int, char **, char **);
 int dbInsertUser(char *, char *, char *, char *, char *, char *);
 int dbRegCheckUser(char *);
