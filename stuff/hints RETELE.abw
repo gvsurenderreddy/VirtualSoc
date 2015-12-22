@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE abiword PUBLIC "-//ABISOURCE//DTD AWML 1.0 Strict//EN" "http://www.abisource.com/awml.dtd">
+<abiword template="false" xmlns:ct="http://www.abisource.com/changetracking.dtd" xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:math="http://www.w3.org/1998/Math/MathML" xid-max="16" xmlns:dc="http://purl.org/dc/elements/1.1/" styles="unlocked" fileformat="1.0" xmlns:svg="http://www.w3.org/2000/svg" xmlns:awml="http://www.abisource.com/awml.dtd" xmlns="http://www.abisource.com/awml.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" version="0.99.2" xml:space="preserve" props="dom-dir:ltr; document-footnote-restart-section:0; document-endnote-type:numeric; document-endnote-place-enddoc:1; document-endnote-initial:1; lang:en-US; document-endnote-restart-section:0; document-footnote-restart-page:0; document-footnote-type:numeric; document-footnote-initial:1; document-endnote-place-endsection:0">
+<!-- ======================================================================== -->
+<!-- This file is an AbiWord document.                                        -->
+<!-- AbiWord is a free, Open Source word processor.                           -->
+<!-- More information about AbiWord is available at http://www.abisource.com/ -->
+<!-- You should not edit this file by hand.                                   -->
+<!-- ======================================================================== -->
+
+<metadata>
+<m key="abiword.date_last_changed">Wed Nov 25 14:22:27 2015
+</m>
+<m key="abiword.generator">AbiWord</m>
+<m key="dc.creator">Alexander</m>
+<m key="dc.date">Wed Nov 25 14:09:38 2015
+</m>
+<m key="dc.format">application/x-abiword</m>
+</metadata>
+<rdf>
+</rdf>
+<history version="6" edit-time="984" last-saved="1448454147" uid="e6702f38-936c-11e5-958d-eeb6e14e3908">
+<version id="6" started="1448453378" uid="3120b23a-936f-11e5-958d-eeb6e14e3908" auto="0" top-xid="5"/>
+</history>
+<styles>
+<s type="P" name="Normal" followedby="Current Settings" props="font-family:Times New Roman; margin-top:0pt; color:000000; margin-left:0pt; text-position:normal; widows:2; font-style:normal; text-indent:0in; font-variant:normal; font-weight:normal; margin-right:0pt; font-size:12pt; text-decoration:none; margin-bottom:0pt; line-height:1.0; bgcolor:transparent; text-align:left; font-stretch:normal"/>
+</styles>
+<pagesize pagetype="Letter" orientation="portrait" width="8.500000" height="11.000000" units="in" page-scale="1.000000"/>
+<section xid="4" props="page-margin-footer:0.5in; page-margin-header:0.5in">
+<p style="Normal" xid="5"><c props="font-weight:bold">Proiecte</c><c> : </c></p>
+<p style="Normal" xid="2"><c>-servere concurente</c></p>
+<p style="Normal" xid="1"><c>-interfata grafica(+bonus)</c></p>
+<p style="Normal" xid="8"><c></c></p>
+<p style="Normal" xid="9"><c props="font-weight:bold">Tema 2 ^^ (~proiect):</c></p>
+<p style="Normal" xid="10"><c props="font-weight:normal">-raport tehnic + mica implementare</c></p>
+<p style="Normal" xid="11"><c props="font-weight:normal">-ce folosim ptr dev ( ? ce si de ce ? )</c></p>
+<p style="Normal" xid="12"><c props="font-weight:normal">-schema arhitecturala specifica aplicatiei</c></p>
+<p style="Normal" xid="14"><c props="font-weight:normal">-situatii de utilizare (use case)</c></p>
+<p style="Normal" xid="15"><c props="font-weight:normal">-protocol de comunicare (simulare comanda, comunicare functionala, nu implementare directa)</c></p>
+</section>
+</abiword>
