@@ -1,9 +1,10 @@
+#define CLIENT 1
 #include "../vsoc.h"
 
 void myRead(char *text, int size) {
   char buf[BUFSIZ];
   fgets(buf, sizeof(buf), stdin);
-  strncpy(text, buf, size);
+  strncpy(text, buf, (size_t)size);
   text[size] = 0;
   text[strlen(text) - 1] = 0;
 }

@@ -1,3 +1,4 @@
+#define SERVER 1 
 #include "../vsoc.h"
 
 int cbRegCheckUser(int *data, int argc, char **argv, char **azColName) {

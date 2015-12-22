@@ -1,3 +1,4 @@
+#define SERVER 1
 #include "../vsoc.h"
 
 int createConnSocketR() {

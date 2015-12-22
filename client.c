@@ -1,6 +1,5 @@
 #include "lib/vsoc.h"
 #define CLIENT 1
-
 int main(int argc, char *argv[]) {
 
   if (argc != 3) {

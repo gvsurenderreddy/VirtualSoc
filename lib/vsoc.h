@@ -41,7 +41,8 @@
 
 #define PORT 6047
 
-extern int errno;
+//extern int errno;
+
 int port;
 
 typedef struct thData {
@@ -69,7 +70,6 @@ void viewProfile(int);
 void addFriend(int);
 void addPost(int);
 void answer(void *);
-
 #endif
 
 #if CLIENT

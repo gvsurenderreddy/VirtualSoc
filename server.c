@@ -1,6 +1,5 @@
 #include "lib/vsoc.h"
 #define SERVER 1
-
 static void *treat(void *arg);
 
 int main(int argc, char *argv[]) {
