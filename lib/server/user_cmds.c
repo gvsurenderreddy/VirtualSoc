@@ -1,7 +1,7 @@
-#define SERVER 1
 #include "vsoc.h"
 
-int createConnSocketR() {
+int createConnSocketR() 
+{
   int sd;
   if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     perror("[server] Socket creation error ! socket(). \n");

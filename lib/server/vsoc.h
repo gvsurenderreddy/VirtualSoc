@@ -33,7 +33,7 @@ void answer(void *arg); // functie de deservire pentru fiecare client
 
 sqlite3 *db;
 int rc;
-char *zErrMsg = 0;
+char *zErrMsg;
 //
 // functions server
 int cbRegCheckUser(char *, int, char **, char **);
