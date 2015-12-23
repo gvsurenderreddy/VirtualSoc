@@ -117,7 +117,7 @@ void register_now(int sC, int check) {
     }
     case 201: {
       printf("ID not long enough or invalid ! (min. 10 ch, only "
-             "alpha-numerical)\n");
+             "alpha-numerical and . _ )\n");
       break;
     }
     case 202: {

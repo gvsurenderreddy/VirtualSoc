@@ -10,7 +10,7 @@ int dbRegCheckUser(char *ID) {
   sql = (char *)calloc(70 + strlen(ID), sizeof(char));
   sprintf(sql, "SELECT COUNT(*) FROM USERS WHERE LOWER(ID)=LOWER('%s');", ID);
 
- char* data;
+  char *data;
 
   /* Execute SQL statement */
   rc = sqlite3_exec(db, sql, cbRegCheckUser, &data, &zErrMsg);
@@ -21,10 +21,8 @@ int dbRegCheckUser(char *ID) {
     fprintf(stdout, "Operation done successfully \n");
   }
 
-  int check = atoi((char *)&data);
   free(sql);
-  printf("check:%d", check);
-  return check;
+  return atoi((char *)&data);
 }
 
 int callback(void *data, int argc, char **argv, char **azColName) {

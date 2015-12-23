@@ -2,8 +2,7 @@
 
 static void *treat(void *arg);
 
-int 
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   int nr, pid, i = 0;
   pthread_t th[100];
   if (argc < 2) {
@@ -70,9 +69,7 @@ main(int argc, char *argv[]) {
 
   if (atoi(argv[1]) == 0) { // debugging mode
     printf("Am intrat in debug !\n");
-    dbInsertUser("User3", "pass3", "User Three", "F", "Description Three",
-                 "public");
-    dbRegCheckUser("usER3");
+
     sqlite3_close(db);
     return 0;
   }

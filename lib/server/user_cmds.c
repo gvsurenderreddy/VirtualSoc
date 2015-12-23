@@ -1,7 +1,6 @@
 #include "vsoc.h"
 
-int createConnSocketR() 
-{
+int createConnSocketR() {
   int sd;
   if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     perror("[server] Socket creation error ! socket(). \n");
@@ -73,18 +72,20 @@ void register_now(int sC) {
       for (i = 0; i < strlen(id); i++) {
         if (!(id[i] >= 'a' && id[i] <= 'z'))
           if (!(id[i] >= 'A' && id[i] <= 'Z'))
-            if (!(id[i] >= '0' && id[i] <= '9')) {
-              resultAnswer = 201;
-              write(sC, &resultAnswer, sizeof(int));
-              return;
-            }
+            if (!(id[i] >= '0' && id[i] <= '9'))
+              if (!(id[i] == '_' || id[i] == '.')) {
+                resultAnswer = 201;
+                write(sC, &resultAnswer, sizeof(int));
+                return;
+              }
       }
 
     for (i = 0; i < strlen(fullname); i++) {
       if (!(fullname[i] >= 'a' && fullname[i] <= 'z'))
         if (!(fullname[i] >= 'A' && fullname[i] <= 'Z'))
           if (!(fullname[i] >= '0' && fullname[i] <= '9'))
-            if (!(fullname[i] == ' ')) {
+            if (!(fullname[i] == ' ' || fullname[i] == '.' ||
+                  fullname[i] == '-')) {
               resultAnswer = 203;
               write(sC, &resultAnswer, sizeof(int));
               return;

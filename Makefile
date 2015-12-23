@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -c -std=gnu11 -g -Wall
-LINK_FLAGS = -lpthread -lsqlite3
+LINK_FLAGS = -pthread -l sqlite3
 LIBS_CLIENT = $(wildcard lib/client/*.c)
 LIBS_SERVER = $(wildcard lib/server/*.c)
 OBJECT_SERVER = $(wildcard build/server/*.o)
@@ -9,14 +9,14 @@ BUILD_PATH = build/
 
 
 link:compile
-	$(CC) $(LINK_FLAGS) $(OBJECT_SERVER) -o build/server/server
+	$(CC) $(OBJECT_SERVER) $(LINK_FLAGS) -o build/server/server
 	mv build/server/server bin/
-	# clean server stuff
+	#clean server stuff
 	rm -rf lib/server/*.o
 	#client
-	$(CC) $(LINK_FLAGS) $(OBJECT_CLIENT) -o build/client/client
+	$(CC) $(OBJECT_CLIENT) $(LINK_FLAGS) -o build/client/client
 	mv build/client/client bin/
-	#clean clinet stuff
+	#clean client stuff
 	rm -rf lib/client/*.o
 compile:
 	#server

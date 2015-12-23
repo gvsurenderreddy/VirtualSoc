@@ -41,7 +41,6 @@
 
 #define PORT 6047
 
-
 int port;
 
 typedef struct thData {
@@ -50,7 +49,6 @@ typedef struct thData {
 } thData; // structura pentru thread-uri
 
 void answer(void *arg); // functie de deservire pentru fiecare client
-
 
 void myRead(char *, int);
 void help(int);
