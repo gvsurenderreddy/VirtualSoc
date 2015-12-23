@@ -59,7 +59,8 @@ int logout(int, int, char *);
 void addFriend(int, int);
 void addPost(int, int);
 void setProfile(int, int);
+void quit(int, int);
 int encodeCommand(const char *);
-void quit(void);
+void quitforce(void);
 
 #endif

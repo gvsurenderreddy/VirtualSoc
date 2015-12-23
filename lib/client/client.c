@@ -1,8 +1,6 @@
 #include "vsoc.h"
 
-
-int
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 
   if (argc != 3) {
     printf("[client] Run:   %s ServerAddr Port \n", argv[0]);
@@ -27,20 +25,20 @@ main(int argc, char *argv[]) {
   }
 
   //##############################CLIENT##################################
-  signal(SIGINT, quit);
+  signal(SIGINT, quitforce);
   int clientCommand = -1;
   char clientCommandChar[1000];
-  char currentUser[33];
+  char currentID[33];
   int logged = 0;
   printf(RED "	Welcome to VirtualSoc ~ by Cristea Alexandru\n	/help  - "
              " syntax and available commands !\n" RESET);
   while (1) {
 
     if (logged == 0) {
-      printf(RED "[offline] @ Command >>: " RESET);
+      printf(RED "[offline] @ vSoc >>: " RESET);
       fflush(stdout);
     } else if (logged == 1) {
-      printf(GREEN "%s @ Command >>: " RESET, currentUser);
+      printf(GREEN "%s @ vSoc >>: " RESET, currentID);
       fflush(stdout);
     }
     memset(clientCommandChar, 0, sizeof(clientCommandChar));
@@ -48,7 +46,6 @@ main(int argc, char *argv[]) {
     read(0, clientCommandChar, sizeof(clientCommandChar));
 
     if (clientCommandChar[0] == '\n') {
-
       continue;
     }
 
@@ -70,17 +67,17 @@ main(int argc, char *argv[]) {
     }
 
     if (clientCommand == 0) {
-      printf("[client]Quit! \n");
+      quit(socketConnect, logged);
       break;
     }
     if (clientCommand == 1)
-      logged = login(socketConnect, logged, currentUser);
+      logged = login(socketConnect, logged, currentID);
     if (clientCommand == 2)
       register_now(socketConnect, logged);
     if (clientCommand == 4)
       viewProfile(socketConnect, logged);
     if (clientCommand == 5)
-      logged = logout(socketConnect, logged, currentUser);
+      logged = logout(socketConnect, logged, currentID);
     if (clientCommand == 6)
       addFriend(socketConnect, logged);
     if (clientCommand == 7)

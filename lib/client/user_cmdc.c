@@ -16,42 +16,54 @@ void help(int check) {
 }
 
 int login(int sC, int check, char *user) {
-  char username[33], password[33];
+  char id[33], password[33], *invPass;
   int resultAnswer = -1;
-  memset(username, 0, 33);
+  memset(id, 0, 33);
   memset(password, 0, 33);
   write(sC, &check, sizeof(int));
   if (check == 1) {
     printf("Already logged in !\n");
     return 1;
   } else {
-    printf("Username: ");
+    printf("ID: ");
     fflush(stdout);
-    myRead(username, 33);
+    myRead(id, 33);
 
-    // printf("Password: ");
-    // fflush(stdout);
-    // myRead(password, 33);
+    invPass = getpass("Password: ");
+    strcpy(password, invPass);
 
-    // test getpass
-    char *testpass = getpass("Password: ");
-    if (strlen(testpass) > 32) {
-      printf("Password longer than 32 ! But sent to server.\n");
-    }
-    // fin_test getpass
-    printf("User:%s\n Pass:%s\n", username, testpass);
-    write(sC, username, sizeof(username));
+    write(sC, id, sizeof(id));
     write(sC, password, sizeof(password));
 
     read(sC, &resultAnswer, sizeof(int));
-    // trateaza 101,102,11
-    if (resultAnswer == 11) {
-      printf("Succesfully logged in ! \n");
-      strcpy(user, username);
+
+    switch (resultAnswer) {
+    case 11: {
+      printf("Login Complete !\n");
+      strcpy(user, id);
       return 1;
-    } else {
-      printf("Login failed !\n");
+      break;
+    }
+    case 101: {
+      printf("ID doesn't exist ! \n");
       return 0;
+      break;
+    }
+    case 102: {
+      printf("Wrong Password ! \n");
+      return 0;
+      break;
+    }
+    case 103: {
+      printf("Invalid ID \\ Password ! \n");
+      return 0;
+      break;
+    }
+    case 104: {
+      printf("You're already logged in ! (probably in a different terminal)\n");
+      return 0;
+      break;
+    }
     }
   }
 }
@@ -187,14 +199,15 @@ void viewProfile(int sC, int check) {
   }
 }
 
-int logout(int sC, int check, char *user) {
+int logout(int sC, int check, char *id) {
   write(sC, &check, sizeof(int));
+
   if (check == 0) {
     printf("You're not logged in ! \n");
   } else {
     printf("Logged out succesfully !\n");
   }
-  memset(user, 0, 33);
+  memset(id, 0, 33);
   return 0;
 }
 
@@ -319,8 +332,12 @@ int encodeCommand(const char *clientCommandChar) {
   return -1;
 }
 
-void quit(void) {
+void quit(int sC, int check) {
+  write(sC, &check, sizeof(int));
+  return;
+}
 
-  printf("\nQuit!\n");
+void quitforce(void) {
+  printf("\nForced Quit!\n");
   exit(0);
 }

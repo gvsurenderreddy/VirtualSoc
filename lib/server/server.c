@@ -17,11 +17,11 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Can't open Database %s !\n", sqlite3_errmsg(db));
     exit(0);
   } else {
-    fprintf(stdout, "Opened database succesfully !\n");
+    fprintf(stdout, "[server]Opened database succesfully !\n");
   }
 
   if (atoi(argv[1]) == 1) { // normal mode
-    printf("Am intrat in normal !\n");
+    printf("[server]Normal Mode\n");
     struct sockaddr_in server;
     struct sockaddr_in from;
     memset(&server, 0, sizeof(server));
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (atoi(argv[1]) == 0) { // debugging mode
-    printf("Am intrat in debug !\n");
+    printf("[server]Debug Mode\n");
 
     sqlite3_close(db);
     return 0;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 static void *treat(void *arg) {
   struct thData tdL;
   tdL = *((struct thData *)arg);
-  printf("[thread]- %d - Waiting for message. \n", tdL.idThread);
+  printf("[thread]- Serving client %d \n", tdL.idThread);
   fflush(stdout);
   pthread_detach(pthread_self());
   answer((struct thData *)arg);

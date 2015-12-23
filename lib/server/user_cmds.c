@@ -12,30 +12,52 @@ int createConnSocketR() {
   return sd;
 }
 
-void login(int sC) {
-  int resultAnswer = -1;
+void login(int sC, char *client) {
+  int resultAnswer = 11;
   int check;
-  char username[33], password[33];
-  memset(username, 0, 33);
+  char id[33], password[33];
+  memset(id, 0, 33);
   memset(password, 0, 33);
 
   read(sC, &check, sizeof(int));
   if (check == 1)
     return;
   else {
-    read(sC, username, sizeof(username));
+    read(sC, id, sizeof(id));
     read(sC, password, sizeof(password));
-    // verifica user, parola.
-    // 101 - user inexistent, 102 - user/parola gresite, 11 -
-    // logare
-    // reusita
-    resultAnswer = 11;
+
+    if ((strchr(id, '\"') != NULL || strchr(password, '\"') != NULL)) {
+      resultAnswer = 103;
+      write(sC, &resultAnswer, sizeof(int));
+      return;
+    }
+
+    if (dbLogCheckUser(id) == 0) {
+      resultAnswer = 101;
+      write(sC, &resultAnswer, sizeof(int));
+      return;
+    }
+
+    if (dbLogCheck(id, password) == 0) {
+      resultAnswer = 102;
+      write(sC, &resultAnswer, sizeof(int));
+      return;
+    }
+
+    if (dbSetOnline(id) == 0) {
+      resultAnswer = 104;
+      write(sC, &resultAnswer, sizeof(int));
+      return;
+    }
+
     write(sC, &resultAnswer, sizeof(int));
+    strcpy(client, id);
+    return;
   }
 }
 
 void register_now(int sC) {
-  int resultAnswer = -1;
+  int resultAnswer = 22;
   int check;
   char id[33], password[33], fullname[65], sex[5], about[513], type[17];
 
@@ -63,7 +85,7 @@ void register_now(int sC) {
         fflush(stdout);*/
 
     int i;
-    resultAnswer = 22;
+
     if (strlen(id) < 10) {
       resultAnswer = 201;
       write(sC, &resultAnswer, sizeof(int));
@@ -105,7 +127,7 @@ void register_now(int sC) {
       }
     }
     for (i = 0; i < strlen(about); i++) {
-      if (password[i] == '\"') {
+      if (about[i] == '\"') {
         resultAnswer = 208;
         write(sC, &resultAnswer, sizeof(int));
         return;
@@ -165,11 +187,14 @@ void viewProfile(int sC) {
     write(sC, &user, sizeof(user));
 }
 
-int logout(int sC) {
+void logout(int sC, char *client) {
   int check;
   read(sC, &check, sizeof(int));
 
-  return 0;
+  if (check == 1) {
+    dbSetOffline(client);
+  }
+  return;
 }
 
 void addFriend(int sC) {
@@ -212,30 +237,45 @@ void addPost(int sC) {
   }
 }
 
+void quit(int sC, char *client) {
+  int check;
+  read(sC, &check, sizeof(int));
+  if (check == 1) {
+    dbSetOffline(client);
+  }
+  return;
+}
+
 void answer(void *arg) {
-  int clientCommand = -1, clientAnswer = -1, i = 0;
   struct thData tdL;
   tdL = *((struct thData *)arg);
+
+  int clientCommand = -1, clientAnswer = -1, i = 0;
+  char clientID[33];
+  memset(clientID, 0, 33);
   // citire comanda
   while (clientCommand != 0) {
+
     clientAnswer = -1;
     if (read(tdL.client, &clientCommand, sizeof(int)) <= 0) {
       printf("[Thread %d]\n", tdL.idThread);
-      perror("Disconnect  Eroare la read() de la "
+      perror("Disconnect sau Eroare la read() de la "
              "client.\n");
+      dbSetOffline(clientID);
       break;
     }
 
     printf("[Thread %d]Received command : %d\n", tdL.idThread, clientCommand);
 
     // operatie - comanda
-    if (clientCommand == 0) {
-      break;
-    }
 
     switch (clientCommand) {
+    case 0: {
+      quit(tdL.client, clientID);
+      break;
+    }
     case 1: {
-      login(tdL.client);
+      login(tdL.client, clientID);
       break;
     }
     case 2: {
@@ -247,7 +287,7 @@ void answer(void *arg) {
       break;
     }
     case 5: {
-      logout(tdL.client);
+      logout(tdL.client, clientID);
       break;
     }
     case 6: {
