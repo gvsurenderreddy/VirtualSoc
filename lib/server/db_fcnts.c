@@ -138,3 +138,20 @@ void dbSetOffline(char *ID) {
   }
   free(sql);
 }
+
+void dbForceQuit(void) {
+  char *sql;
+  sql = (char *)calloc(100, sizeof(char));
+
+  sprintf(sql, "DELETE FROM ONLINE;");
+
+  rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "dbSetOffline:Error: %s\n", zErrMsg);
+    sqlite3_free(zErrMsg);
+  } else {
+    fprintf(stdout, "dbSetOffline:Succes \n");
+  }
+  free(sql);
+}

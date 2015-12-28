@@ -46,6 +46,7 @@ void viewProfile(int);
 void addFriend(int);
 void addPost(int);
 void quit(int, char *);
+void forcequit(void);
 void answer(void *);
 int callback(void *, int, char **, char **);
 int cbCheck(char *, int, char **, char **);
@@ -56,6 +57,7 @@ int dbLogCheck(char *, char *);
 int dbLog(char *);
 int dbSetOnline(char *);
 void dbSetOffline(char *);
+void dbForceQuit(void);
 // end_functii server
 
 #endif
