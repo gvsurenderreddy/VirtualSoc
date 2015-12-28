@@ -50,31 +50,26 @@ int login(int sC, int check, char *user)
 			printf("Login Complete !\n");
 			strcpy(user, id);
 			return 1;
-			break;
 		}
 		case 101:
 		{
 			printf("ID doesn't exist ! \n");
 			return 0;
-			break;
 		}
 		case 102:
 		{
 			printf("Wrong Password ! \n");
 			return 0;
-			break;
 		}
 		case 103:
 		{
 			printf("Invalid ID \\ Password ! \n");
 			return 0;
-			break;
 		}
 		case 104:
 		{
 			printf("You're already logged in ! (probably in a different terminal)\n");
 			return 0;
-			break;
 		}
 		}
 	}
