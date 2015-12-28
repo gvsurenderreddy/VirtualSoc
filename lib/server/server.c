@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
 					   "accept(). \n");
 				continue;
 			}
-			int idThread;
-			int client;
+			//int idThread;
+			//int client;
 			td = (struct thData *)malloc(sizeof(struct thData));
 			td->idThread = i++;
 			td->client = socketClient;

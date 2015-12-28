@@ -415,11 +415,11 @@ void checkReq(int sC, int check)
 
 				if (type == '1')
 				{
-					printf("'%s' wants to be your friend ! (/accFriend to accept him)\n");
+					printf("'%s' wants to be your friend ! (/accFriend to accept him)\n", singleRequest);
 				}
 				if (type == '2')
 				{
-					printf("'%s' wants to chat with you ! (/accChat to start chatting )\n");
+					printf("'%s' wants to chat with you ! (/accChat to start chatting )\n", singleRequest);
 				}
 			}
 

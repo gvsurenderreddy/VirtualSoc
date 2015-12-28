@@ -61,6 +61,8 @@ void addFriend(int, int);
 void addPost(int, int);
 void setProfile(int, int);
 void checkReq(int, int);
+void accFriend(int, int);
+void accChat(int, int);
 void quit(int, int);
 int encodeCommand(const char *);
 void quitforce(void);

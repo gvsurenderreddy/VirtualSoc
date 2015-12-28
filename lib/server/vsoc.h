@@ -49,6 +49,8 @@ void addFriend(int, char *);
 void addPost(int);
 void setProfile(int, char *);
 void checkReq(int, char *);
+void accFriend(int, char *);
+void accChat(int, char *);
 void quit(int, char *);
 void forcequit(void);
 void answer(void *);
