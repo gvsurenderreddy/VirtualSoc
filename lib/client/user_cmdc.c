@@ -14,7 +14,7 @@ void help(int check)
 {
 	printf("\n Available commands :\n /login\n /logout\n /register\n "
 		   "/quit\n "
-		   "/viewProfile\n /addFriend\n /addPost\n\n");
+		   "/viewProfile\n /addFriend\n /addPost\n /checkReq\n /accFriend\n\n");
 }
 
 int login(int sC, int check, char *user)
@@ -276,7 +276,7 @@ void addFriend(int sC, int check)
 		{
 		case 66:
 		{
-			printf("'%s' added ! \n", user);
+			printf("Add Friend Request sent to '%s' ! \n", user);
 			break;
 		}
 		case 601:
@@ -291,10 +291,21 @@ void addFriend(int sC, int check)
 			printf("'%s' is already in your friends "
 				   "list !\n",
 				   user);
+			break;
 		}
 		case 603:
 		{
 			printf("Type of friend is not valid !\n");
+			break;
+		}
+		case 604:
+		{
+			printf("You cannot add yourself to friend !\n");
+			break;
+		}
+		case 605:
+		{
+			printf("Add Friend Request already sent ! \n");
 			break;
 		}
 		}
@@ -367,6 +378,65 @@ void setProfile(int sC, int check)
 	}
 }
 
+void checkReq(int sC, int check)
+{
+	int resultAnswer = -1, requestsCount;
+	char singleRequest[40], type;
+	write(sC, &check, sizeof(int));
+	if (check == 0)
+	{
+		printf("You're not logged int ! \n");
+		return;
+	}
+	else
+	{
+		read(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 901:
+		{
+			printf("You have no requests !\n");
+			return;
+		}
+		case 99:
+		{
+			read(sC, &requestsCount, sizeof(int));
+			printf("You have %d requests :\n", requestsCount);
+
+			while (requestsCount != 0)
+			{
+				memset(singleRequest, 0, sizeof(singleRequest));
+				read(sC, singleRequest, sizeof(singleRequest));
+				requestsCount--;
+
+				type = singleRequest[strlen(singleRequest) - 1];
+				singleRequest[strlen(singleRequest) - 1] = 0;
+
+				if (type == '1')
+				{
+					printf("'%s' wants to be your friend ! (/accFriend to accept him)\n");
+				}
+				if (type == '2')
+				{
+					printf("'%s' wants to chat with you ! (/accChat to start chatting )\n");
+				}
+			}
+
+			return;
+		}
+		}
+	}
+}
+
+void accFriend(int sC, int check)
+{
+}
+
+void accChat(int sC, int check)
+{
+}
+
 int encodeCommand(const char *clientCommandChar)
 {
 	if (strcmp(clientCommandChar, "/login") == 0)
@@ -387,8 +457,12 @@ int encodeCommand(const char *clientCommandChar)
 		return 7;
 	if (strcmp(clientCommandChar, "/setProfile") == 0)
 		return 8;
-	if (strcmp(clientCommandChar, "/chat") == 0)
+	if (strcmp(clientCommandChar, "/checkReq") == 0)
 		return 9;
+	if (strcmp(clientCommandChar, "/accFriend") == 0)
+		return 10;
+	if (strcmp(clientCommandChar, "/accChat") == 0)
+		return 11;
 	return -1;
 }
 

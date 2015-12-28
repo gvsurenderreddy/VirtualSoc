@@ -27,14 +27,16 @@
 
 // globale server
 // structura pentru thread-uri
-typedef struct thData {
-  int idThread;
-  int client;
+typedef struct thData
+{
+	int idThread;
+	int client;
 } thData;
 
 sqlite3 *db;
 int rc;
 char *zErrMsg;
+
 // end_globare server
 
 // functii server
@@ -43,13 +45,18 @@ void register_now(int);
 void login(int, char *);
 void logout(int, char *);
 void viewProfile(int);
-void addFriend(int);
+void addFriend(int, char *);
 void addPost(int);
+void setProfile(int, char *);
+void checkReq(int, char *);
 void quit(int, char *);
 void forcequit(void);
 void answer(void *);
+
+//--functii server DB SQLITE3--//
 int callback(void *, int, char **, char **);
 int cbCheck(char *, int, char **, char **);
+int cbSelect(char *, int, char **, char **);
 void dbInsertUser(char *, char *, char *, char *, char *, char *);
 int dbRegCheckUser(char *);
 int dbLogCheckUser(char *);
@@ -58,6 +65,11 @@ int dbLog(char *);
 int dbSetOnline(char *);
 void dbSetOffline(char *);
 void dbForceQuit(void);
+int dbRequestCheckType(char *, char *, char *);
+int dbRequestCheckCount(char *);
+char *dbRequestCheck(char *);
+void dbRequestSend(char *, char *, char *, char *);
+int dbFriendCheck(char *, char *);
 // end_functii server
 
 #endif

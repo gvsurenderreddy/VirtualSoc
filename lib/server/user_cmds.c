@@ -223,7 +223,7 @@ void logout(int sC, char *client)
 	return;
 }
 
-void addFriend(int sC)
+void addFriend(int sC, char *currentUser)
 {
 	int resultAnswer = 66, check;
 	char user[33], friendType[33];
@@ -256,12 +256,34 @@ void addFriend(int sC)
 		}
 		}
 
-		if (dbLogCheckUser(user) == 0)
+
+		if (strcmp(user, currentUser) == 0)
+		{
+			resultAnswer = 604;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+		if (dbLogCheckUser(user) == 0 || strchr(user, '\"') != NULL)
 		{
 			resultAnswer = 601;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+		if (dbFriendCheck(currentUser, user) != 0)
+		{
+			resultAnswer = 602;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+		if (dbRequestCheckType(currentUser, user, "1") != 0)
+		{
+			resultAnswer = 605;
+			write(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 
+
+		dbRequestSend(currentUser, user, "1", friendType);
 		write(sC, &resultAnswer, sizeof(int));
 		return;
 	}
@@ -290,6 +312,58 @@ void addPost(int sC)
 		}
 		write(sC, &resultAnswer, sizeof(int));
 	}
+}
+
+void setProfile(int sC, char *currentUser)
+{
+	return;
+}
+
+void checkReq(int sC, char *currentUser)
+{
+	int resultAnswer = 99, check, i, last = 0;
+	char singleRequest[40], *requests;
+
+	read(sC, &check, sizeof(int));
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		int requestsCount = dbRequestCheckCount(currentUser);
+		if (requestsCount == 0)
+		{
+			resultAnswer = 901;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+		write(sC, &resultAnswer, sizeof(int));
+		write(sC, &requestsCount, sizeof(int));
+
+		requests = dbRequestCheck(currentUser);
+
+		for (i = 0; i < strlen(requests); i++)
+		{
+			if (requests[i] == ' ')
+			{
+				memset(singleRequest, 0, 40);
+				strncpy(singleRequest, requests + last, i - last);
+				singleRequest[i - last] = 0;
+				last = i + 1;
+				write(sC, singleRequest, sizeof(singleRequest));
+			}
+		}
+	}
+	return;
+}
+
+void accFriend(int sC, char *currentUser)
+{
+}
+
+void accChat(int sC, char *currentUser)
+{
 }
 
 void quit(int sC, char *client)
@@ -358,12 +432,32 @@ void answer(void *arg)
 		}
 		case 6:
 		{
-			addFriend(tdL.client);
+			addFriend(tdL.client, clientID);
 			break;
 		}
 		case 7:
 		{
 			addPost(tdL.client);
+			break;
+		}
+		case 8:
+		{
+			setProfile(tdL.client, clientID);
+			break;
+		}
+		case 9:
+		{
+			checkReq(tdL.client, clientID);
+			break;
+		}
+		case 10:
+		{
+			accFriend(tdL.client, clientID);
+			break;
+		}
+		case 11:
+		{
+			accChat(tdL.client, clientID);
 			break;
 		}
 		}
@@ -391,7 +485,7 @@ void answer(void *arg)
 
 void forcequit(void)
 {
-	printf("[server] Force quit !");
+	printf("[server] Force quit !\n");
 	dbForceQuit();
 	exit(0);
 }
