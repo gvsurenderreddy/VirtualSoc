@@ -252,7 +252,8 @@ void addFriend(int sC, char *currentUser)
 		default:
 		{
 			resultAnswer = 603;
-			break;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
 		}
 		}
 
@@ -281,7 +282,12 @@ void addFriend(int sC, char *currentUser)
 			write(sC, &resultAnswer, sizeof(int));
 			return;
 		}
-
+		if (dbRequestCheckType(user, currentUser, "1") != 0)
+		{
+			resultAnswer = 606;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
 
 		dbRequestSend(currentUser, user, "1", friendType);
 		write(sC, &resultAnswer, sizeof(int));
@@ -360,7 +366,76 @@ void checkReq(int sC, char *currentUser)
 
 void accFriend(int sC, char *currentUser)
 {
+	int resultAnswer = 1010, check;
+	char user[33], friendType[33];
+
+	memset(user, 0, 33);
+	memset(friendType, 0, 33);
+
+	read(sC, &check, sizeof(int));
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+
+		read(sC, user, sizeof(user));
+		read(sC, friendType, sizeof(friendType));
+
+		switch (atoi(friendType))
+		{
+		case 1:
+		case 2:
+		case 3:
+		{
+			resultAnswer = 1010;
+			break;
+		}
+		default:
+		{
+			resultAnswer = 1001;
+			break;
+		}
+		}
+
+
+		if (strcmp(user, currentUser) == 0)
+		{
+			resultAnswer = 1002;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+		if (dbLogCheckUser(user) == 0 || strchr(user, '\"') != NULL)
+		{
+			resultAnswer = 1003;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+		if (dbFriendCheck(currentUser, user) != 0)
+		{
+			resultAnswer = 1004;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+		if (dbRequestCheckType(user, currentUser, "1") == 0)
+		{
+			resultAnswer = 1005;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		dbFriendInsert(currentUser, user, friendType);
+		dbFriendInsert(user, currentUser, dbGetFTypeFromReq(user, currentUser));
+		dbDeleteRequestType(currentUser, user, "1");
+		dbDeleteRequestType(user, currentUser, "1");
+		write(sC, &resultAnswer, sizeof(int));
+		return;
+	}
+	return;
 }
+
+
 
 void accChat(int sC, char *currentUser)
 {

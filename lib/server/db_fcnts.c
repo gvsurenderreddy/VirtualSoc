@@ -1,7 +1,7 @@
 #include "vsoc.h"
 
 
-/* TYPE OF REQUESTS: 1-AddFriend, 2-Chat Invite */
+/* TYPE OF REQUESTS: 1-Add Friend, 2-Chat Invite */
 char results[50000];
 
 
@@ -22,7 +22,8 @@ int callback(void *data, int argc, char **argv, char **azColName)
 
 int cbCheck(char *data, int argc, char **argv, char **azColName)
 {
-	//callback - numarator de linii
+	//callback - numarator de linii, intoarce mereu o singura linie;
+	// 		   - multiple utilizari
 	strcpy(data, argv[0]);
 	return 0;
 }
@@ -97,7 +98,7 @@ int dbRegCheckUser(char *ID)
 
 int dbLogCheckUser(char *ID)
 {
-	//verifica daca exista un user cu (exact!)ID in USERS, pentru logare
+	//verifica daca exista un user cu (exact!)ID in USERS, pentru logare si adaugare prieteni
 	char *sql;
 	sql = (char *)calloc(70 + strlen(ID), sizeof(char));
 	sprintf(sql, "SELECT COUNT(*) FROM USERS WHERE ID=\"%s\";", ID);
@@ -282,10 +283,11 @@ void dbRequestSend(char *ID1, char *ID2, char *type, char *friendtype)
 	{
 		fprintf(stderr, "dbRequestSend:Error: %s\n", zErrMsg);
 		sqlite3_free(zErrMsg);
-		free(sql);
 	}
-
-	fprintf(stdout, "dbRequestSend:Succes \n");
+	else
+	{
+		fprintf(stdout, "dbRequestSend:Succes \n");
+	}
 
 	free(sql);
 }
@@ -345,4 +347,79 @@ char *dbRequestCheck(char *ID)
 	//printf("results:%s", results);
 	fflush(stdout);
 	return results;
+}
+
+void dbFriendInsert(char *ID1, char *ID2, char *friendtype)
+{
+	// adauga in FRIENDS, ID2 prieten pentru ID1, tip FRIENDTYPE
+	char *sql;
+	sql = (char *)calloc(100 + strlen(ID1) + strlen(ID2) + strlen(friendtype), sizeof(char));
+
+	sprintf(sql, "INSERT INTO FRIENDS (owner,friend,type) "
+				 "VALUES (\"%s\",\"%s\",\"%s\");",
+			ID1, ID2, friendtype);
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbFriendInsert:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbFriendInsert:Succes \n");
+	}
+
+	free(sql);
+}
+
+char *dbGetFTypeFromReq(char *ID1, char *ID2)
+{
+	// intoarce tipul de prieten TYPE pus de ID1 in cererea catre ID2
+	char *sql;
+	sql = (char *)calloc(80 + strlen(ID1) + strlen(ID2), sizeof(char));
+	sprintf(sql, "SELECT friendtype FROM REQUESTS WHERE fromUser=\"%s\" AND toUser=\"%s\" AND type=\"1\";", ID1, ID2);
+
+	char *data;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, cbCheck, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetFTypeFromReq:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetFTypeFromReq:Succes \n");
+	}
+
+	free(sql);
+
+	//printf("friendtype: %s\n", &data);
+	return &data;
+}
+
+void dbDeleteRequestType(char *ID1, char *ID2, char *type)
+{
+	// sterge cererile de tip TYPE din tabela REQUESTS de la ID1 la ID2
+	char *sql;
+	sql = (char *)calloc(80 + strlen(ID1) + strlen(ID2) + strlen(type), sizeof(char));
+
+	sprintf(sql, "DELETE FROM REQUESTS WHERE fromUser=\"%s\" AND toUser=\"%s\" AND type=\"%s\";", ID1, ID2, type);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbDeleteRequestType:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbDeleteRequestType:Succes \n");
+	}
+	free(sql);
+
+	return;
 }

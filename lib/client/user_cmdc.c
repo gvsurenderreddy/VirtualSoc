@@ -23,6 +23,7 @@ int login(int sC, int check, char *user)
 	int resultAnswer = -1;
 	memset(id, 0, 33);
 	memset(password, 0, 33);
+
 	write(sC, &check, sizeof(int));
 	if (check == 1)
 	{
@@ -253,7 +254,7 @@ void addFriend(int sC, int check)
 	}
 	else
 	{
-		printf("Add: ");
+		printf("Add Friend: ");
 		fflush(stdout);
 		myRead(user, 33);
 
@@ -271,7 +272,7 @@ void addFriend(int sC, int check)
 		{
 		case 66:
 		{
-			printf("Add Friend Request sent to '%s' ! \n", user);
+			printf("Friend Request has been sent to '%s' ! \n", user);
 			break;
 		}
 		case 601:
@@ -300,7 +301,12 @@ void addFriend(int sC, int check)
 		}
 		case 605:
 		{
-			printf("Add Friend Request already sent ! \n");
+			printf("Friend request is already sent ! \n");
+			break;
+		}
+		case 606:
+		{
+			printf("'%s' already sent you a friend request ! Accept him ! (/accFriend) \n", user);
 			break;
 		}
 		}
@@ -426,6 +432,78 @@ void checkReq(int sC, int check)
 
 void accFriend(int sC, int check)
 {
+	int resultAnswer = -1;
+	char user[33], friendType[33];
+	memset(user, 0, 33);
+	memset(friendType, 0, 33);
+
+	write(sC, &check, sizeof(int));
+
+	if (check == 0)
+	{
+		printf("You are not logged in !\n");
+	}
+	else
+	{
+		printf("Accept:");
+		fflush(stdout);
+		myRead(user, 33);
+
+		printf("Group - 1(friends) / 2(close-friends) / 3 "
+			   "(family)): ");
+		fflush(stdout);
+		myRead(friendType, 33);
+
+		write(sC, user, sizeof(user));
+		write(sC, friendType, sizeof(friendType));
+
+		read(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 1010:
+			switch (atoi(friendType))
+			{
+			case 1:
+				printf("'%s' added to friends group ! \n", user);
+				break;
+
+			case 2:
+				printf("'%s' added to close-friends group ! \n", user);
+				break;
+
+			case 3:
+				printf("'%s' added to family group ! \n", user);
+				break;
+			}
+			break;
+
+		case 1001:
+			printf("Type of friend is not valid !\n");
+			break;
+
+		case 1002:
+			printf("You cannot accept yourself as a friend !\n");
+			break;
+
+		case 1003:
+			printf("'%s' does not exist in our "
+				   "database !\n",
+				   user);
+			break;
+
+		case 1004:
+			printf("'%s' is already in your friends "
+				   "list !\n",
+				   user);
+			break;
+
+		case 1005:
+			printf("You don't have a friend request from '%s' \n", user);
+			break;
+		}
+	}
+	return;
 }
 
 void accChat(int sC, int check)

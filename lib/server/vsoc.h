@@ -72,6 +72,9 @@ int dbRequestCheckCount(char *);
 char *dbRequestCheck(char *);
 void dbRequestSend(char *, char *, char *, char *);
 int dbFriendCheck(char *, char *);
+void dbFriendInsert(char *, char *, char *);
+char *dbGetFTypeFromReq(char *, char *);
+void dbDeleteRequestType(char *, char *, char *);
 // end_functii server
 
 #endif
