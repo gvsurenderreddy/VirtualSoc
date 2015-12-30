@@ -101,6 +101,7 @@ void help(int check)
 int login(int sC, int check, char *user)
 {
 	char id[33], password[33], *invPass;
+
 	int resultAnswer = -1;
 	memset(id, 0, 33);
 	memset(password, 0, 33);
@@ -436,15 +437,113 @@ void addPost(int sC, int check)
 
 void setProfile(int sC, int check)
 {
-	//int resultAnswer = -1;
+	int resultAnswer = -1;
+	char option[3], fullname[65], sex[5], about[513], type[17], password[33], *invPass;
+	memset(option, 0, 3);
+	memset(fullname, 0, 65);
+	memset(sex, 0, 5);
+	memset(about, 0, 513);
+	memset(type, 0, 17);
+	memset(password, 0, 33);
 
-	write(sC, &check, sizeof(int));
+	safeWrite(sC, &check, sizeof(int));
 	if (check == 0)
 	{
 		printf("You're not logged in ! \n");
 	}
 	else
 	{
+
+		safeStdinRead("Choose what you'd like to modify:\n 1-Fullname\n 2-Sex\n 3-About\n 4-Password\n 5-Account Type\n\n", option, 3);
+
+		safePrefWrite(sC, option);
+
+		if (strlen(option) > 1)
+		{
+			printf("Invalid option !\n");
+			return;
+		}
+
+		switch (atoi(option))
+		{
+		case 1:
+			safeStdinRead("Fullname (10-64 ch. alpha-numerical and spaces): ", fullname, 65);
+			safePrefWrite(sC, fullname);
+			break;
+
+		case 2:
+			safeStdinRead("Sex (F/M): ", sex, 5);
+			safePrefWrite(sC, sex);
+			break;
+
+		case 3:
+			safeStdinRead("About (10-512 ch.): ", about, 513);
+			safePrefWrite(sC, about);
+			break;
+
+		case 4:
+			invPass = getpass("Password (10-32 ch.): ");
+			strcpy(password, invPass);
+			safePrefWrite(sC, password);
+			break;
+
+		case 5:
+			safeStdinRead("Profile type (public/private):", type, 17);
+			safePrefWrite(sC, type);
+			break;
+
+		default:
+			printf("Invalid option !\n");
+			return;
+		}
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 88:
+			switch (atoi(option))
+			{
+			case 1:
+				printf("Fullname changed to '%s' !\n", fullname);
+				break;
+			case 2:
+				printf("Sex changed to '%s' \n", sex);
+				break;
+			case 3:
+				printf("Description changed to : %s \n", about);
+				break;
+			case 4:
+				printf("Password changed !\n");
+				break;
+			case 5:
+				printf("Profile type changed to %s !\n", type);
+				break;
+			}
+			break;
+
+		case 801:
+			printf("Full name not long enough or invalid ! (min. 10 "
+				   "ch, only "
+				   "alphanumerical and spaces)\n");
+			break;
+
+		case 803:
+			printf("Invalid sex ! (F/M)\n");
+			break;
+
+		case 804:
+			printf("Description not long enough ! (min. 10 ch)\n");
+			break;
+
+		case 805:
+			printf("Password not long enough or invalid ! (min. 10 ch)\n");
+			break;
+
+		case 806:
+			printf("Invalid Profile Type ! (private/public)\n");
+			break;
+		}
 	}
 }
 

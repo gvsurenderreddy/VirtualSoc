@@ -86,6 +86,7 @@ void dbFriends(char *, int, int);
 int dbOnlineCount(char *);
 void dbOnline(char *, int, int);
 void dbInsertPost(char *, char *, char *);
+void dbSetProfile(char *, char *, char *);
 // end_functii server
 
 #endif

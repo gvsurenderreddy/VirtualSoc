@@ -139,7 +139,7 @@ void register_now(int sC)
 
 	memset(id, 0, 33);
 	memset(password, 0, 33);
-	memset(fullname, 0, 33);
+	memset(fullname, 0, 65);
 	memset(sex, 0, 5);
 	memset(about, 0, 33);
 	memset(type, 0, 33);
@@ -409,18 +409,115 @@ void addPost(int sC, char *currentUser)
 
 void setProfile(int sC, char *currentUser)
 {
-	//int resultAnswer = 88;
-	int check;
-	read(sC, &check, sizeof(int));
+	int resultAnswer = 88;
+	char option[3], fullname[65], sex[5], about[513], type[17], password[33];
+	memset(option, 0, 3);
+	memset(fullname, 0, 65);
+	memset(sex, 0, 5);
+	memset(about, 0, 513);
+	memset(type, 0, 17);
+	memset(password, 0, 33);
+
+	int check, i;
+	safeRead(sC, &check, sizeof(int));
 	if (check == 0)
 	{
 		return;
 	}
 	else
 	{
+		safePrefRead(sC, option);
+
+		if (strlen(option) > 1)
+		{
+			return;
+		}
+
+		switch (atoi(option))
+		{
+		case 1:
+			safePrefRead(sC, fullname);
+			printf("Fullnaame citit: '%s'\n", fullname);
+
+			if (strlen(fullname) < 10)
+			{
+				resultAnswer = 801;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+			for (i = 0; i < strlen(fullname); i++)
+			{
+				if (!(fullname[i] >= 'a' && fullname[i] <= 'z'))
+					if (!(fullname[i] >= 'A' && fullname[i] <= 'Z'))
+						if (!(fullname[i] >= '0' && fullname[i] <= '9'))
+							if (!(fullname[i] == ' ' || fullname[i] == '.' || fullname[i] == '-'))
+							{
+								resultAnswer = 801;
+								safeWrite(sC, &resultAnswer, sizeof(int));
+								return;
+							}
+			}
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			dbSetProfile(currentUser, fullname, "fullname");
+			return;
+
+		case 2:
+			safePrefRead(sC, sex);
+
+			if ((strlen(sex) != 1) || (strlen(sex) == 1 && sex[0] != 'F' && sex[0] != 'M'))
+			{
+				resultAnswer = 803;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			dbSetProfile(currentUser, sex, "sex");
+			return;
+
+		case 3:
+			safePrefRead(sC, about);
+
+			if (strlen(about) < 10 || strchr(about, '\"') != NULL)
+			{
+				resultAnswer = 804;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			dbSetProfile(currentUser, about, "about");
+			return;
+
+		case 4:
+			safePrefRead(sC, password);
+
+			if (strlen(password) < 10 || strchr(password, '\"') != NULL)
+			{
+				resultAnswer = 805;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			dbSetProfile(currentUser, password, "pass");
+			return;
+
+		case 5:
+			safePrefRead(sC, type);
+
+			if (strcmp(type, "private") != 0 && strcmp(type, "public") != 0)
+			{
+				resultAnswer = 806;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			dbSetProfile(currentUser, type, "type");
+			return;
+		}
 	}
 	return;
 }
+
+
 
 void checkReq(int sC, char *currentUser)
 {
@@ -510,11 +607,14 @@ void accFriend(int sC, char *currentUser)
 			return;
 		}
 
+		char *getFType = dbGetFTypeFromReq(user, currentUser);
 		dbInsertFriend(currentUser, user, friendType);
-		dbInsertFriend(user, currentUser, dbGetFTypeFromReq(user, currentUser));
+		dbInsertFriend(user, currentUser, getFType);
 		dbDeleteRequestType(currentUser, user, "1");
 		dbDeleteRequestType(user, currentUser, "1");
 		write(sC, &resultAnswer, sizeof(int));
+
+		free(getFType);
 		return;
 	}
 	return;

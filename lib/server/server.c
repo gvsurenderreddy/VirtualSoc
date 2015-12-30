@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
-	rc = sqlite3_open("vsoc.db", &db);
+	int rc = sqlite3_open("vsoc.db", &db);
 
 	if (rc)
 	{
@@ -54,10 +54,11 @@ int main(int argc, char *argv[])
 
 		printf("[server]Waiting at port %d \n", PORT);
 		fflush(stdout);
+		thData *td; // initial in while, ptr free
 		while (1)
 		{
 			int socketClient;
-			thData *td;
+
 			int length = sizeof(from);
 
 			if ((socketClient = accept(socketConnect, (struct sockaddr *)&from, (socklen_t * restrict) & length)) < 0)
@@ -77,7 +78,10 @@ int main(int argc, char *argv[])
 				perror("[server]Could not create thread !\n");
 			}
 		} // while - connection
-	}
+		free(td);
+		sqlite3_close(db);
+		return 0;
+	} //end of normal mode
 
 	if (atoi(argv[1]) == 0)
 	{ // debugging mode
@@ -88,8 +92,6 @@ int main(int argc, char *argv[])
 		sqlite3_close(db);
 		return 0;
 	}
-	sqlite3_close(db);
-	return 0;
 }
 
 static void *treat(void *arg)

@@ -96,8 +96,10 @@ int dbRegCheckUser(char *ID)
 		fprintf(stdout, "dbRegCheckUseR:Succes \n");
 	}
 
+	int count = atoi((char *)&data);
 	free(sql);
-	return atoi((char *)&data);
+
+	return count;
 }
 
 int dbLogCheckUser(char *ID)
@@ -121,9 +123,10 @@ int dbLogCheckUser(char *ID)
 		fprintf(stdout, "dbLogCheckUser:Succes \n");
 	}
 
+	int count = atoi((char *)&data);
 	free(sql);
-	// printf("dbLogCheckUser:%d\n", atoi((char *)&data));
-	return atoi((char *)&data);
+
+	return count;
 }
 
 int dbLogCheck(char *ID, char *PASS)
@@ -147,9 +150,11 @@ int dbLogCheck(char *ID, char *PASS)
 	{
 		fprintf(stdout, "dbLogCheck:Succes \n");
 	}
-	// printf("dbLogCheck:%d\n", atoi((char *)&data));
+
+	int count = atoi((char *)&data);
 	free(sql);
-	return atoi((char *)&data);
+
+	return count;
 }
 
 int dbSetOnline(char *ID)
@@ -172,8 +177,8 @@ int dbSetOnline(char *ID)
 	}
 
 	fprintf(stdout, "dbSetOnline:Succes \n");
-
 	free(sql);
+
 	return 1;
 }
 
@@ -196,6 +201,7 @@ void dbSetOffline(char *ID)
 	{
 		fprintf(stdout, "dbSetOffline:Succes \n");
 	}
+
 	free(sql);
 }
 
@@ -218,6 +224,7 @@ void dbForceQuit(void)
 	{
 		fprintf(stdout, "dbForceQuit:Succes \n");
 	}
+
 	free(sql);
 }
 
@@ -242,8 +249,10 @@ int dbRequestCheckType(char *ID1, char *ID2, char *type)
 		fprintf(stdout, "dbRequestCheckType %s :Succes \n", type);
 	}
 
+	int count = atoi((char *)&data);
 	free(sql);
-	return atoi((char *)&data);
+
+	return count;
 }
 
 
@@ -268,8 +277,10 @@ int dbFriendCheck(char *ID1, char *ID2)
 		fprintf(stdout, "dbFriendCheck:Succes \n");
 	}
 
+	int count = atoi((char *)&data);
 	free(sql);
-	return atoi((char *)&data);
+
+	return count;
 }
 
 void dbRequestSend(char *ID1, char *ID2, char *type, char *friendtype)
@@ -317,9 +328,10 @@ int dbRequestCheckCount(char *ID)
 		fprintf(stdout, "dbRequestCheckCount:Succes \n");
 	}
 
+	int count = atoi((char *)&data);
 	free(sql);
 
-	return atoi((char *)&data);
+	return count;
 }
 
 
@@ -399,7 +411,6 @@ char *dbGetFTypeFromReq(char *ID1, char *ID2)
 
 	free(sql);
 
-	//printf("friendtype: %s\n", &data);
 	return data;
 }
 
@@ -435,10 +446,9 @@ int dbFriendsCount(char *ID)
 	sprintf(sql, "SELECT COUNT(*) FROM FRIENDS WHERE owner=\"%s\";", ID);
 
 	char *data;
-	data = calloc(5, sizeof(char));
 
 	/* Execute SQL statement */
-	rc = sqlite3_exec(db, sql, (void *)cbSingle, data, &zErrMsg);
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbFriendsCount:Error: %s\n", zErrMsg);
@@ -449,9 +459,10 @@ int dbFriendsCount(char *ID)
 		fprintf(stdout, "dbFriendsCount:Succes \n");
 	}
 
+	int count = atoi((char *)&data);
 	free(sql);
 
-	return atoi(data);
+	return count;
 }
 
 void dbFriends(char *ID, int sC, int length)
@@ -503,9 +514,13 @@ int dbOnlineCount(char *ID)
 		fprintf(stdout, "dbOnlineCount:Succes \n");
 	}
 
+
+
+	int count = atoi((char *)&data);
 	free(sql);
 
-	return atoi((char *)&data);
+	return count;
+	;
 }
 
 void dbOnline(char *ID, int sC, int length)
@@ -538,7 +553,7 @@ void dbOnline(char *ID, int sC, int length)
 
 void dbInsertPost(char *ID, char *post, char *posttype)
 {
-	//intoarce numarul de prieteni online a lui ID
+	//insereaza postarea POST in POSTS de tipul POSTTYPE, pentru userul ID
 	char *sql;
 	sql = (char *)calloc(70 + strlen(ID) + strlen(post) + strlen(posttype), sizeof(char));
 	sprintf(sql, "INSERT INTO POSTS(user,post,type) VALUES (\"%s\",\"%s\",\"%s\");", ID, post, posttype);
@@ -553,6 +568,30 @@ void dbInsertPost(char *ID, char *post, char *posttype)
 	else
 	{
 		fprintf(stdout, "dbInsertPost:Succes \n");
+	}
+
+	free(sql);
+
+	return;
+}
+
+void dbSetProfile(char *ID, char *value, char *col)
+{
+	//schimba in atributul COL valoare in VALUE pentru userul ID
+	char *sql;
+	sql = (char *)calloc(70 + strlen(ID) + strlen(value) + strlen(col), sizeof(char));
+	sprintf(sql, "UPDATE users SET %s=\"%s\" WHERE ID=\"%s\";", col, value, ID);
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbSetProfile:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbSetProfile:Succes \n");
 	}
 
 	free(sql);
