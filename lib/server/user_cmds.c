@@ -327,8 +327,7 @@ void setProfile(int sC, char *currentUser)
 
 void checkReq(int sC, char *currentUser)
 {
-	int resultAnswer = 99, check, i, last = 0;
-	char singleRequest[40], *requests;
+	int resultAnswer = 99, check;
 
 	read(sC, &check, sizeof(int));
 	if (check == 0)
@@ -338,6 +337,7 @@ void checkReq(int sC, char *currentUser)
 	else
 	{
 		int requestsCount = dbRequestCheckCount(currentUser);
+
 		if (requestsCount == 0)
 		{
 			resultAnswer = 901;
@@ -347,19 +347,7 @@ void checkReq(int sC, char *currentUser)
 		write(sC, &resultAnswer, sizeof(int));
 		write(sC, &requestsCount, sizeof(int));
 
-		requests = dbRequestCheck(currentUser);
-
-		for (i = 0; i < strlen(requests); i++)
-		{
-			if (requests[i] == ' ')
-			{
-				memset(singleRequest, 0, 40);
-				strncpy(singleRequest, requests + last, i - last);
-				singleRequest[i - last] = 0;
-				last = i + 1;
-				write(sC, singleRequest, sizeof(singleRequest));
-			}
-		}
+		dbRequestCheck(currentUser, sC, 35);
 	}
 	return;
 }
@@ -439,15 +427,105 @@ void accFriend(int sC, char *currentUser)
 
 void accChat(int sC, char *currentUser)
 {
+	//11
+	return;
 }
 
-void quit(int sC, char *client)
+void friends(int sC, char *currentUser)
+{
+	int resultAnswer = 1212, check;
+	;
+	char user[33];
+	memset(user, 0, 33);
+
+	read(sC, &check, sizeof(int));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		read(sC, user, sizeof(user));
+
+
+		if (strchr(user, '\"') != NULL)
+		{
+			resultAnswer = 1201;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbLogCheckUser(user) == 0)
+		{
+			resultAnswer = 1201;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbFriendCheck(currentUser, user) == 0 && strcmp(currentUser, user) != 0)
+		{
+			resultAnswer = 1202;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		int friendsCount = dbFriendsCount(user);
+
+		if (friendsCount == 0)
+		{
+			resultAnswer = 1203;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+
+
+		write(sC, &resultAnswer, sizeof(int));
+		write(sC, &friendsCount, sizeof(int));
+
+		dbFriends(user, sC, 35);
+	}
+
+	return;
+}
+
+void online(int sC, char *currentUser)
+{
+	int resultAnswer = 1313, check, onlineCount;
+
+	read(sC, &check, sizeof(int));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		onlineCount = dbOnlineCount(currentUser);
+
+		if (onlineCount == 0)
+		{
+			resultAnswer = 1301;
+			write(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		write(sC, &resultAnswer, sizeof(int));
+		write(sC, &onlineCount, sizeof(int));
+
+		dbOnline(currentUser, sC, 33);
+	}
+	return;
+}
+
+void quit(int sC, char *currentUser)
 {
 	int check;
 	read(sC, &check, sizeof(int));
 	if (check == 1)
 	{
-		dbSetOffline(client);
+		dbSetOffline(currentUser);
 	}
 	return;
 }
@@ -481,60 +559,56 @@ void answer(void *arg)
 		switch (clientCommand)
 		{
 		case 0:
-		{
 			quit(tdL.client, clientID);
 			break;
-		}
+
 		case 1:
-		{
 			login(tdL.client, clientID);
 			break;
-		}
+
 		case 2:
-		{
 			register_now(tdL.client);
 			break;
-		}
+
 		case 4:
-		{
 			viewProfile(tdL.client);
 			break;
-		}
+
 		case 5:
-		{
 			logout(tdL.client, clientID);
 			break;
-		}
+
 		case 6:
-		{
 			addFriend(tdL.client, clientID);
 			break;
-		}
+
 		case 7:
-		{
 			addPost(tdL.client);
 			break;
-		}
+
 		case 8:
-		{
 			setProfile(tdL.client, clientID);
 			break;
-		}
+
 		case 9:
-		{
 			checkReq(tdL.client, clientID);
 			break;
-		}
+
 		case 10:
-		{
 			accFriend(tdL.client, clientID);
 			break;
-		}
-		case 11:
-		{
-			accChat(tdL.client, clientID);
+
+		//case 11:
+		//	accChat(tdL.client, clientID);
+		//	break;
+
+		case 12:
+			friends(tdL.client, clientID);
 			break;
-		}
+
+		case 13:
+			online(tdL.client, clientID);
+			break;
 		}
 		//
 		/*

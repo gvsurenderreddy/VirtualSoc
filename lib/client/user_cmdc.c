@@ -14,7 +14,7 @@ void help(int check)
 {
 	printf("\n Available commands :\n /login\n /logout\n /register\n "
 		   "/quit\n "
-		   "/viewProfile\n /addFriend\n /addPost\n /checkReq\n /accFriend\n\n");
+		   "/viewProfile\n /addFriend\n /addPost\n /checkReq\n /accFriend\n/friends\n/online\n\n");
 }
 
 int login(int sC, int check, char *user)
@@ -382,7 +382,7 @@ void setProfile(int sC, int check)
 void checkReq(int sC, int check)
 {
 	int resultAnswer = -1, requestsCount;
-	char singleRequest[40], type;
+	char request[40], type;
 	write(sC, &check, sizeof(int));
 	if (check == 0)
 	{
@@ -407,21 +407,24 @@ void checkReq(int sC, int check)
 
 			while (requestsCount != 0)
 			{
-				memset(singleRequest, 0, sizeof(singleRequest));
-				read(sC, singleRequest, sizeof(singleRequest));
+				memset(request, 0, sizeof(request));
+				read(sC, request, sizeof(request));
+
+				type = request[strlen(request) - 1];
+				request[strlen(request) - 1] = 0;
+
+				switch (type)
+				{
+				case '1':
+					printf("'%s' wants to be your friend ! (/accFriend to accept him)\n", request);
+					break;
+
+				case '2':
+
+					printf("'%s' wants to chat with you ! (/accChat to start chatting )\n", request);
+					break;
+				}
 				requestsCount--;
-
-				type = singleRequest[strlen(singleRequest) - 1];
-				singleRequest[strlen(singleRequest) - 1] = 0;
-
-				if (type == '1')
-				{
-					printf("'%s' wants to be your friend ! (/accFriend to accept him)\n", singleRequest);
-				}
-				if (type == '2')
-				{
-					printf("'%s' wants to chat with you ! (/accChat to start chatting )\n", singleRequest);
-				}
 			}
 
 			return;
@@ -508,6 +511,129 @@ void accFriend(int sC, int check)
 
 void accChat(int sC, int check)
 {
+	//11
+	return;
+}
+
+void friends(int sC, int check)
+{
+	int resultAnswer = -1, friendsCount;
+	char user[33], friend[35], friendtype;
+	memset(user, 0, 33);
+	memset(friend, 0, 35);
+
+	write(sC, &check, sizeof(int));
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+	}
+	else
+	{
+		printf("Friends of:");
+		fflush(stdout);
+		myRead(user, 33);
+
+		write(sC, user, sizeof(user));
+
+		read(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 1201:
+			printf("'%s' doesn't exist in our database / invalid user !\n", user);
+			break;
+
+		case 1202:
+			printf("'%s' is not your friend ! You cannot view his friends !\n", user);
+			break;
+
+		case 1203:
+			printf("'%s' has no friends !\n", user);
+			break;
+
+		case 1212:
+			read(sC, &friendsCount, sizeof(int));
+			printf("\n\n'%s' has %d friends:\n\n", user, friendsCount);
+
+			while (friendsCount != 0)
+			{
+				memset(friend, 0, 35);
+				read(sC, friend, sizeof(friend));
+
+
+				friendtype = friend[strlen(friend) - 1];
+				friend[strlen(friend) - 1] = 0;
+				switch (friendtype)
+				{
+				case '1':
+					printf("%s	[friends] \n", friend);
+					break;
+				case '2':
+					printf("%s	[close-friends] \n", friend);
+					break;
+				case '3':
+					printf("%s	[family] \n", friend);
+					break;
+				}
+				friendsCount--;
+			}
+			break;
+		}
+	}
+	return;
+}
+
+void online(int sC, int check)
+{
+	int resultAnswer = -1, onlineCount;
+	char online[35], friendtype;
+
+	write(sC, &check, sizeof(int));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+	}
+	else
+	{
+		read(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 1301:
+			printf("There are NO friends online at the moment !\n");
+			return;
+
+		case 1313:
+			read(sC, &onlineCount, sizeof(int));
+			printf("\n%d friends online :\n\n", onlineCount);
+
+			while (onlineCount != 0)
+			{
+				memset(online, 0, 35);
+				read(sC, online, sizeof(online));
+
+				friendtype = online[strlen(online) - 1];
+				online[strlen(online) - 1] = 0;
+				switch (friendtype)
+				{
+				case '1':
+					printf("%s	[friends] \n", online);
+					break;
+				case '2':
+					printf("%s	[close-friends] \n", online);
+					break;
+				case '3':
+					printf("%s	[family] \n", online);
+					break;
+				}
+				onlineCount--;
+			}
+			printf("\n");
+			return;
+		}
+	}
+	return;
 }
 
 int encodeCommand(const char *clientCommandChar)
@@ -536,6 +662,10 @@ int encodeCommand(const char *clientCommandChar)
 		return 10;
 	if (strcmp(clientCommandChar, "/accChat") == 0)
 		return 11;
+	if (strcmp(clientCommandChar, "/friends") == 0)
+		return 12;
+	if (strcmp(clientCommandChar, "/online") == 0)
+		return 13;
 	return -1;
 }
 

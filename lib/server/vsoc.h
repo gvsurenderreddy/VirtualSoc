@@ -51,14 +51,16 @@ void setProfile(int, char *);
 void checkReq(int, char *);
 void accFriend(int, char *);
 void accChat(int, char *);
+void friends(int, char *);
 void quit(int, char *);
 void forcequit(void);
 void answer(void *);
 
 //--functii server DB SQLITE3--//
 int callback(void *, int, char **, char **);
-int cbCheck(char *, int, char **, char **);
-int cbSelect(char *, int, char **, char **);
+int cbSingle(char *, int, char **, char **);
+int cbDynamicSender(int *, int, char **, char **);
+
 void dbInsertUser(char *, char *, char *, char *, char *, char *);
 int dbRegCheckUser(char *);
 int dbLogCheckUser(char *);
@@ -69,12 +71,15 @@ void dbSetOffline(char *);
 void dbForceQuit(void);
 int dbRequestCheckType(char *, char *, char *);
 int dbRequestCheckCount(char *);
-char *dbRequestCheck(char *);
+void dbRequestCheck(char *, int, int);
 void dbRequestSend(char *, char *, char *, char *);
 int dbFriendCheck(char *, char *);
 void dbFriendInsert(char *, char *, char *);
 char *dbGetFTypeFromReq(char *, char *);
 void dbDeleteRequestType(char *, char *, char *);
+int dbFriendsCount(char *);
+void dbFriends(char *, int, int);
+int dbOnlineCount(char *);
 // end_functii server
 
 #endif

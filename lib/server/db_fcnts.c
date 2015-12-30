@@ -10,7 +10,6 @@ int callback(void *data, int argc, char **argv, char **azColName)
 	//callback - default
 	int i;
 
-
 	for (i = 0; i < argc; i++)
 	{
 		printf("'%s' = '%s'\n", azColName[i], argv[i] ? argv[i] : "NULL");
@@ -20,7 +19,7 @@ int callback(void *data, int argc, char **argv, char **azColName)
 }
 
 
-int cbCheck(char *data, int argc, char **argv, char **azColName)
+int cbSingle(char *data, int argc, char **argv, char **azColName)
 {
 	//callback - numarator de linii, intoarce mereu o singura linie;
 	// 		   - multiple utilizari
@@ -28,22 +27,26 @@ int cbCheck(char *data, int argc, char **argv, char **azColName)
 	return 0;
 }
 
-int cbSelect(char *data, int argc, char **argv, char **azColName)
+
+int cbDynamicSender(int *data, int argc, char **argv, char **azColName)
 {
-	//callback - intoarce interogari
+	//callback - intoarce interogari direct la socket > eficient,dinamic
 	int i;
 
-	printf("apelata!\n");
+	char *line;
+	line = (char *)calloc(data[1], sizeof(char));
 
 	for (i = 0; i < argc; i++)
 	{
-		printf("'%s' = '%s'	", azColName[i], argv[i] ? argv[i] : "NULL");
-		strcat(results, argv[i]);
+		strcat(line, argv[i]);
 	}
-	strcat(results, " ");
-	printf("\n");
+
+	write(data[0], line, 35);
+	free(line);
+
 	return 0;
 }
+
 
 void dbInsertUser(char *ID, char *PASS, char *FULLNAME, char *SEX, char *ABOUT,
 				  char *TYPE)
@@ -81,7 +84,7 @@ int dbRegCheckUser(char *ID)
 	char *data;
 
 	/* Execute SQL statement */
-	rc = sqlite3_exec(db, sql, cbCheck, &data, &zErrMsg);
+	rc = sqlite3_exec(db, sql, cbSingle, &data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbRegCheckUser:Error: %s\n", zErrMsg);
@@ -98,7 +101,7 @@ int dbRegCheckUser(char *ID)
 
 int dbLogCheckUser(char *ID)
 {
-	//verifica daca exista un user cu (exact!)ID in USERS, pentru logare si adaugare prieteni
+	//verifica daca exista un user cu (exact!)ID in USERS, pentru logare si adaugare prieteni etc.
 	char *sql;
 	sql = (char *)calloc(70 + strlen(ID), sizeof(char));
 	sprintf(sql, "SELECT COUNT(*) FROM USERS WHERE ID=\"%s\";", ID);
@@ -106,7 +109,7 @@ int dbLogCheckUser(char *ID)
 	char *data;
 
 	/* Execute SQL statement */
-	rc = sqlite3_exec(db, sql, cbCheck, &data, &zErrMsg);
+	rc = sqlite3_exec(db, sql, cbSingle, &data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbLogCheckUser:Error: %s\n", zErrMsg);
@@ -133,7 +136,7 @@ int dbLogCheck(char *ID, char *PASS)
 	char *data;
 
 	/* Execute SQL statement */
-	rc = sqlite3_exec(db, sql, cbCheck, &data, &zErrMsg);
+	rc = sqlite3_exec(db, sql, cbSingle, &data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbLogCheck:Error: %s\n", zErrMsg);
@@ -227,7 +230,7 @@ int dbRequestCheckType(char *ID1, char *ID2, char *type)
 	char *data;
 
 	/* Execute SQL statement */
-	rc = sqlite3_exec(db, sql, cbCheck, &data, &zErrMsg);
+	rc = sqlite3_exec(db, sql, cbSingle, &data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbRequestCheckType:Error: %s\n", zErrMsg);
@@ -253,7 +256,7 @@ int dbFriendCheck(char *ID1, char *ID2)
 	char *data;
 
 	/* Execute SQL statement */
-	rc = sqlite3_exec(db, sql, cbCheck, &data, &zErrMsg);
+	rc = sqlite3_exec(db, sql, cbSingle, &data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbFriendCheck:Error: %s\n", zErrMsg);
@@ -302,7 +305,7 @@ int dbRequestCheckCount(char *ID)
 	char *data;
 
 	/* Execute SQL statement */
-	rc = sqlite3_exec(db, sql, cbCheck, &data, &zErrMsg);
+	rc = sqlite3_exec(db, sql, cbSingle, &data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbRequestCheckCount:Error: %s\n", zErrMsg);
@@ -314,24 +317,25 @@ int dbRequestCheckCount(char *ID)
 	}
 
 	free(sql);
-	printf("numaru de cereri a lui '%s' : %d\n", ID, atoi((char *)&data));
-	fflush(stdout);
+
 	return atoi((char *)&data);
 }
 
 
-char *dbRequestCheck(char *ID)
+void dbRequestCheck(char *ID, int sC, int length)
 {
-	//verifica daca ID are cereri de tip TYPE
+	//intoarce requesturile primite de ID catre sc
 	char *sql;
 	sql = (char *)calloc(150 + strlen(ID), sizeof(char));
 	sprintf(sql, "SELECT fromUser,type FROM REQUESTS WHERE toUser=\"%s\";", ID);
 
-	memset(results, 0, sizeof(results));
+	int data[3];
+	data[0] = sC;
+	data[1] = length;
+	data[2] = NULL;
 
-	//TODO: returneaza cumva interogarile !
 	/* Execute SQL statement */
-	rc = sqlite3_exec(db, sql, cbSelect, NULL, &zErrMsg);
+	rc = sqlite3_exec(db, sql, cbDynamicSender, data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbRequestCheck:Error: %s\n", zErrMsg);
@@ -344,9 +348,7 @@ char *dbRequestCheck(char *ID)
 
 	free(sql);
 
-	//printf("results:%s", results);
-	fflush(stdout);
-	return results;
+	return;
 }
 
 void dbFriendInsert(char *ID1, char *ID2, char *friendtype)
@@ -383,7 +385,7 @@ char *dbGetFTypeFromReq(char *ID1, char *ID2)
 	char *data;
 
 	/* Execute SQL statement */
-	rc = sqlite3_exec(db, sql, cbCheck, &data, &zErrMsg);
+	rc = sqlite3_exec(db, sql, cbSingle, &data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbGetFTypeFromReq:Error: %s\n", zErrMsg);
@@ -419,6 +421,114 @@ void dbDeleteRequestType(char *ID1, char *ID2, char *type)
 	{
 		fprintf(stdout, "dbDeleteRequestType:Succes \n");
 	}
+	free(sql);
+
+	return;
+}
+
+int dbFriendsCount(char *ID)
+{
+	//intoarce numarul de prieteni a lui ID
+	char *sql;
+	sql = (char *)calloc(50 + strlen(ID), sizeof(char));
+	sprintf(sql, "SELECT COUNT(*) FROM FRIENDS WHERE owner=\"%s\";", ID);
+
+	char *data;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbFriendsCount:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbFriendsCount :Succes \n");
+	}
+
+	free(sql);
+
+	return atoi((char *)&data);
+}
+
+void dbFriends(char *ID, int sC, int length)
+{
+	//intoarce prietenii lui ID / paseaza lui cbSmartFriends desc. sC
+	char *sql;
+	sql = (char *)calloc(60 + strlen(ID), sizeof(char));
+	sprintf(sql, "SELECT friend,type FROM FRIENDS WHERE owner=\"%s\";", ID);
+
+	int data[3];
+	data[0] = sC;
+	data[1] = length;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, cbDynamicSender, data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbFriends:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbFriends :Succes \n");
+	}
+
+	free(sql);
+
+	return;
+}
+
+int dbOnlineCount(char *ID)
+{
+	//intoarce numarul de prieteni online a lui ID
+	char *sql;
+	sql = (char *)calloc(90 + strlen(ID), sizeof(char));
+	sprintf(sql, "SELECT COUNT(*) FROM FRIENDS F, ONLINE O WHERE F.friend=O.id AND F.owner = \"%s\";", ID);
+
+	char *data;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbOnlineCount:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbOnlineCount :Succes \n");
+	}
+
+	free(sql);
+
+	return atoi((char *)&data);
+}
+
+void dbOnline(char *ID, int sC, int length)
+{
+	//intoarce numarul de prieteni online a lui ID
+	char *sql;
+	sql = (char *)calloc(110 + strlen(ID), sizeof(char));
+	sprintf(sql, "SELECT F.friend,F.type FROM FRIENDS F, ONLINE O WHERE F.friend = O.id AND F.owner = \"%s\";", ID);
+
+	int data[3];
+	data[0] = sC;
+	data[1] = length;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, cbDynamicSender, data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbOnlineCount:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbOnlineCount :Succes \n");
+	}
+
 	free(sql);
 
 	return;

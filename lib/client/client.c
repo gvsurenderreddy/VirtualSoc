@@ -83,26 +83,57 @@ int main(int argc, char *argv[])
 			quit(socketConnect, logged);
 			break;
 		}
-		if (clientCommand == 1)
+
+		switch (clientCommand)
+		{
+		case 1:
 			logged = login(socketConnect, logged, currentID);
-		if (clientCommand == 2)
+			break;
+
+		case 2:
 			register_now(socketConnect, logged);
-		if (clientCommand == 4)
+			break;
+
+		case 4:
 			viewProfile(socketConnect, logged);
-		if (clientCommand == 5)
+			break;
+
+		case 5:
 			logged = logout(socketConnect, logged, currentID);
-		if (clientCommand == 6)
+			break;
+
+		case 6:
 			addFriend(socketConnect, logged);
-		if (clientCommand == 7)
+			break;
+
+		case 7:
 			addPost(socketConnect, logged);
-		if (clientCommand == 8)
+			break;
+
+		case 8:
 			setProfile(socketConnect, logged);
-		if (clientCommand == 9)
+			break;
+
+		case 9:
 			checkReq(socketConnect, logged);
-		if (clientCommand == 10)
+			break;
+
+		case 10:
 			accFriend(socketConnect, logged);
-		//if (clientCommand == 11)
+			break;
+
+		//case 11:
 		//	accChat(socketConnect, logged);
+		//break;
+
+		case 12:
+			friends(socketConnect, logged);
+			break;
+
+		case 13:
+			online(socketConnect, logged);
+			break;
+		}
 		/*  pid_t readSlave;
 if ((readSlave = fork()) < 0) {
 perror("[client]Fork error ! fork(). \n");

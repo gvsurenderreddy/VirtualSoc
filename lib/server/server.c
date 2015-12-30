@@ -80,9 +80,7 @@ int main(int argc, char *argv[])
 	if (atoi(argv[1]) == 0)
 	{ // debugging mode
 		printf("[server]Debug Mode\n");
-		printf("tip : '%s' \n", dbGetFTypeFromReq("verescu321", "popescu123"));
-		dbFriendInsert("verescu321", "popescu123",
-					   dbGetFTypeFromReq("verescu321", "popescu123"));
+
 		sqlite3_close(db);
 		return 0;
 	}
