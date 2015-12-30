@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	char currentID[33];
 	int logged = 0;
 	printf(RED "	Welcome to VirtualSoc ~ by Cristea Alexandru\n	/help  - "
-			   " syntax and available commands !\n" RESET);
+			   " syntax and available commands !\n\n\n" RESET);
 	while (1)
 	{
 
@@ -49,16 +49,17 @@ int main(int argc, char *argv[])
 			printf(GREEN "%s @ vSoc >>: " RESET, currentID);
 			fflush(stdout);
 		}
+
+
 		memset(clientCommandChar, 0, sizeof(clientCommandChar));
-
 		read(0, clientCommandChar, sizeof(clientCommandChar));
-
 		if (clientCommandChar[0] == '\n')
 		{
 			continue;
 		}
-
 		clientCommandChar[strlen(clientCommandChar) - 1] = 0;
+
+
 		clientCommand = encodeCommand(clientCommandChar);
 		if (clientCommand == -1)
 		{
@@ -122,9 +123,9 @@ int main(int argc, char *argv[])
 			accFriend(socketConnect, logged);
 			break;
 
-		//case 11:
-		//	accChat(socketConnect, logged);
-		//break;
+		case 11:
+			accChat(socketConnect, logged);
+			break;
 
 		case 12:
 			friends(socketConnect, logged);
@@ -134,26 +135,5 @@ int main(int argc, char *argv[])
 			online(socketConnect, logged);
 			break;
 		}
-		/*  pid_t readSlave;
-if ((readSlave = fork()) < 0) {
-perror("[client]Fork error ! fork(). \n");
-return errno;
-}
-if (readSlave == 0) {
-int serverResult;
-if (read(socketConnect, &serverResult,
-sizeof(int)) <= 0)
-{
-      perror("[client]Read error from server !
-\n");
-      return errno;
-}
-printf("[client]Result = %d \n", serverResult);
-exit(1);
-} // readSlave - client
-else {
-wait(NULL);
-
-} // main - client*/
 	}
 }

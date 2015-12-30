@@ -10,11 +10,67 @@ void myRead(char *text, int size)
 	text[strlen(text) - 1] = 0;
 }
 
+void safeStdinRead(const char *print, char *text, int size)
+{
+	fprintf(stdout, "%s", print);
+	fflush(stdout);
+
+	char buf[BUFSIZ];
+	fgets(buf, sizeof(buf), stdin);
+
+	strncpy(text, buf, (size_t)size);
+	text[size] = 0;
+	text[strlen(text) - 1] = 0;
+	return;
+}
+
+ssize_t prefRead(int sock, void *buffer)
+{
+	int length = strlen(buffer);
+
+	ssize_t nbytesW = read(sock, &length, sizeof(int));
+	if (nbytesW == -1)
+	{
+		perror("read() error for length ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	nbytesW = read(sock, buffer, length);
+	if (nbytesW == -1)
+	{
+		perror("read() error for data ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return length;
+}
+
+ssize_t prefWrite(int sock, const void *buffer)
+{
+	int length = strlen(buffer);
+
+	ssize_t nbytesW = write(sock, &length, sizeof(int));
+	if (nbytesW == -1)
+	{
+		perror("write() error for length ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	nbytesW = write(sock, buffer, length);
+	if (nbytesW == -1)
+	{
+		perror("write() error for data ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return length;
+}
+
 void help(int check)
 {
 	printf("\n Available commands :\n /login\n /logout\n /register\n "
 		   "/quit\n "
-		   "/viewProfile\n /addFriend\n /addPost\n /checkReq\n /accFriend\n/friends\n/online\n\n");
+		   "/viewProfile\n /addFriend\n /addPost\n /checkReq\n /accFriend\n /friends\n /online\n\n");
 }
 
 int login(int sC, int check, char *user)
@@ -32,9 +88,7 @@ int login(int sC, int check, char *user)
 	}
 	else
 	{
-		printf("ID: ");
-		fflush(stdout);
-		myRead(id, 33);
+		safeStdinRead("ID: ", id, 33);
 
 		invPass = getpass("Password: ");
 		strcpy(password, invPass);
@@ -74,6 +128,7 @@ int login(int sC, int check, char *user)
 		}
 		}
 	}
+	return 0;
 }
 
 void register_now(int sC, int check)
@@ -511,7 +566,18 @@ void accFriend(int sC, int check)
 
 void accChat(int sC, int check)
 {
-	//11
+	int resultAnswer = -1;
+
+	write(sC, &check, sizeof(int));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+	}
+	else
+	{
+	}
+
 	return;
 }
 
@@ -612,6 +678,7 @@ void online(int sC, int check)
 			{
 				memset(online, 0, 35);
 				read(sC, online, sizeof(online));
+				//prefRead(sC, online);
 
 				friendtype = online[strlen(online) - 1];
 				online[strlen(online) - 1] = 0;

@@ -5,7 +5,7 @@ static void *treat(void *arg);
 int main(int argc, char *argv[])
 {
 	signal(SIGINT, forcequit);
-	int nr, pid, i = 0;
+	int i = 0;
 	pthread_t th[100];
 	if (argc < 2)
 	{

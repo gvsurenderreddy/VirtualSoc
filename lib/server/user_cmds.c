@@ -1,5 +1,47 @@
 #include "vsoc.h"
 
+ssize_t prefRead(int sock, void *buffer)
+{
+	int length = strlen(buffer);
+
+	ssize_t nbytesW = read(sock, &length, sizeof(int));
+	if (nbytesW == -1)
+	{
+		perror("read() error for length ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	nbytesW = read(sock, buffer, length);
+	if (nbytesW == -1)
+	{
+		perror("read() error for data ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return length;
+}
+
+ssize_t prefWrite(int sock, const void *buffer)
+{
+	int length = strlen(buffer);
+
+	ssize_t nbytesW = write(sock, &length, sizeof(int));
+	if (nbytesW == -1)
+	{
+		perror("write() error for length ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	nbytesW = write(sock, buffer, length);
+	if (nbytesW == -1)
+	{
+		perror("write() error for data ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return length;
+}
+
 int createConnSocketR()
 {
 	int sd;
@@ -427,7 +469,17 @@ void accFriend(int sC, char *currentUser)
 
 void accChat(int sC, char *currentUser)
 {
-	//11
+	int resultAnswer = 1111, check;
+
+	read(sC, &check, sizeof(int));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+	}
 	return;
 }
 
@@ -530,19 +582,24 @@ void quit(int sC, char *currentUser)
 	return;
 }
 
+void forcequit(void)
+{
+	printf("[server] Force quit !\n");
+	dbForceQuit();
+	exit(0);
+}
+
 void answer(void *arg)
 {
 	struct thData tdL;
 	tdL = *((struct thData *)arg);
 
-	int clientCommand = -1, clientAnswer = -1, i = 0;
+	int clientCommand = -1;
 	char clientID[33];
 	memset(clientID, 0, 33);
-	// citire comanda
+
 	while (clientCommand != 0)
 	{
-
-		clientAnswer = -1;
 		if (read(tdL.client, &clientCommand, sizeof(int)) <= 0)
 		{
 			printf("[Thread %d]\n", tdL.idThread);
@@ -553,8 +610,6 @@ void answer(void *arg)
 		}
 
 		printf("[Thread %d]Received command : %d\n", tdL.idThread, clientCommand);
-
-		// operatie - comanda
 
 		switch (clientCommand)
 		{
@@ -598,9 +653,9 @@ void answer(void *arg)
 			accFriend(tdL.client, clientID);
 			break;
 
-		//case 11:
-		//	accChat(tdL.client, clientID);
-		//	break;
+		case 11:
+			accChat(tdL.client, clientID);
+			break;
 
 		case 12:
 			friends(tdL.client, clientID);
@@ -610,31 +665,5 @@ void answer(void *arg)
 			online(tdL.client, clientID);
 			break;
 		}
-		//
-		/*
-                  if (write(tdL.client, &clientAnswer,
-       sizeof(int)) <=
-       0) {
-                         printf("[Thread %d] ", tdL.idThread);
-                         perror("[Thread]Write error to
-       client.\n");
-                  }
-
-                  else
-                         printf("[Thread %d]Mesajul a fost
-       trasmis cu
-       succes.\n",
-                                tdL.idThread);
-                  printf("[Thread %d]Answer for command %d\n",
-       tdL.idThread,
-                         clientAnswer);*/
-		// raspuns comanda
 	}
-}
-
-void forcequit(void)
-{
-	printf("[server] Force quit !\n");
-	dbForceQuit();
-	exit(0);
 }

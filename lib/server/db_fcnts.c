@@ -2,7 +2,6 @@
 
 
 /* TYPE OF REQUESTS: 1-Add Friend, 2-Chat Invite */
-char results[50000];
 
 
 int callback(void *data, int argc, char **argv, char **azColName)
@@ -41,7 +40,9 @@ int cbDynamicSender(int *data, int argc, char **argv, char **azColName)
 		strcat(line, argv[i]);
 	}
 
+	//prefWrite(data[0], line);
 	write(data[0], line, 35);
+
 	free(line);
 
 	return 0;

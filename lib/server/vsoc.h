@@ -40,6 +40,8 @@ char *zErrMsg;
 // end_globare server
 
 // functii server
+ssize_t prefRead(int, void *);
+ssize_t prefWrite(int, const void *);
 int createConnSocketR();
 void register_now(int);
 void login(int, char *);
@@ -52,6 +54,7 @@ void checkReq(int, char *);
 void accFriend(int, char *);
 void accChat(int, char *);
 void friends(int, char *);
+void online(int, char *);
 void quit(int, char *);
 void forcequit(void);
 void answer(void *);
@@ -60,7 +63,6 @@ void answer(void *);
 int callback(void *, int, char **, char **);
 int cbSingle(char *, int, char **, char **);
 int cbDynamicSender(int *, int, char **, char **);
-
 void dbInsertUser(char *, char *, char *, char *, char *, char *);
 int dbRegCheckUser(char *);
 int dbLogCheckUser(char *);
@@ -80,6 +82,7 @@ void dbDeleteRequestType(char *, char *, char *);
 int dbFriendsCount(char *);
 void dbFriends(char *, int, int);
 int dbOnlineCount(char *);
+void dbOnline(char *, int, int);
 // end_functii server
 
 #endif
