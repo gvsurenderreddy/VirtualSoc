@@ -10,6 +10,31 @@ void myRead(char *text, int size)
 	text[strlen(text) - 1] = 0;
 }
 
+ssize_t safeRead(int sock, void *buffer, size_t length)
+{
+	ssize_t nbytesR = read(sock, buffer, length);
+
+	if (nbytesR == -1)
+	{
+		perror("read() error ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return length;
+}
+ssize_t safeWrite(int sock, const void *buffer, size_t length)
+{
+	ssize_t nbytesW = write(sock, buffer, length);
+
+	if (nbytesW == -1)
+	{
+		perror("read() error ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return length;
+}
+
 void safeStdinRead(const char *print, char *text, int size)
 {
 	fprintf(stdout, "%s", print);
@@ -24,7 +49,7 @@ void safeStdinRead(const char *print, char *text, int size)
 	return;
 }
 
-ssize_t prefRead(int sock, void *buffer)
+ssize_t safePrefRead(int sock, void *buffer)
 {
 	int length = strlen(buffer);
 
@@ -45,7 +70,7 @@ ssize_t prefRead(int sock, void *buffer)
 	return length;
 }
 
-ssize_t prefWrite(int sock, const void *buffer)
+ssize_t safePrefWrite(int sock, const void *buffer)
 {
 	int length = strlen(buffer);
 
@@ -372,53 +397,42 @@ void addFriend(int sC, int check)
 void addPost(int sC, int check)
 {
 	int resultAnswer = -1;
-	char post[257], postType[33];
-	memset(post, 0, 257);
-	memset(postType, 0, 33);
+	char post[513], posttype[5];
+	memset(post, 0, 513);
+	memset(posttype, 0, 5);
 
-	write(sC, &check, sizeof(int));
+	safeWrite(sC, &check, sizeof(int));
+
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return;
 	}
 	else
 	{
+		safeStdinRead("Post (10-512 ch.):", post, 513);
+		safeStdinRead("Type - 1(public) / 2(registered) / 3(friends) ", posttype, 5);
 
-		printf("Text:");
-		fflush(stdout);
-		myRead(post, 257);
+		safePrefWrite(sC, post);
+		safePrefWrite(sC, posttype);
 
-		printf("To - all (even not logged in) / pub (even not friend) "
-			   "/ frn (friends) / "
-			   "cfr (close friends) / fam (family) :");
-		fflush(stdout);
-		myRead(postType, 33);
-
-		write(sC, post, sizeof(post));
-		write(sC, postType, sizeof(postType));
-
-		read(sC, &resultAnswer, sizeof(int));
+		safeRead(sC, &resultAnswer, sizeof(int));
 
 		switch (resultAnswer)
 		{
 		case 77:
-		{
-			printf("Post added succesfully !\n");
+			printf("You've added the post succesfully !\n");
 			break;
-		}
 		case 701:
-		{
-			printf("Failed to add post !\n");
+			printf("Invalid type of post !\n");
 			break;
-		}
-		default:
-		{
-			return;
-		}
+		case 702:
+			printf("Post not long enough (min. 10 ch.) or invalid ! (no quotes \" allowed)\n");
+			break;
 		}
 	}
+	return;
 }
+
 
 void setProfile(int sC, int check)
 {

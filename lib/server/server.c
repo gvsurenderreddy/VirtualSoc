@@ -12,7 +12,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Usage: ./server 1/0 (1 for normal, 0 for debugging)\n");
 		exit(0);
 	}
-	// conectare DB
 
 	rc = sqlite3_open("vsoc.db", &db);
 
@@ -83,7 +82,9 @@ int main(int argc, char *argv[])
 	if (atoi(argv[1]) == 0)
 	{ // debugging mode
 		printf("[server]Debug Mode\n");
-		printf("%s", dbGetFTypeFromReq("pepsiDrinker", "popescu123"));
+
+
+
 		sqlite3_close(db);
 		return 0;
 	}

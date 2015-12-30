@@ -1,18 +1,43 @@
 #include "vsoc.h"
 
-ssize_t prefRead(int sock, void *buffer)
+ssize_t safeRead(int sock, void *buffer, size_t length)
+{
+	ssize_t nbytesR = read(sock, buffer, length);
+
+	if (nbytesR == -1)
+	{
+		perror("read() error ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return length;
+}
+ssize_t safeWrite(int sock, const void *buffer, size_t length)
+{
+	ssize_t nbytesW = write(sock, buffer, length);
+
+	if (nbytesW == -1)
+	{
+		perror("read() error ! Exiting !\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return length;
+}
+
+ssize_t safePrefRead(int sock, void *buffer)
 {
 	int length = strlen(buffer);
 
-	ssize_t nbytesW = read(sock, &length, sizeof(int));
-	if (nbytesW == -1)
+	ssize_t nbytesR = read(sock, &length, sizeof(int));
+	if (nbytesR == -1)
 	{
 		perror("read() error for length ! Exiting !\n");
 		exit(EXIT_FAILURE);
 	}
 
-	nbytesW = read(sock, buffer, length);
-	if (nbytesW == -1)
+	nbytesR = read(sock, buffer, length);
+	if (nbytesR == -1)
 	{
 		perror("read() error for data ! Exiting !\n");
 		exit(EXIT_FAILURE);
@@ -21,7 +46,7 @@ ssize_t prefRead(int sock, void *buffer)
 	return length;
 }
 
-ssize_t prefWrite(int sock, const void *buffer)
+ssize_t safePrefWrite(int sock, const void *buffer)
 {
 	int length = strlen(buffer);
 
@@ -56,7 +81,7 @@ int createConnSocketR()
 	return sd;
 }
 
-void login(int sC, char *client)
+void login(int sC, char *currentUser)
 {
 	int resultAnswer = 11;
 	int check;
@@ -101,7 +126,7 @@ void login(int sC, char *client)
 		}
 
 		write(sC, &resultAnswer, sizeof(int));
-		strcpy(client, id);
+		strcpy(currentUser, id);
 		return;
 	}
 }
@@ -253,14 +278,14 @@ void viewProfile(int sC)
 		write(sC, &user, sizeof(user));
 }
 
-void logout(int sC, char *client)
+void logout(int sC, char *currentUser)
 {
 	int check;
 	read(sC, &check, sizeof(int));
 
 	if (check == 1)
 	{
-		dbSetOffline(client);
+		dbSetOffline(currentUser);
 	}
 	return;
 }
@@ -337,29 +362,49 @@ void addFriend(int sC, char *currentUser)
 	}
 }
 
-void addPost(int sC)
+void addPost(int sC, char *currentUser)
 {
 	int resultAnswer = 77, check;
-	char post[257], postType[33];
-	memset(post, 0, 257);
-	memset(postType, 0, 33);
+	char post[513], posttype[5];
+	memset(post, 0, 513);
+	memset(posttype, 0, 5);
 
-	read(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(int));
+
 	if (check == 0)
 	{
 		return;
 	}
 	else
 	{
-		read(sC, post, sizeof(post));
-		read(sC, postType, sizeof(postType));
+		safePrefRead(sC, post);
+		safePrefRead(sC, posttype);
 
-		if (strstr(post, "obscen") != NULL)
+		switch (atoi(posttype))
 		{
+		case 1:
+		case 2:
+		case 3:
+			resultAnswer = 77;
+			break;
+		default:
 			resultAnswer = 701;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
 		}
-		write(sC, &resultAnswer, sizeof(int));
+
+		if (strlen(post) < 10 || strchr(post, '\"') != NULL)
+		{
+			resultAnswer = 702;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		dbInsertPost(currentUser, post, posttype);
 	}
+
+	return;
 }
 
 void setProfile(int sC, char *currentUser)
@@ -465,8 +510,8 @@ void accFriend(int sC, char *currentUser)
 			return;
 		}
 
-		dbFriendInsert(currentUser, user, friendType);
-		dbFriendInsert(user, currentUser, dbGetFTypeFromReq(user, currentUser));
+		dbInsertFriend(currentUser, user, friendType);
+		dbInsertFriend(user, currentUser, dbGetFTypeFromReq(user, currentUser));
 		dbDeleteRequestType(currentUser, user, "1");
 		dbDeleteRequestType(user, currentUser, "1");
 		write(sC, &resultAnswer, sizeof(int));
@@ -582,6 +627,8 @@ void online(int sC, char *currentUser)
 	return;
 }
 
+
+
 void quit(int sC, char *currentUser)
 {
 	int check;
@@ -649,7 +696,7 @@ void answer(void *arg)
 			break;
 
 		case 7:
-			addPost(tdL.client);
+			addPost(tdL.client, clientID);
 			break;
 
 		case 8:

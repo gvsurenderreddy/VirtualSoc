@@ -40,15 +40,17 @@ char *zErrMsg;
 // end_globare server
 
 // functii server
-ssize_t prefRead(int, void *);
-ssize_t prefWrite(int, const void *);
+ssize_t safePrefRead(int, void *);
+ssize_t safePrefWrite(int, const void *);
+ssize_t safeRead(int, void *, size_t);
+ssize_t safeWrite(int, const void *, size_t);
 int createConnSocketR();
 void register_now(int);
 void login(int, char *);
 void logout(int, char *);
 void viewProfile(int);
 void addFriend(int, char *);
-void addPost(int);
+void addPost(int, char *);
 void setProfile(int, char *);
 void checkReq(int, char *);
 void accFriend(int, char *);
@@ -76,13 +78,14 @@ int dbRequestCheckCount(char *);
 void dbRequestCheck(char *, int, int);
 void dbRequestSend(char *, char *, char *, char *);
 int dbFriendCheck(char *, char *);
-void dbFriendInsert(char *, char *, char *);
+void dbInsertFriend(char *, char *, char *);
 char *dbGetFTypeFromReq(char *, char *);
 void dbDeleteRequestType(char *, char *, char *);
 int dbFriendsCount(char *);
 void dbFriends(char *, int, int);
 int dbOnlineCount(char *);
 void dbOnline(char *, int, int);
+void dbInsertPost(char *, char *, char *);
 // end_functii server
 
 #endif

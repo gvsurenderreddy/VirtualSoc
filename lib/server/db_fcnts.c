@@ -351,7 +351,7 @@ void dbRequestCheck(char *ID, int sC, int length)
 	return;
 }
 
-void dbFriendInsert(char *ID1, char *ID2, char *friendtype)
+void dbInsertFriend(char *ID1, char *ID2, char *friendtype)
 {
 	// adauga in FRIENDS, ID2 prieten pentru ID1, tip FRIENDTYPE
 	char *sql;
@@ -529,6 +529,30 @@ void dbOnline(char *ID, int sC, int length)
 	else
 	{
 		fprintf(stdout, "dbOnline:Succes \n");
+	}
+
+	free(sql);
+
+	return;
+}
+
+void dbInsertPost(char *ID, char *post, char *posttype)
+{
+	//intoarce numarul de prieteni online a lui ID
+	char *sql;
+	sql = (char *)calloc(70 + strlen(ID) + strlen(post) + strlen(posttype), sizeof(char));
+	sprintf(sql, "INSERT INTO POSTS(user,post,type) VALUES (\"%s\",\"%s\",\"%s\");", ID, post, posttype);
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbInsertPost:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbInsertPost:Succes \n");
 	}
 
 	free(sql);

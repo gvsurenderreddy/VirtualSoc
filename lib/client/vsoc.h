@@ -53,8 +53,10 @@ void answer(void *arg); // functie de deservire pentru fiecare client
 
 void myRead(char *, int);
 void safeStdinRead(const char *, char *, int);
-ssize_t prefWrite(int, const void *);
-ssize_t prefRead(int, void *);
+ssize_t safePrefWrite(int, const void *);
+ssize_t safePrefRead(int, void *);
+ssize_t safeRead(int, void *, size_t);
+ssize_t safeWrite(int, const void *, size_t);
 void help(int);
 int login(int, int, char *);
 void register_now(int, int);
