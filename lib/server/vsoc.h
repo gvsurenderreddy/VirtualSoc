@@ -56,7 +56,7 @@ void accChat(int, char *);
 void friends(int, char *);
 void online(int, char *);
 void quit(int, char *);
-void forcequit(void);
+__sighandler_t forcequit(void);
 void answer(void *);
 
 //--functii server DB SQLITE3--//

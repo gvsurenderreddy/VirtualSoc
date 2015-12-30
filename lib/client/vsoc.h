@@ -70,6 +70,6 @@ void friends(int, int);
 void online(int, int);
 void quit(int, int);
 int encodeCommand(const char *);
-void quitforce(void);
+__sighandler_t quitforce(void);
 
 #endif

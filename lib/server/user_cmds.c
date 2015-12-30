@@ -364,6 +364,16 @@ void addPost(int sC)
 
 void setProfile(int sC, char *currentUser)
 {
+	//int resultAnswer = 88;
+	int check;
+	read(sC, &check, sizeof(int));
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+	}
 	return;
 }
 
@@ -469,7 +479,8 @@ void accFriend(int sC, char *currentUser)
 
 void accChat(int sC, char *currentUser)
 {
-	int resultAnswer = 1111, check;
+	//int resultAnswer = 1111;
+	int check;
 
 	read(sC, &check, sizeof(int));
 
@@ -582,7 +593,7 @@ void quit(int sC, char *currentUser)
 	return;
 }
 
-void forcequit(void)
+__sighandler_t forcequit(void)
 {
 	printf("[server] Force quit !\n");
 	dbForceQuit();
@@ -602,14 +613,14 @@ void answer(void *arg)
 	{
 		if (read(tdL.client, &clientCommand, sizeof(int)) <= 0)
 		{
-			printf("[Thread %d]\n", tdL.idThread);
-			perror("Disconnect sau Eroare la read() de la "
-				   "client.\n");
+			printf("[thread %d]Client with conn. sock %d - ", tdL.idThread, tdL.client);
+			fflush(stdout);
+			perror("read() error or forced disconnect");
 			dbSetOffline(clientID);
 			break;
 		}
 
-		printf("[Thread %d]Received command : %d\n", tdL.idThread, clientCommand);
+		printf("[thread %d]Received command : %d\n", tdL.idThread, clientCommand);
 
 		switch (clientCommand)
 		{

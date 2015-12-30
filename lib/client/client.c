@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	}
 
 	//##############################CLIENT##################################
-	signal(SIGINT, quitforce);
+	signal(SIGINT, (__sighandler_t)quitforce);
 	int clientCommand = -1;
 	char clientCommandChar[1000];
 	char currentID[33];
@@ -136,4 +136,6 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
+	close(socketConnect);
+	return 0;
 }

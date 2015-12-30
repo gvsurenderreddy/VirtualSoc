@@ -422,7 +422,7 @@ void addPost(int sC, int check)
 
 void setProfile(int sC, int check)
 {
-	int resultAnswer = -1;
+	//int resultAnswer = -1;
 
 	write(sC, &check, sizeof(int));
 	if (check == 0)
@@ -566,7 +566,7 @@ void accFriend(int sC, int check)
 
 void accChat(int sC, int check)
 {
-	int resultAnswer = -1;
+	//int resultAnswer = -1;
 
 	write(sC, &check, sizeof(int));
 
@@ -742,7 +742,7 @@ void quit(int sC, int check)
 	return;
 }
 
-void quitforce(void)
+__sighandler_t quitforce(void)
 {
 	printf("\nForced Quit!\n");
 	exit(0);
