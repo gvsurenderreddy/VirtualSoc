@@ -49,7 +49,7 @@ int createConnSocketR();
 void register_now(int);
 void login(int, char *);
 void logout(int, char *);
-void viewProfile(int);
+void viewProfile(int, char *);
 void addFriend(int, char *);
 void addPost(int, char *);
 void setProfile(int, char *);
@@ -66,6 +66,7 @@ void answer(void *);
 int callback(void *, int, char **, char **);
 int cbSingle(char *, int, char **, char **);
 int cbDynamicSender(int *, int, char **, char **);
+int cbDSlines(int *, int, char **, char **);
 void dbInsertUser(char *, char *, char *, char *, char *, char *);
 int dbRegCheckUser(char *);
 int dbLogCheckUser(char *);
@@ -88,6 +89,11 @@ int dbOnlineCount(char *);
 void dbOnline(char *, int, int);
 void dbInsertPost(char *, char *, char *);
 void dbSetProfile(char *, char *, char *);
+char *dbGetUserType(char *);
+char *dbGetFType(char *, char *);
+void dbGetInfoUser(char *, int);
+int dbGetPostsCount(char *, char *, int);
+void dbGetPosts(char *, int, char *, int);
 // end_functii server
 
 #endif

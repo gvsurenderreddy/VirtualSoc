@@ -42,12 +42,27 @@ int cbDynamicSender(int *data, int argc, char **argv, char **azColName)
 
 	//prefWrite(data[0], line);
 	write(data[0], line, data[1]);
-
+	//printf("'%s'\n", line);
 	free(line);
 
 	return 0;
 }
 
+int cbDSlines(int *data, int argc, char **argv, char **azColName)
+{
+	//callback - intoarce interogari direct la socket > eficient,dinamic
+	int i;
+
+	for (i = 0; i < argc; i++)
+	{
+		int len = strlen(argv[i]);
+		write(data[0], &len, sizeof(int));
+		write(data[0], argv[i], len);
+		//safewrite
+	}
+
+	return 0;
+}
 
 void dbInsertUser(char *ID, char *PASS, char *FULLNAME, char *SEX, char *ABOUT,
 				  char *TYPE)
@@ -337,7 +352,7 @@ int dbRequestCheckCount(char *ID)
 
 void dbRequestCheck(char *ID, int sC, int length)
 {
-	//intoarce requesturile primite de ID catre sc
+	//intoarce requesturile primite de ID catre sC
 	char *sql;
 	sql = (char *)calloc(150 + strlen(ID), sizeof(char));
 	sprintf(sql, "SELECT fromUser,type FROM REQUESTS WHERE toUser=\"%s\";", ID);
@@ -520,7 +535,6 @@ int dbOnlineCount(char *ID)
 	free(sql);
 
 	return count;
-	;
 }
 
 void dbOnline(char *ID, int sC, int length)
@@ -597,4 +611,138 @@ void dbSetProfile(char *ID, char *value, char *col)
 	free(sql);
 
 	return;
+}
+
+char *dbGetUserType(char *ID)
+{
+	// intoarce tipul de prieten TYPE pus de ID1 in cererea catre ID2
+	char *sql;
+	sql = (char *)calloc(80 + strlen(ID), sizeof(char));
+	sprintf(sql, "SELECT type FROM USERS WHERE id=\"%s\";", ID);
+
+	char *data;
+	data = calloc(17, sizeof(char));
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetUserType:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetUserType:Succes \n");
+	}
+
+	free(sql);
+
+	return data;
+}
+
+char *dbGetFType(char *ID1, char *ID2)
+{
+	// intoarce tipul de prieten TYPE pus de ID1 pentru ID2 in FRIENDS
+	char *sql;
+	sql = (char *)calloc(70 + strlen(ID1) + strlen(ID2), sizeof(char));
+	sprintf(sql, "SELECT type FROM FRIENDS WHERE owner=\"%s\" AND friend=\"%s\";", ID1, ID2);
+
+	char *data;
+	data = calloc(5, sizeof(char));
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetFType:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetFType:Succes \n");
+	}
+
+	free(sql);
+
+	return data;
+}
+
+void dbGetInfoUser(char *ID, int sC)
+{
+	// trimite la sC toate informatiile despre ID din tabela USERS
+	char *sql;
+	sql = (char *)calloc(70 + strlen(ID), sizeof(char));
+	sprintf(sql, "SELECT ID,FULLNAME,SEX,ABOUT,TYPE FROM USERS WHERE ID=\"%s\"", ID);
+
+	int data[3];
+	data[0] = sC;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, (void *)cbDSlines, data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetInfoUser:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetInfoUser:Succes \n");
+	}
+
+	free(sql);
+}
+
+int dbGetPostsCount(char *ID, char *posttype, int limit)
+{
+	//intoarce numarul de postari ale lui ID in conformitate cu isFriend,usertype si limit
+
+	char *sql;
+	sql = (char *)calloc(80 + strlen(ID), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM POSTS WHERE user=\"%s\" AND type<=\"%s\" LIMIT %d;", ID, posttype, limit);
+
+	char *data;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbOnlineCount:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbOnlineCount:Succes \n");
+	}
+
+	int count = atoi((char *)&data);
+	free(sql);
+
+	return count;
+}
+
+
+void dbGetPosts(char *ID, int sC, char *posttype, int limit)
+{
+	// trimite la sC toate informatiile despre ID din tabela USERS
+	char *sql;
+	sql = (char *)calloc(70 + strlen(ID), sizeof(char));
+	sprintf(sql, "SELECT post FROM POSTS WHERE user=\"%s\" AND type<=\"%s\" LIMIT %d;", ID, posttype, limit);
+
+	int data[3];
+	data[0] = sC;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, (void *)cbDSlines, data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetInfoUser:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetInfoUser:Succes \n");
+	}
+
+	free(sql);
 }

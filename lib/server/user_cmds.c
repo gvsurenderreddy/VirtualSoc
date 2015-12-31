@@ -18,7 +18,7 @@ ssize_t safeWrite(int sock, const void *buffer, size_t length)
 
 	if (nbytesW == -1)
 	{
-		perror("read() error ! Exiting !\n");
+		perror("write() error ! Exiting !\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -257,25 +257,132 @@ void register_now(int sC)
 	return;
 }
 
-void viewProfile(int sC)
+void viewProfile(int sC, char *currentUser)
 {
-	int resultAnswer = -1;
-	int check;
-	char user[32];
-	memset(user, 0, 32);
+	int resultAnswer = 44, postsCount;
+	bool check;
+	bool isFriend;
+	char user[33], *usertype, *friendstype;
+	memset(user, 0, 33);
 
-	read(sC, &check, sizeof(int));
-	read(sC, user, sizeof(user));
-	// verifica daca user-ul ce face view este logat
-	// 44 - logat si poate vedea orice
-	// 401 - nelogat, poate vedea doar publicele
-	if (check == 0)
+
+	safeRead(sC, &check, sizeof(bool));
+
+	safePrefRead(sC, user);
+
+	//contine " ?
+	if (strchr(user, '\"') != NULL)
+	{
 		resultAnswer = 401;
-	if (check == 1)
-		resultAnswer = 44;
-	write(sC, &resultAnswer, sizeof(int));
-	if (resultAnswer == 44)
-		write(sC, &user, sizeof(user));
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		return;
+	}
+
+	//exista userul ?
+	if (dbLogCheckUser(user) == 0)
+	{
+		resultAnswer = 401;
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		return;
+	}
+
+	//ce tip de user e ?
+	usertype = dbGetUserType(user);
+
+
+	if (check == 0)
+	{
+		//nelogat.
+
+		//e tip private ?
+		if (strcmp(usertype, "private") == 0)
+		{
+			resultAnswer = 402;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			////402. user nelogat incearca sa vada profil privat
+			return;
+		}
+		//e tip public ?
+		else
+		{
+			resultAnswer = 441;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+
+			dbGetInfoUser(user, sC);
+
+			postsCount = dbGetPostsCount(user, "1", -1);
+			safeWrite(sC, &postsCount, sizeof(int));
+
+			dbGetPosts(user, sC, "1", -1);
+
+			////441.trimite info despre user, postarile publice
+			return;
+		}
+	}
+	else
+	{
+		//logat.
+		isFriend = dbFriendCheck(user, currentUser);
+
+		//sunt prieteni ?
+		if (isFriend)
+		{
+			friendstype = dbGetFType(user, currentUser);
+			//friend
+			if (atoi(friendstype) == 1)
+			{
+				resultAnswer = 443;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+
+				dbGetInfoUser(user, sC);
+
+				postsCount = dbGetPostsCount(user, "2", -1);
+				safeWrite(sC, &postsCount, sizeof(int));
+
+				dbGetPosts(user, sC, "2", -1);
+
+				////443.trimite info despre user.postarile publice + friend
+				return;
+			}
+			//close-friend / family
+			if (atoi(friendstype) > 1)
+			{
+				resultAnswer = 444;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+
+				dbGetInfoUser(user, sC);
+
+				postsCount = dbGetPostsCount(user, "3", -1);
+				safeWrite(sC, &postsCount, sizeof(int));
+
+				dbGetPosts(user, sC, "3", -1);
+
+				////444.trimite info despre user.postarile publice + friend + close-friend + family
+				return;
+			}
+		}
+		else
+		//nu sunt prieteni ?
+		{
+			resultAnswer = 442;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+
+			dbGetInfoUser(user, sC);
+
+			postsCount = dbGetPostsCount(user, "1", -1);
+			safeWrite(sC, &postsCount, sizeof(int));
+
+			dbGetPosts(user, sC, "1", -1);
+
+			////442.trimite info despre user, postarile publice
+			return;
+		}
+	}
+
+
+
+
+	return;
 }
 
 void logout(int sC, char *currentUser)
@@ -407,13 +514,14 @@ void addPost(int sC, char *currentUser)
 	return;
 }
 
-static bool is_only_chars_number(char elem) {
-			// numbers
-	return ((elem>=0x30 && elem <= 0x39)	|| 
+static bool is_only_chars_number(char elem)
+{
+	// numbers
+	return ((elem >= 0x30 && elem <= 0x39) ||
 			// lower case
-		    (elem >= 0x61 && elem <= 0x7a)	||
+			(elem >= 0x61 && elem <= 0x7a) ||
 			// upper case
-			(elem >=41 && elem <= 0x5a)		||
+			(elem >= 41 && elem <= 0x5a) ||
 			// space  - .
 			(elem == 0x20 || elem == 0x2d || elem == 0x2e));
 }
@@ -459,10 +567,10 @@ void setProfile(int sC, char *currentUser)
 			}
 			for (i = 0; i < strlen(fullname); i++)
 			{
-				// test if fullname dosen't contain 
+				// test if fullname dosen't contain
 				// number,letters and 3 special char
 				// space , - and .
-				if(!(is_only_chars_number(fullname[i])))
+				if (!(is_only_chars_number(fullname[i])))
 				{
 					resultAnswer = 801;
 					safeWrite(sC, &resultAnswer, sizeof(int));
@@ -796,7 +904,7 @@ void answer(void *arg)
 			break;
 
 		case 4:
-			viewProfile(tdL.client);
+			viewProfile(tdL.client, clientID);
 			break;
 
 		case 5:

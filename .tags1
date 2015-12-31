@@ -1,0 +1,29 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	0	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CLIENT	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^#define CLIENT /;"	macro	line:1	file:
+myRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void myRead(char *text, int size)$/;"	function	line:4	signature:(char *text, int size)
+safeRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safeRead(int sock, void *buffer, size_t length)$/;"	function	line:13	signature:(int sock, void *buffer, size_t length)
+safeWrite	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safeWrite(int sock, const void *buffer, size_t length)$/;"	function	line:25	signature:(int sock, const void *buffer, size_t length)
+safeStdinRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void safeStdinRead(const char *print, char *text, int size)$/;"	function	line:38	signature:(const char *print, char *text, int size)
+safePrefRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safePrefRead(int sock, void *buffer)$/;"	function	line:52	signature:(int sock, void *buffer)
+safePrefWrite	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safePrefWrite(int sock, const void *buffer)$/;"	function	line:73	signature:(int sock, const void *buffer)
+help	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void help(int check)$/;"	function	line:94	signature:(int check)
+login	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^int login(int sC, int check, char *user)$/;"	function	line:101	signature:(int sC, int check, char *user)
+register_now	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void register_now(int sC, int check)$/;"	function	line:160	signature:(int sC, int check)
+viewProfile	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void viewProfile(int sC, int check)$/;"	function	line:273	signature:(int sC, int check)
+logout	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^int logout(int sC, int check, char *id)$/;"	function	line:307	signature:(int sC, int check, char *id)
+addFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void addFriend(int sC, int check)$/;"	function	line:323	signature:(int sC, int check)
+addPost	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void addPost(int sC, int check)$/;"	function	line:398	signature:(int sC, int check)
+setProfile	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void setProfile(int sC, int check)$/;"	function	line:438	signature:(int sC, int check)
+checkReq	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void checkReq(int sC, int check)$/;"	function	line:550	signature:(int sC, int check)
+accFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void accFriend(int sC, int check)$/;"	function	line:604	signature:(int sC, int check)
+accChat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void accChat(int sC, int check)$/;"	function	line:680	signature:(int sC, int check)
+friends	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void friends(int sC, int check)$/;"	function	line:697	signature:(int sC, int check)
+online	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void online(int sC, int check)$/;"	function	line:765	signature:(int sC, int check)
+encodeCommand	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^int encodeCommand(const char *clientCommandChar)$/;"	function	line:819	signature:(const char *clientCommandChar)
+quit	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void quit(int sC, int check)$/;"	function	line:852	signature:(int sC, int check)
+quitforce	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^__sighandler_t quitforce(void)$/;"	function	line:858	signature:(void)

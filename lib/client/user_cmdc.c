@@ -270,38 +270,106 @@ void register_now(int sC, int check)
 	}
 }
 
-void viewProfile(int sC, int check)
+static void infoUserPrints(int i, char *info)
+{
+	if (i == 0)
+	{
+		printf(GREEN "Username: " RESET);
+		printf("%s", info);
+	}
+	if (i == 1)
+	{
+		printf(GREEN "	Name: " RESET);
+		printf("%s", info);
+	}
+	if (i == 2)
+	{
+		printf(GREEN "	Sex: " RESET);
+		printf("%s\n\n", info);
+	}
+	if (i == 3)
+	{
+
+		printf(GREEN "About: " RESET);
+		printf("%s\n\n", info);
+	}
+	if (i == 4)
+	{
+		printf(GREEN "Profile type: " RESET);
+		printf("%s\n\n", info);
+	}
+	return;
+}
+
+static void userPrints(int sC, char *user)
+{
+	int i, postsCount;
+	char info[520];
+
+	for (i = 0; i < 5; i++)
+	{
+		memset(info, 0, 520);
+		safePrefRead(sC, info);
+		infoUserPrints(i, info);
+	}
+
+	safeRead(sC, &postsCount, sizeof(int));
+	printf(GREEN "%s has %d posts \n" RESET, user, postsCount);
+
+	for (i = 0; i < postsCount; i++)
+	{
+		memset(info, 0, 520);
+		safePrefRead(sC, info);
+		printf(GREEN "[post %d]:" RESET, i + 1);
+		printf("%s\n", info);
+	}
+}
+
+void viewProfile(int sC, bool check)
 {
 	int resultAnswer = -1;
-	char user[32], post[64];
-	memset(user, 0, 32);
-	memset(post, 0, 64);
-	if (check == 0)
-		printf("You can only view public users ! You're not logged in ! \n");
-	else
-		printf("You can view public/private users ! You're logged in ! \n");
+	char user[33];
+	memset(user, 0, 33);
 
-	printf("View profile of user: ");
-	fflush(stdout);
-	myRead(user, 32);
+	safeWrite(sC, &check, sizeof(bool));
 
-	write(sC, &check, sizeof(int));
-	write(sC, user, sizeof(user));
+	safeStdinRead("View profile of user:", user, 33);
+	safePrefWrite(sC, user);
 
-	read(sC, &resultAnswer, sizeof(int));
-	if (resultAnswer == 401)
-		printf("Not logged\n");
-	if (resultAnswer == 44)
-		printf("Logged\n");
-	if (resultAnswer == 401)
-		printf("The user is private ! You cannot view his profile !\n");
 
-	if (resultAnswer == 44)
+	safeRead(sC, &resultAnswer, sizeof(int));
+
+	switch (resultAnswer)
 	{
-		printf("Succesfull View\n");
-		read(sC, post, sizeof(post));
-		printf("Posts: %s\n", post);
+	case 401:
+		printf("User doesn't exist in our database or is invalid !\n");
+		break;
+
+	case 402:
+		printf("This user is private ! Please login or register !\n");
+		break;
+
+	case 441:
+		printf("You're not logged in ! \n\n");
+		userPrints(sC, user);
+		break;
+
+	case 442:
+		printf("You're not friend with '%s' !\n\n", user);
+		userPrints(sC, user);
+		break;
+
+	case 443:
+	case 444:
+		userPrints(sC, user);
+		break;
+
+	default:
+		printf("ERROR !\n");
+		break;
 	}
+
+	return;
 }
 
 int logout(int sC, int check, char *id)
@@ -411,7 +479,7 @@ void addPost(int sC, int check)
 	else
 	{
 		safeStdinRead("Post (10-512 ch.):", post, 513);
-		safeStdinRead("Type - 1(public) / 2(registered) / 3(friends) ", posttype, 5);
+		safeStdinRead("Type - 1(public) / 2(friends) / 3(close-friends/family) ", posttype, 5);
 
 		safePrefWrite(sC, post);
 		safePrefWrite(sC, posttype);

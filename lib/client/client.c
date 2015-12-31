@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	int clientCommand = -1;
 	char clientCommandChar[1000];
 	char currentID[33];
-	int logged = 0;
+	bool logged = 0;
 	printf(RED "	Welcome to VirtualSoc ~ by Cristea Alexandru\n	/help  - "
 			   " syntax and available commands !\n\n\n" RESET);
 	while (1)

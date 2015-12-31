@@ -61,7 +61,7 @@ ssize_t safeWrite(int, const void *, size_t);
 void help(int);
 int login(int, int, char *);
 void register_now(int, int);
-void viewProfile(int, int);
+void viewProfile(int, bool);
 int logout(int, int, char *);
 void addFriend(int, int);
 void addPost(int, int);
