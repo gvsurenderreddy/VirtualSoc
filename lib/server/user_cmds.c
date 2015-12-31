@@ -407,6 +407,17 @@ void addPost(int sC, char *currentUser)
 	return;
 }
 
+static bool is_only_chars_number(char elem) {
+			// numbers
+	return ((elem>=0x30 && elem <= 0x39)	|| 
+			// lower case
+		    (elem >= 0x61 && elem <= 0x7a)	||
+			// upper case
+			(elem >=41 && elem <= 0x5a)		||
+			// space  - .
+			(elem == 0x20 || elem == 0x2d || elem == 0x2e));
+}
+
 void setProfile(int sC, char *currentUser)
 {
 	int resultAnswer = 88;
@@ -418,7 +429,8 @@ void setProfile(int sC, char *currentUser)
 	memset(type, 0, 17);
 	memset(password, 0, 33);
 
-	int check, i;
+	int check;
+	size_t i;
 	safeRead(sC, &check, sizeof(int));
 	if (check == 0)
 	{
@@ -447,15 +459,15 @@ void setProfile(int sC, char *currentUser)
 			}
 			for (i = 0; i < strlen(fullname); i++)
 			{
-				if (!(fullname[i] >= 'a' && fullname[i] <= 'z'))
-					if (!(fullname[i] >= 'A' && fullname[i] <= 'Z'))
-						if (!(fullname[i] >= '0' && fullname[i] <= '9'))
-							if (!(fullname[i] == ' ' || fullname[i] == '.' || fullname[i] == '-'))
-							{
-								resultAnswer = 801;
-								safeWrite(sC, &resultAnswer, sizeof(int));
-								return;
-							}
+				// test if fullname dosen't contain 
+				// number,letters and 3 special char
+				// space , - and .
+				if(!(is_only_chars_number(fullname[i])))
+				{
+					resultAnswer = 801;
+					safeWrite(sC, &resultAnswer, sizeof(int));
+					return;
+				}
 			}
 			safeWrite(sC, &resultAnswer, sizeof(int));
 			dbSetProfile(currentUser, fullname, "fullname");

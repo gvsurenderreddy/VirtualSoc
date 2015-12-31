@@ -1,4 +1,4 @@
-CC = gcc-4.9
+CC = gcc
 CFLAGS = -c -std=gnu11 -g -Wall -fdiagnostics-color
 LINK_FLAGS = -pthread -l sqlite3
 LIBS_CLIENT = $(wildcard lib/client/*.c)
@@ -17,7 +17,7 @@ link:compile
 	@echo -e '\033[31m >>>[make]\033[32mLinking\033[31m CLIENT objects\e[0m'
 	$(CC) $(OBJECT_CLIENT) $(LINK_FLAGS) -o build/client/client
 	mv build/client/client bin/
-	@echo -e '\033[31m >>>[make]\033[32mRemoving\033[31m SERVER objects\e[0m'
+	@echo -e '\033[31m >>>[make]\033[32mRemoving\033[31m CLIENT objects\e[0m'
 	rm -rf lib/client/*.o
 compile:
 	@clear screen

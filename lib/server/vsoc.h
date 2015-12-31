@@ -21,6 +21,7 @@
 #include <sqlite3.h>
 #include <assert.h>
 #include <stdio_ext.h>
+#include <stdbool.h>
 // end_librarii
 
 #define PORT 6047

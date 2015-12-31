@@ -20,6 +20,7 @@
 #include <sqlite3.h>
 #include <assert.h>
 #include <stdio_ext.h>
+#include <stdbool.h>
 
 #define RESET "\033[0m"
 #define BLACK "\033[30m" /* Black */
