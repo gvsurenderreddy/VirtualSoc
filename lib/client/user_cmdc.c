@@ -272,33 +272,23 @@ void register_now(int sC, int check)
 
 static void infoUserPrints(int i, char *info)
 {
-	if (i == 0)
-	{
-		printf(GREEN "Username: " RESET);
-		printf("%s", info);
+	switch(i) {
+	case 0:
+		fprintf(stdout, GREEN "Username: " RESET "%s", info);
+		break;
+	case 1:
+		fprintf(stdout, GREEN "	Name: " RESET "%s", info);
+		break;
+	case 2:
+		fprintf(stdout, GREEN "	Sex: " RESET "%s\n\n", info);
+		break;
+	case 3:
+		fprintf(stdout, GREEN "About: " RESET "%s\n\n", info);
+		break;
+	case 4:
+		fprintf(stdout, GREEN "Profile type: " RESET "%s\n\n", info);
+		break;
 	}
-	if (i == 1)
-	{
-		printf(GREEN "	Name: " RESET);
-		printf("%s", info);
-	}
-	if (i == 2)
-	{
-		printf(GREEN "	Sex: " RESET);
-		printf("%s\n\n", info);
-	}
-	if (i == 3)
-	{
-
-		printf(GREEN "About: " RESET);
-		printf("%s\n\n", info);
-	}
-	if (i == 4)
-	{
-		printf(GREEN "Profile type: " RESET);
-		printf("%s\n\n", info);
-	}
-	return;
 }
 
 static void userPrints(int sC, char *user)
@@ -369,7 +359,6 @@ void viewProfile(int sC, bool check)
 		break;
 	}
 
-	return;
 }
 
 int logout(int sC, int check, char *id)
