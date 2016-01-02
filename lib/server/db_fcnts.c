@@ -527,10 +527,16 @@ void dbInsertPost(const char *ID, const char *post, const char *posttype)
 {
 	//insereaza postarea POST in POSTS de tipul POSTTYPE, pentru userul ID
 	char *sql;
-	sql = calloc(90 + strlen(ID) + strlen(post) + strlen(posttype), sizeof(char));
-	sprintf(sql, "INSERT INTO POSTS(user,post,type,date) VALUES (\"%s\",\"%s\",\"%s\",datetime());", ID, post, posttype);
+	char *currTime;
+
+	currTime = calloc(60, sizeof(char));
+	sprintf(currTime, "strftime('%%H:%%M:%%S - %%d.%%m.%%Y','now','+2 hours')");
+
+	sql = calloc(120 + strlen(ID) + strlen(post) + strlen(posttype), sizeof(char));
+	sprintf(sql, "INSERT INTO POSTS(user,post,type,date) VALUES (\"%s\",\"%s\",\"%s\",%s);", ID, post, posttype, currTime);
 
 	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
 	if (rc != SQLITE_OK)
 	{
 		fprintf(stderr, "dbInsertPost:Error: %s\n", zErrMsg);
@@ -542,6 +548,7 @@ void dbInsertPost(const char *ID, const char *post, const char *posttype)
 	}
 
 	free(sql);
+	free(currTime);
 
 	return;
 }
@@ -633,7 +640,6 @@ void dbGetInfoUser(const char *ID, int sC)
 	int data[3];
 	data[0] = sC;
 
-	/* Execute SQL statement */
 	rc = sqlite3_exec(db, sql, (void *)cbDSlines, data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
@@ -670,6 +676,8 @@ int dbGetPostsCount(const char *ID, const char *posttype, int limit)
 		fprintf(stdout, "dbGetPostsCount:Succes \n");
 	}
 
+
+	free(sql);
 	return atoi((char *)&data);
 }
 

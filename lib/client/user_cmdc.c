@@ -21,11 +21,11 @@ ssize_t safeRead(int sock, void *buffer, size_t length)
 
 	if (nbytesR == -1)
 	{
-		perror("read() error ! Exiting !\n");
+		perror("write() error ! Exiting !\n");
 		exit(EXIT_FAILURE);
 	}
 
-	return length;
+	return nbytesR;
 }
 ssize_t safeWrite(int sock, const void *buffer, size_t length)
 {
@@ -37,35 +37,35 @@ ssize_t safeWrite(int sock, const void *buffer, size_t length)
 		exit(EXIT_FAILURE);
 	}
 
-	return length;
+	return nbytesW;
 }
 
 ssize_t safePrefRead(int sock, void *buffer)
 {
-	ssize_t length = strlen(buffer);
+	size_t length = strlen(buffer);
 
-	ssize_t nbytesW = read(sock, &length, sizeof(int));
-	if (nbytesW == -1)
+	ssize_t nbytesR = read(sock, &length, sizeof(size_t));
+	if (nbytesR == -1)
 	{
 		perror("read() error for length ! Exiting !\n");
 		exit(EXIT_FAILURE);
 	}
 
-	nbytesW = read(sock, buffer, length);
-	if (nbytesW == -1)
+	nbytesR = read(sock, buffer, length);
+	if (nbytesR == -1)
 	{
 		perror("read() error for data ! Exiting !\n");
 		exit(EXIT_FAILURE);
 	}
 
-	return length;
+	return nbytesR;
 }
 
 ssize_t safePrefWrite(int sock, const void *buffer)
 {
-	ssize_t length = strlen(buffer);
+	size_t length = strlen(buffer);
 
-	ssize_t nbytesW = write(sock, &length, sizeof(int));
+	ssize_t nbytesW = write(sock, &length, sizeof(size_t));
 	if (nbytesW == -1)
 	{
 		perror("write() error for length ! Exiting !\n");
@@ -79,7 +79,7 @@ ssize_t safePrefWrite(int sock, const void *buffer)
 		exit(EXIT_FAILURE);
 	}
 
-	return length;
+	return nbytesW;
 }
 
 void help(bool check)
@@ -260,7 +260,7 @@ static void infoUserPrints(int i, char *info)
 static void userPrints(int sC, const char *user)
 {
 	int i, postsCount;
-	char info[520], postType[5], date[33];
+	char info[520], postType[5], date[60];
 
 	for (i = 0; i < 5; i++)
 	{
@@ -276,7 +276,7 @@ static void userPrints(int sC, const char *user)
 	{
 		memset(info, 0, 520);
 		memset(postType, 0, 5);
-		memset(date, 0, 33);
+		memset(date, 0, 60);
 
 		safePrefRead(sC, info);
 		safePrefRead(sC, postType);
@@ -285,18 +285,19 @@ static void userPrints(int sC, const char *user)
 		switch (atoi(postType))
 		{
 		case 1:
-			printf(GREEN "[post %d][%s][publ]:" RESET "%s\n", i + 1, date, info);
+			printf(GREEN "[%s][publ]:" RESET "%s\n", date, info);
 			break;
 
 		case 2:
-			printf(GREEN "[post %d][%s][frnd]:" RESET "%s\n", i + 1, date, info);
+			printf(GREEN "[%s][frnd]:" RESET "%s\n", date, info);
 			break;
 
 		case 3:
-			printf(GREEN "[post %d][%s][cf/f]:" RESET "%s\n", i + 1, date, info);
+			printf(GREEN "[%s][cf/f]:" RESET "%s\n", date, info);
 			break;
 		}
 	}
+	printf("\n");
 }
 
 void viewProfile(int sC, bool check)

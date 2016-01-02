@@ -67,9 +67,8 @@ int main(int argc, char *argv[])
 					   "accept()");
 				continue;
 			}
-			//int idThread;
-			//int client;
 			td = (struct thData *)malloc(sizeof(struct thData));
+
 			td->idThread = i++;
 			td->client = socketClient;
 
@@ -88,6 +87,7 @@ int main(int argc, char *argv[])
 		printf("[server]Debug Mode\n");
 
 
+		//printf("%s\n", currDate);
 
 		sqlite3_close(db);
 		return 0;

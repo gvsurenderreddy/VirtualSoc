@@ -7,10 +7,11 @@ ssize_t safeRead(int sock, void *buffer, size_t length)
 	if (nbytesR == -1)
 	{
 		perror("write() error ! Exiting !\n");
+		sqlite3_close(db);
 		exit(EXIT_FAILURE);
 	}
 
-	return length;
+	return nbytesR;
 }
 ssize_t safeWrite(int sock, const void *buffer, size_t length)
 {
@@ -19,20 +20,22 @@ ssize_t safeWrite(int sock, const void *buffer, size_t length)
 	if (nbytesW == -1)
 	{
 		perror("write() error ! Exiting !\n");
+		sqlite3_close(db);
 		exit(EXIT_FAILURE);
 	}
 
-	return length;
+	return nbytesW;
 }
 
 ssize_t safePrefRead(int sock, void *buffer)
 {
-	ssize_t length = strlen(buffer);
+	size_t length = strlen(buffer);
 
-	ssize_t nbytesR = read(sock, &length, sizeof(int));
+	ssize_t nbytesR = read(sock, &length, sizeof(size_t));
 	if (nbytesR == -1)
 	{
 		perror("read() error for length ! Exiting !\n");
+		sqlite3_close(db);
 		exit(EXIT_FAILURE);
 	}
 
@@ -40,20 +43,22 @@ ssize_t safePrefRead(int sock, void *buffer)
 	if (nbytesR == -1)
 	{
 		perror("read() error for data ! Exiting !\n");
+		sqlite3_close(db);
 		exit(EXIT_FAILURE);
 	}
 
-	return length;
+	return nbytesR;
 }
 
 ssize_t safePrefWrite(int sock, const void *buffer)
 {
-	ssize_t length = strlen(buffer);
+	size_t length = strlen(buffer);
 
-	ssize_t nbytesW = write(sock, &length, sizeof(int));
+	ssize_t nbytesW = write(sock, &length, sizeof(size_t));
 	if (nbytesW == -1)
 	{
 		perror("write() error for length ! Exiting !\n");
+		sqlite3_close(db);
 		exit(EXIT_FAILURE);
 	}
 
@@ -61,10 +66,11 @@ ssize_t safePrefWrite(int sock, const void *buffer)
 	if (nbytesW == -1)
 	{
 		perror("write() error for data ! Exiting !\n");
+		sqlite3_close(db);
 		exit(EXIT_FAILURE);
 	}
 
-	return length;
+	return nbytesW;
 }
 
 static bool isValidChar(char elem)
@@ -84,6 +90,7 @@ int createConnSocketR()
 	{
 		perror("[server] Socket creation error ! socket(). \n");
 		printf("[server] Errno: %d", errno);
+		sqlite3_close(db);
 		exit(EXIT_FAILURE);
 	}
 	int on = 1;
@@ -324,6 +331,8 @@ void viewProfile(int sC, const char *currentUser)
 		{
 			resultAnswer = 402;
 			safeWrite(sC, &resultAnswer, sizeof(int));
+
+			free(userType);
 			////402. user nelogat incearca sa vada profil privat
 			return;
 		}
@@ -341,6 +350,7 @@ void viewProfile(int sC, const char *currentUser)
 
 			dbGetPosts(user, sC, "1", -1);
 
+			free(userType);
 			////441.trimite info despre user, postarile publice
 			return;
 		}
@@ -367,6 +377,8 @@ void viewProfile(int sC, const char *currentUser)
 
 				dbGetPosts(user, sC, "2", -1);
 
+				free(userType);
+				free(friendsType);
 				////443.trimite info despre user.postarile publice + friend
 				return;
 			}
@@ -383,6 +395,8 @@ void viewProfile(int sC, const char *currentUser)
 
 				dbGetPosts(user, sC, "3", -1);
 
+				free(userType);
+				free(friendsType);
 				////444.trimite info despre user.postarile publice + friend + close-friend + family
 				return;
 			}
@@ -400,6 +414,7 @@ void viewProfile(int sC, const char *currentUser)
 
 			dbGetPosts(user, sC, "1", -1);
 
+			free(userType);
 			////442.trimite info despre user, postarile publice
 			return;
 		}
@@ -896,6 +911,7 @@ __sighandler_t forcequit(void)
 {
 	printf("[server]Force quit !\n");
 	dbForceQuit();
+	sqlite3_close(db);
 	exit(EXIT_SUCCESS);
 }
 
