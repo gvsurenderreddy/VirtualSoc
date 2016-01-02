@@ -50,26 +50,25 @@ typedef struct thData
 
 void answer(void *arg); // functie de deservire pentru fiecare client
 
-void myRead(char *, int);
 void safeStdinRead(const char *, char *, int);
 ssize_t safePrefWrite(int, const void *);
 ssize_t safePrefRead(int, void *);
 ssize_t safeRead(int, void *, size_t);
 ssize_t safeWrite(int, const void *, size_t);
-void help(int);
-int login(int, int, char *);
-void register_now(int, int);
+void help(bool);
+int login(int, bool, char *);
+void register_now(int, bool);
 void viewProfile(int, bool);
-int logout(int, int, char *);
-void addFriend(int, int);
-void addPost(int, int);
-void setProfile(int, int);
-void checkReq(int, int);
-void accFriend(int, int);
-void accChat(int, int);
-void friends(int, int);
-void online(int, int);
-void quit(int, int);
+int logout(int, bool, char *);
+void addFriend(int, bool);
+void addPost(int, bool);
+void setProfile(int, bool);
+void checkReq(int, bool);
+void accFriend(int, bool);
+void accChat(int, bool);
+void friends(int, bool);
+void online(int, bool);
+void quit(int, bool);
 int encodeCommand(const char *);
 __sighandler_t quitforce(void);
 

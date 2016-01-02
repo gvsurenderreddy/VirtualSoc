@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 		clientCommand = encodeCommand(clientCommandChar);
 		if (clientCommand == -1)
 		{
-			printf("Wrong command ! Check /help ! \n Commands are "
+			printf("Wrong command ! Check /help ! \nCommands are "
 				   "case-sensitive. \n");
 			continue;
 		}

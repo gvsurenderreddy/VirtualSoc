@@ -1,4 +1,4 @@
-CC = gcc-4.9
+CC = gcc
 CFLAGS = -c -std=gnu11 -g -Wall -fdiagnostics-color
 LINK_FLAGS = -pthread -l sqlite3
 LIBS_CLIENT = $(wildcard lib/client/*.c)

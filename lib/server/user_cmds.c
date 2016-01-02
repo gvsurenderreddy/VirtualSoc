@@ -6,7 +6,7 @@ ssize_t safeRead(int sock, void *buffer, size_t length)
 
 	if (nbytesR == -1)
 	{
-		perror("read() error ! Exiting !\n");
+		perror("write() error ! Exiting !\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -27,7 +27,7 @@ ssize_t safeWrite(int sock, const void *buffer, size_t length)
 
 ssize_t safePrefRead(int sock, void *buffer)
 {
-	int length = strlen(buffer);
+	ssize_t length = strlen(buffer);
 
 	ssize_t nbytesR = read(sock, &length, sizeof(int));
 	if (nbytesR == -1)
@@ -48,7 +48,7 @@ ssize_t safePrefRead(int sock, void *buffer)
 
 ssize_t safePrefWrite(int sock, const void *buffer)
 {
-	int length = strlen(buffer);
+	ssize_t length = strlen(buffer);
 
 	ssize_t nbytesW = write(sock, &length, sizeof(int));
 	if (nbytesW == -1)
@@ -67,14 +67,24 @@ ssize_t safePrefWrite(int sock, const void *buffer)
 	return length;
 }
 
+static bool isValidChar(char elem)
+{
+	// lowercase, uppercase, underline, dot
+	return ((elem >= 0x30 && elem <= 0x39) || // numbers
+			(elem >= 0x61 && elem <= 0x7a) || // lower case
+			(elem >= 41 && elem <= 0x5a) || // upper case
+			(elem == 0x5f || elem == 0x2e)); // _ .
+}
+
 int createConnSocketR()
 {
 	int sd;
+
 	if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("[server] Socket creation error ! socket(). \n");
 		printf("[server] Errno: %d", errno);
-		exit(0);
+		exit(EXIT_FAILURE);
 	}
 	int on = 1;
 	setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
@@ -84,120 +94,114 @@ int createConnSocketR()
 void login(int sC, char *currentUser)
 {
 	int resultAnswer = 11;
-	int check;
-	char id[33], password[33];
-	memset(id, 0, 33);
+	bool check;
+
+	char user[33], password[33];
+	memset(user, 0, 33);
 	memset(password, 0, 33);
 
-	read(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(bool));
 	if (check == 1)
-		return;
-	else
 	{
-		read(sC, id, sizeof(id));
-		read(sC, password, sizeof(password));
-
-		if ((strchr(id, '\"') != NULL || strchr(password, '\"') != NULL))
-		{
-			resultAnswer = 103;
-			write(sC, &resultAnswer, sizeof(int));
-			return;
-		}
-
-		if (dbLogCheckUser(id) == 0)
-		{
-			resultAnswer = 101;
-			write(sC, &resultAnswer, sizeof(int));
-			return;
-		}
-
-		if (dbLogCheck(id, password) == 0)
-		{
-			resultAnswer = 102;
-			write(sC, &resultAnswer, sizeof(int));
-			return;
-		}
-
-		if (dbSetOnline(id) == 0)
-		{
-			resultAnswer = 104;
-			write(sC, &resultAnswer, sizeof(int));
-			return;
-		}
-
-		write(sC, &resultAnswer, sizeof(int));
-		strcpy(currentUser, id);
 		return;
 	}
+	else
+	{
+		safePrefRead(sC, user);
+		safePrefRead(sC, password);
+
+		if ((strchr(user, '\"') != NULL || strchr(password, '\"') != NULL))
+		{
+			resultAnswer = 103;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbCheckUser(user) == 0)
+		{
+			resultAnswer = 101;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbLogCheck(user, password) == 0)
+		{
+			resultAnswer = 102;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbSetOnline(user) == 0)
+		{
+			resultAnswer = 104;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		strcpy(currentUser, user);
+	}
+	return;
 }
 
 void register_now(int sC)
 {
 	int resultAnswer = 22;
-	int check;
-	char id[33], password[33], fullname[65], sex[5], about[513], type[17];
+	bool check;
+	size_t i;
 
-	memset(id, 0, 33);
+	char user[33], password[33], fullname[65], sex[5], about[513], type[17];
+	memset(user, 0, 33);
 	memset(password, 0, 33);
 	memset(fullname, 0, 65);
 	memset(sex, 0, 5);
-	memset(about, 0, 33);
-	memset(type, 0, 33);
+	memset(about, 0, 513);
+	memset(type, 0, 17);
 
-	read(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(bool));
+
 	if (check == 1)
-		return;
 	{
-		read(sC, id, sizeof(id));
-		read(sC, password, sizeof(password));
-		read(sC, fullname, sizeof(fullname));
-		read(sC, sex, sizeof(sex));
-		read(sC, about, sizeof(about));
-		read(sC, type, sizeof(type));
+		return;
+	}
+	{
+		safePrefRead(sC, user);
+		safePrefRead(sC, password);
+		safePrefRead(sC, fullname);
+		safePrefRead(sC, sex);
+		safePrefRead(sC, about);
+		safePrefRead(sC, type);
 
-		/*    printf("Am primit : '%s'\n'%s'\n'%s'\n'%s'\n'%s'\n'%s'\n",
-       id,
-               password, fullname, sex, about, type);
-        fflush(stdout);*/
-
-		int i;
-
-		if (strlen(id) < 10)
+		if (strlen(user) < 10)
 		{
 			resultAnswer = 201;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 		else
-			for (i = 0; i < strlen(id); i++)
+			for (i = 0; i < strlen(user); i++)
 			{
-				if (!(id[i] >= 'a' && id[i] <= 'z'))
-					if (!(id[i] >= 'A' && id[i] <= 'Z'))
-						if (!(id[i] >= '0' && id[i] <= '9'))
-							if (!(id[i] == '_' || id[i] == '.'))
-							{
-								resultAnswer = 201;
-								write(sC, &resultAnswer, sizeof(int));
-								return;
-							}
+				if (!(isValidChar(user[i])))
+				{
+					resultAnswer = 201;
+					safeWrite(sC, &resultAnswer, sizeof(int));
+					return;
+				}
 			}
 
 		for (i = 0; i < strlen(fullname); i++)
 		{
-			if (!(fullname[i] >= 'a' && fullname[i] <= 'z'))
-				if (!(fullname[i] >= 'A' && fullname[i] <= 'Z'))
-					if (!(fullname[i] >= '0' && fullname[i] <= '9'))
-						if (!(fullname[i] == ' ' || fullname[i] == '.' || fullname[i] == '-'))
-						{
-							resultAnswer = 203;
-							write(sC, &resultAnswer, sizeof(int));
-							return;
-						}
+			if (!(isValidChar(fullname[i])) && fullname[i] != ' ')
+			{
+				resultAnswer = 203;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
 		}
 		if (strlen(password) < 10)
 		{
 			resultAnswer = 202;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 
@@ -206,7 +210,7 @@ void register_now(int sC)
 			if (password[i] == '\"')
 			{
 				resultAnswer = 208;
-				write(sC, &resultAnswer, sizeof(int));
+				safeWrite(sC, &resultAnswer, sizeof(int));
 				return;
 			}
 		}
@@ -215,7 +219,7 @@ void register_now(int sC)
 			if (about[i] == '\"')
 			{
 				resultAnswer = 208;
-				write(sC, &resultAnswer, sizeof(int));
+				safeWrite(sC, &resultAnswer, sizeof(int));
 				return;
 			}
 		}
@@ -223,46 +227,50 @@ void register_now(int sC)
 		if (strlen(fullname) < 10)
 		{
 			resultAnswer = 203;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
+
 		if ((strlen(sex) != 1) || (strlen(sex) == 1 && sex[0] != 'F' && sex[0] != 'M'))
 		{
 			resultAnswer = 204;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
+
 		if (strlen(about) < 10)
 		{
 			resultAnswer = 205;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
+
 		if (strcmp(type, "private") != 0 && strcmp(type, "public") != 0)
 		{
 			resultAnswer = 206;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
-		if (dbRegCheckUser(id) != 0)
+
+		if (dbRegCheckUser(user) != 0)
 		{
 			resultAnswer = 207;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
-	}
 
-	dbInsertUser(id, password, fullname, sex, about, type);
-	write(sC, &resultAnswer, sizeof(int));
+		dbInsertUser(user, password, fullname, sex, about, type);
+		safeWrite(sC, &resultAnswer, sizeof(int));
+	}
 	return;
 }
 
-void viewProfile(int sC, char *currentUser)
+void viewProfile(int sC, const char *currentUser)
 {
 	int resultAnswer = 44, postsCount;
-	bool check;
-	bool isFriend;
-	char user[33], *usertype, *friendstype;
+	bool check, isFriend;
+
+	char user[33], *userType, *friendsType;
 	memset(user, 0, 33);
 
 
@@ -279,15 +287,32 @@ void viewProfile(int sC, char *currentUser)
 	}
 
 	//exista userul ?
-	if (dbLogCheckUser(user) == 0)
+	if (dbCheckUser(user) == 0)
 	{
 		resultAnswer = 401;
 		safeWrite(sC, &resultAnswer, sizeof(int));
 		return;
 	}
 
+
+	//propriul profil
+	if (strcmp(user, currentUser) == 0)
+	{
+		resultAnswer = 445;
+		safeWrite(sC, &resultAnswer, sizeof(int));
+
+		dbGetInfoUser(currentUser, sC);
+
+		postsCount = dbGetPostsCount(currentUser, "3", -1);
+		safeWrite(sC, &postsCount, sizeof(int));
+
+		dbGetPosts(user, sC, "3", -1);
+
+		return;
+	}
+
 	//ce tip de user e ?
-	usertype = dbGetUserType(user);
+	userType = dbGetUserType(user);
 
 
 	if (check == 0)
@@ -295,7 +320,7 @@ void viewProfile(int sC, char *currentUser)
 		//nelogat.
 
 		//e tip private ?
-		if (strcmp(usertype, "private") == 0)
+		if (strcmp(userType, "private") == 0)
 		{
 			resultAnswer = 402;
 			safeWrite(sC, &resultAnswer, sizeof(int));
@@ -307,6 +332,7 @@ void viewProfile(int sC, char *currentUser)
 		{
 			resultAnswer = 441;
 			safeWrite(sC, &resultAnswer, sizeof(int));
+
 
 			dbGetInfoUser(user, sC);
 
@@ -327,9 +353,9 @@ void viewProfile(int sC, char *currentUser)
 		//sunt prieteni ?
 		if (isFriend)
 		{
-			friendstype = dbGetFType(user, currentUser);
+			friendsType = dbGetFType(user, currentUser);
 			//friend
-			if (atoi(friendstype) == 1)
+			if (atoi(friendsType) == 1)
 			{
 				resultAnswer = 443;
 				safeWrite(sC, &resultAnswer, sizeof(int));
@@ -345,7 +371,7 @@ void viewProfile(int sC, char *currentUser)
 				return;
 			}
 			//close-friend / family
-			if (atoi(friendstype) > 1)
+			if (atoi(friendsType) > 1)
 			{
 				resultAnswer = 444;
 				safeWrite(sC, &resultAnswer, sizeof(int));
@@ -378,105 +404,113 @@ void viewProfile(int sC, char *currentUser)
 			return;
 		}
 	}
-
-
-
+	free(userType);
+	free(friendsType);
 
 	return;
 }
 
 void logout(int sC, char *currentUser)
 {
-	int check;
-	read(sC, &check, sizeof(int));
+	bool check;
+
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 1)
 	{
 		dbSetOffline(currentUser);
+		memset(currentUser, 0, 33);
 	}
+
 	return;
 }
 
-void addFriend(int sC, char *currentUser)
+void addFriend(int sC, const char *currentUser)
 {
-	int resultAnswer = 66, check;
+	int resultAnswer = 66;
+	bool check;
+
 	char user[33], friendType[33];
 	memset(user, 0, 33);
 	memset(friendType, 0, 33);
 
-	read(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(bool));
+
 	if (check == 0)
 	{
 		return;
 	}
 	else
 	{
-		read(sC, user, sizeof(user));
-		read(sC, friendType, sizeof(friendType));
+		safePrefRead(sC, user);
+		safePrefRead(sC, friendType);
 
 		switch (atoi(friendType))
 		{
 		case 1:
 		case 2:
 		case 3:
-		{
 			resultAnswer = 66;
 			break;
-		}
+
 		default:
-		{
 			resultAnswer = 603;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
-		}
 		}
 
 
 		if (strcmp(user, currentUser) == 0)
 		{
 			resultAnswer = 604;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
-		if (dbLogCheckUser(user) == 0 || strchr(user, '\"') != NULL)
+
+		if (dbCheckUser(user) == 0 || strchr(user, '\"') != NULL)
 		{
 			resultAnswer = 601;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
+
 		if (dbFriendCheck(currentUser, user) != 0)
 		{
 			resultAnswer = 602;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
+
 		if (dbRequestCheckType(currentUser, user, "1") != 0)
 		{
 			resultAnswer = 605;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
+
 		if (dbRequestCheckType(user, currentUser, "1") != 0)
 		{
 			resultAnswer = 606;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 
 		dbRequestSend(currentUser, user, "1", friendType);
-		write(sC, &resultAnswer, sizeof(int));
-		return;
+		safeWrite(sC, &resultAnswer, sizeof(int));
 	}
+	return;
 }
 
-void addPost(int sC, char *currentUser)
+void addPost(int sC, const char *currentUser)
 {
-	int resultAnswer = 77, check;
-	char post[513], posttype[5];
-	memset(post, 0, 513);
-	memset(posttype, 0, 5);
+	int resultAnswer = 77;
+	bool check;
 
-	safeRead(sC, &check, sizeof(int));
+	char post[513], postType[5];
+	memset(post, 0, 513);
+	memset(postType, 0, 5);
+
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
@@ -485,15 +519,16 @@ void addPost(int sC, char *currentUser)
 	else
 	{
 		safePrefRead(sC, post);
-		safePrefRead(sC, posttype);
+		safePrefRead(sC, postType);
 
-		switch (atoi(posttype))
+		switch (atoi(postType))
 		{
 		case 1:
 		case 2:
 		case 3:
 			resultAnswer = 77;
 			break;
+
 		default:
 			resultAnswer = 701;
 			safeWrite(sC, &resultAnswer, sizeof(int));
@@ -508,27 +543,18 @@ void addPost(int sC, char *currentUser)
 		}
 
 		safeWrite(sC, &resultAnswer, sizeof(int));
-		dbInsertPost(currentUser, post, posttype);
+		dbInsertPost(currentUser, post, postType);
 	}
 
 	return;
 }
 
-static bool is_only_chars_number(char elem)
-{
-	// numbers
-	return ((elem >= 0x30 && elem <= 0x39) ||
-			// lower case
-			(elem >= 0x61 && elem <= 0x7a) ||
-			// upper case
-			(elem >= 41 && elem <= 0x5a) ||
-			// space  - .
-			(elem == 0x20 || elem == 0x2d || elem == 0x2e));
-}
-
-void setProfile(int sC, char *currentUser)
+void setProfile(int sC, const char *currentUser)
 {
 	int resultAnswer = 88;
+	bool check;
+	size_t i;
+
 	char option[3], fullname[65], sex[5], about[513], type[17], password[33];
 	memset(option, 0, 3);
 	memset(fullname, 0, 65);
@@ -537,9 +563,8 @@ void setProfile(int sC, char *currentUser)
 	memset(type, 0, 17);
 	memset(password, 0, 33);
 
-	int check;
-	size_t i;
-	safeRead(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(bool));
+
 	if (check == 0)
 	{
 		return;
@@ -557,7 +582,6 @@ void setProfile(int sC, char *currentUser)
 		{
 		case 1:
 			safePrefRead(sC, fullname);
-			printf("Fullnaame citit: '%s'\n", fullname);
 
 			if (strlen(fullname) < 10)
 			{
@@ -565,12 +589,10 @@ void setProfile(int sC, char *currentUser)
 				safeWrite(sC, &resultAnswer, sizeof(int));
 				return;
 			}
+
 			for (i = 0; i < strlen(fullname); i++)
 			{
-				// test if fullname dosen't contain
-				// number,letters and 3 special char
-				// space , - and .
-				if (!(is_only_chars_number(fullname[i])))
+				if (!(isValidChar(fullname[i])) && fullname[i] != ' ')
 				{
 					resultAnswer = 801;
 					safeWrite(sC, &resultAnswer, sizeof(int));
@@ -639,42 +661,46 @@ void setProfile(int sC, char *currentUser)
 
 
 
-void checkReq(int sC, char *currentUser)
+void checkReq(int sC, const char *currentUser)
 {
-	int resultAnswer = 99, check;
+	int resultAnswer = 99;
+	bool check;
+	int requestsCount;
 
-	read(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(bool));
 	if (check == 0)
 	{
 		return;
 	}
 	else
 	{
-		int requestsCount = dbRequestCheckCount(currentUser);
+		requestsCount = dbRequestCheckCount(currentUser);
 
 		if (requestsCount == 0)
 		{
 			resultAnswer = 901;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
-		write(sC, &resultAnswer, sizeof(int));
-		write(sC, &requestsCount, sizeof(int));
 
-		dbRequestCheck(currentUser, sC, 35);
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		safeWrite(sC, &requestsCount, sizeof(int));
+
+		dbRequestCheck(currentUser, sC);
 	}
 	return;
 }
 
-void accFriend(int sC, char *currentUser)
+void accFriend(int sC, const char *currentUser)
 {
-	int resultAnswer = 1010, check;
-	char user[33], friendType[33];
+	int resultAnswer = 1010;
+	bool check;
 
+	char user[33], friendType[33];
 	memset(user, 0, 33);
 	memset(friendType, 0, 33);
 
-	read(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(bool));
 	if (check == 0)
 	{
 		return;
@@ -682,72 +708,74 @@ void accFriend(int sC, char *currentUser)
 	else
 	{
 
-		read(sC, user, sizeof(user));
-		read(sC, friendType, sizeof(friendType));
+		safePrefRead(sC, user);
+		safePrefRead(sC, friendType);
 
 		switch (atoi(friendType))
 		{
 		case 1:
 		case 2:
 		case 3:
-		{
 			resultAnswer = 1010;
 			break;
-		}
+
 		default:
-		{
 			resultAnswer = 1001;
-			break;
-		}
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
 		}
 
 
 		if (strcmp(user, currentUser) == 0)
 		{
 			resultAnswer = 1002;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
-		if (dbLogCheckUser(user) == 0 || strchr(user, '\"') != NULL)
+
+		if (dbCheckUser(user) == 0 || strchr(user, '\"') != NULL)
 		{
 			resultAnswer = 1003;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
+
 		if (dbFriendCheck(currentUser, user) != 0)
 		{
 			resultAnswer = 1004;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
+
 		if (dbRequestCheckType(user, currentUser, "1") == 0)
 		{
 			resultAnswer = 1005;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 
 		char *getFType = dbGetFTypeFromReq(user, currentUser);
+
 		dbInsertFriend(currentUser, user, friendType);
 		dbInsertFriend(user, currentUser, getFType);
 		dbDeleteRequestType(currentUser, user, "1");
 		dbDeleteRequestType(user, currentUser, "1");
-		write(sC, &resultAnswer, sizeof(int));
+
+		safeWrite(sC, &resultAnswer, sizeof(int));
 
 		free(getFType);
-		return;
 	}
 	return;
 }
 
 
 
-void accChat(int sC, char *currentUser)
+void accChat(int sC, const char *currentUser)
 {
 	//int resultAnswer = 1111;
-	int check;
+	bool check;
 
-	read(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
@@ -759,14 +787,15 @@ void accChat(int sC, char *currentUser)
 	return;
 }
 
-void friends(int sC, char *currentUser)
+void friends(int sC, const char *currentUser)
 {
-	int resultAnswer = 1212, check;
-	;
+	int resultAnswer = 1212, friendsCount;
+	bool check;
+
 	char user[33];
 	memset(user, 0, 33);
 
-	read(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
@@ -774,55 +803,54 @@ void friends(int sC, char *currentUser)
 	}
 	else
 	{
-		read(sC, user, sizeof(user));
+		safePrefRead(sC, user);
 
 
 		if (strchr(user, '\"') != NULL)
 		{
 			resultAnswer = 1201;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 
-		if (dbLogCheckUser(user) == 0)
+		if (dbCheckUser(user) == 0)
 		{
 			resultAnswer = 1201;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 
 		if (dbFriendCheck(currentUser, user) == 0 && strcmp(currentUser, user) != 0)
 		{
 			resultAnswer = 1202;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 
-		int friendsCount = dbFriendsCount(user);
+		friendsCount = dbFriendsCount(user);
 
 		if (friendsCount == 0)
 		{
 			resultAnswer = 1203;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		safeWrite(sC, &friendsCount, sizeof(int));
 
-
-		write(sC, &resultAnswer, sizeof(int));
-		write(sC, &friendsCount, sizeof(int));
-
-		dbFriends(user, sC, 35);
+		dbFriends(user, sC);
 	}
 
 	return;
 }
 
-void online(int sC, char *currentUser)
+void online(int sC, const char *currentUser)
 {
-	int resultAnswer = 1313, check, onlineCount;
+	int resultAnswer = 1313, onlineCount;
+	bool check;
 
-	read(sC, &check, sizeof(int));
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
@@ -835,14 +863,14 @@ void online(int sC, char *currentUser)
 		if (onlineCount == 0)
 		{
 			resultAnswer = 1301;
-			write(sC, &resultAnswer, sizeof(int));
+			safeWrite(sC, &resultAnswer, sizeof(int));
 			return;
 		}
 
-		write(sC, &resultAnswer, sizeof(int));
-		write(sC, &onlineCount, sizeof(int));
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		safeWrite(sC, &onlineCount, sizeof(int));
 
-		dbOnline(currentUser, sC, 33);
+		dbOnline(currentUser, sC);
 	}
 	return;
 }
@@ -851,20 +879,24 @@ void online(int sC, char *currentUser)
 
 void quit(int sC, char *currentUser)
 {
-	int check;
-	read(sC, &check, sizeof(int));
+	bool check;
+
+	safeRead(sC, &check, sizeof(bool));
+
 	if (check == 1)
 	{
 		dbSetOffline(currentUser);
+		memset(currentUser, 0, 33);
 	}
+
 	return;
 }
 
 __sighandler_t forcequit(void)
 {
-	printf("[server] Force quit !\n");
+	printf("[server]Force quit !\n");
 	dbForceQuit();
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 void answer(void *arg)
@@ -873,6 +905,7 @@ void answer(void *arg)
 	tdL = *((struct thData *)arg);
 
 	int clientCommand = -1;
+
 	char clientID[33];
 	memset(clientID, 0, 33);
 

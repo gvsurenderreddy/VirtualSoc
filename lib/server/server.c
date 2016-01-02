@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 	if (argc < 2)
 	{
 		fprintf(stderr, "Usage: ./server 1/0 (1 for normal, 0 for debugging)\n");
-		exit(0);
+		exit(EXIT_FAILURE);
 	}
 
 	int rc = sqlite3_open("vsoc.db", &db);
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 	if (rc)
 	{
 		fprintf(stderr, "Can't open Database %s !\n", sqlite3_errmsg(db));
-		exit(0);
+		exit(EXIT_FAILURE);
 	}
 	else
 	{
@@ -42,14 +42,14 @@ int main(int argc, char *argv[])
 		{
 			perror("[server]Socket bind error ! bind(). \n");
 			printf("[server]Errno: %d", errno);
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 
 		if (listen(socketConnect, 10) == -1)
 		{
 			perror("[server]Socket listen error ! listen(). \n");
 			printf("[server]Errno: %d", errno);
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 
 		printf("[server]Waiting at port %d \n", PORT);
