@@ -1,6 +1,34 @@
 #define CLIENT 1
 #include "vsoc.h"
 
+int getPassV2(const char *prompt, char *pass, int length)
+{
+	struct termios oflags, nflags;
+
+	// disable echo
+	tcgetattr(fileno(stdin), &oflags);
+	nflags = oflags;
+	nflags.c_lflag &= ~ECHO;
+	nflags.c_lflag |= ECHONL;
+
+	if (tcsetattr(fileno(stdin), TCSANOW, &nflags) != 0)
+	{
+		perror("tcsetattr");
+		return EXIT_FAILURE;
+	}
+
+	//read password
+	safeStdinRead(prompt, pass, length);
+
+	//restore echo
+	if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0)
+	{
+		perror("tcsetattr");
+		return EXIT_FAILURE;
+	}
+	return 0;
+}
+
 void safeStdinRead(const char *print, char *text, int size)
 {
 	fprintf(stdout, "%s", print);
@@ -93,7 +121,7 @@ int login(int sC, bool check, char *currentUser)
 {
 	int resultAnswer = -1;
 
-	char user[33], password[33], *invPass;
+	char user[33], password[33];
 	memset(user, 0, 33);
 	memset(password, 0, 33);
 
@@ -107,9 +135,7 @@ int login(int sC, bool check, char *currentUser)
 	else
 	{
 		safeStdinRead("User: ", user, 33);
-
-		invPass = getpass("Password: ");
-		strcpy(password, invPass);
+		getPassV2("Password: ", password, 33);
 
 		safePrefWrite(sC, user);
 		safePrefWrite(sC, password);
@@ -147,7 +173,7 @@ void register_now(int sC, bool check)
 {
 	int resultAnswer = -1;
 
-	char user[33], *invPass, password[33], fullname[65], sex[5], about[513],
+	char user[33], password[33], fullname[65], sex[5], about[513],
 		type[17];
 	memset(user, 0, 33);
 	memset(password, 0, 33);
@@ -169,8 +195,8 @@ void register_now(int sC, bool check)
 	{
 		safeStdinRead("User (10-32 ch. alpha-numerical): ", user, 33);
 
-		invPass = getpass("Password (10-32 ch.): ");
-		strcpy(password, invPass);
+		getPassV2("Password (10-32 ch.): ", password, 33);
+
 
 		safeStdinRead("Fullname (10-64 ch. alpha-numerical and spaces): ", fullname, 65);
 
@@ -479,7 +505,7 @@ void setProfile(int sC, bool check)
 {
 	int resultAnswer = -1;
 
-	char option[3], fullname[65], sex[5], about[513], type[17], password[33], *invPass;
+	char option[3], fullname[65], sex[5], about[513], type[17], password[33];
 	memset(option, 0, 3);
 	memset(fullname, 0, 65);
 	memset(sex, 0, 5);
@@ -487,7 +513,7 @@ void setProfile(int sC, bool check)
 	memset(type, 0, 17);
 	memset(password, 0, 33);
 
-	safeWrite(sC, &check, sizeof(int));
+	safeWrite(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
@@ -524,8 +550,7 @@ void setProfile(int sC, bool check)
 			break;
 
 		case 4:
-			invPass = getpass("Password (10-32 ch.): ");
-			strcpy(password, invPass);
+			getPassV2("Password (10-32 ch.): ", password, 33);
 			safePrefWrite(sC, password);
 			break;
 

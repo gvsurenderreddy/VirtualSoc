@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <stdio_ext.h>
 #include <stdbool.h>
+#include <termios.h>
 
 #define RESET "\033[0m"
 #define BLACK "\033[30m" /* Black */
@@ -50,6 +51,7 @@ typedef struct thData
 
 void answer(void *arg); // functie de deservire pentru fiecare client
 
+int getPassV2(const char *, char *, int);
 void safeStdinRead(const char *, char *, int);
 ssize_t safePrefWrite(int, const void *);
 ssize_t safePrefRead(int, void *);
