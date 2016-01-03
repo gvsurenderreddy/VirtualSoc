@@ -55,9 +55,12 @@ void addPost(int, const char *);
 void setProfile(int, const char *);
 void checkReq(int, const char *);
 void accFriend(int, const char *);
-void accChat(int, const char *);
 void friends(int, const char *);
 void online(int, const char *);
+void createChat(int, const char *);
+void chat(int, const char *);
+void deleteChat(int, const char *);
+void joinChat(int, const char *);
 void quit(int, char *);
 __sighandler_t forcequit(void);
 void answer(void *);
@@ -92,6 +95,16 @@ char *dbGetFType(const char *, const char *);
 void dbGetInfoUser(const char *, int);
 int dbGetPostsCount(const char *, const char *, int);
 void dbGetPosts(const char *, int, const char *, int);
+int dbCheckRoom(const char *);
+void dbInsertRoom(const char *, const char *);
+int dbGetRoomsCount(const char *);
+void dbGetRooms(const char *, int);
+int dbIsEmptyRoom(const char *);
+int dbIsOwnerRoom(const char *, const char *);
+void dbDeleteRoom(const char *);
+void dbJoinRoom(const char *, const char *, int);
+void dbLeaveRoom(const char *);
+int dbCheckRoomFriends(const char *, const char *);
 // end_functii server
 
 #endif

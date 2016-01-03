@@ -434,6 +434,7 @@ void logout(int sC, char *currentUser)
 	if (check == 1)
 	{
 		dbSetOffline(currentUser);
+		dbLeaveRoom(currentUser);
 		memset(currentUser, 0, 33);
 	}
 
@@ -678,9 +679,8 @@ void setProfile(int sC, const char *currentUser)
 
 void checkReq(int sC, const char *currentUser)
 {
-	int resultAnswer = 99;
+	int resultAnswer = 99, requestsCount;
 	bool check;
-	int requestsCount;
 
 	safeRead(sC, &check, sizeof(bool));
 	if (check == 0)
@@ -784,24 +784,6 @@ void accFriend(int sC, const char *currentUser)
 }
 
 
-
-void accChat(int sC, const char *currentUser)
-{
-	//int resultAnswer = 1111;
-	bool check;
-
-	safeRead(sC, &check, sizeof(bool));
-
-	if (check == 0)
-	{
-		return;
-	}
-	else
-	{
-	}
-	return;
-}
-
 void friends(int sC, const char *currentUser)
 {
 	int resultAnswer = 1212, friendsCount;
@@ -890,7 +872,182 @@ void online(int sC, const char *currentUser)
 	return;
 }
 
+void createChat(int sC, const char *currentUser)
+{
 
+	int resultAnswer = 1414;
+	bool check;
+
+	char room[33];
+	memset(room, 0, 33);
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		safePrefRead(sC, room);
+
+		size_t i;
+
+		if ((strchr(room, '\"') != NULL) || strlen(room) < 5)
+		{
+			resultAnswer = 1401;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		for (i = 0; i < strlen(room); i++)
+		{
+			if (!(isValidChar(room[i])))
+			{
+				resultAnswer = 1401;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+		}
+
+		if (dbCheckRoom(room) != 0)
+		{
+			resultAnswer = 1402;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		dbInsertRoom(room, currentUser);
+		safeWrite(sC, &resultAnswer, sizeof(int));
+	}
+	return;
+}
+
+void chat(int sC, const char *currentUser)
+{
+	int resultAnswer = 1515, roomsCount;
+	bool check;
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		roomsCount = dbGetRoomsCount(currentUser);
+
+		if (roomsCount == 0)
+		{
+			resultAnswer = 1501;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		safeWrite(sC, &roomsCount, sizeof(int));
+		dbGetRooms(currentUser, sC);
+	}
+	return;
+}
+
+void deleteChat(int sC, const char *currentUser)
+{
+	int resultAnswer = 1616;
+	bool check;
+
+	char room[33];
+	memset(room, 0, 33);
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		safePrefRead(sC, room);
+
+		if (strchr(room, '\"') != NULL || strlen(room) < 5)
+		{
+			resultAnswer = 1601;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbCheckRoom(room) == 0)
+		{
+			resultAnswer = 1601;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbIsOwnerRoom(currentUser, room) == 0)
+		{
+			resultAnswer = 1602;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbIsEmptyRoom(room) != 0)
+		{
+			resultAnswer = 1603;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		dbDeleteRoom(room);
+	}
+	return;
+}
+
+void joinChat(int sC, const char *currentUser)
+{
+	int resultAnswer = 1717;
+	bool check;
+
+	char room[33];
+	memset(room, 0, 33);
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		safePrefRead(sC, room);
+
+		if (strchr(room, '\"') != NULL || strlen(room) < 5)
+		{
+			resultAnswer = 1701;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbCheckRoom(room) == 0)
+		{
+			resultAnswer = 1701;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbCheckRoomFriends(currentUser, room) == 0)
+		{
+			resultAnswer = 1702;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		dbJoinRoom(currentUser, room, sC);
+	}
+	return;
+}
 
 void quit(int sC, char *currentUser)
 {
@@ -901,6 +1058,7 @@ void quit(int sC, char *currentUser)
 	if (check == 1)
 	{
 		dbSetOffline(currentUser);
+		dbLeaveRoom(currentUser);
 		memset(currentUser, 0, 33);
 	}
 
@@ -933,6 +1091,7 @@ void answer(void *arg)
 			fflush(stdout);
 			perror("read() error or forced disconnect");
 			dbSetOffline(clientID);
+			dbLeaveRoom(clientID);
 			break;
 		}
 
@@ -980,16 +1139,28 @@ void answer(void *arg)
 			accFriend(tdL.client, clientID);
 			break;
 
-		case 11:
-			accChat(tdL.client, clientID);
-			break;
-
 		case 12:
 			friends(tdL.client, clientID);
 			break;
 
 		case 13:
 			online(tdL.client, clientID);
+			break;
+
+		case 14:
+			createChat(tdL.client, clientID);
+			break;
+
+		case 15:
+			chat(tdL.client, clientID);
+			break;
+
+		case 16:
+			deleteChat(tdL.client, clientID);
+			break;
+
+		case 17:
+			joinChat(tdL.client, clientID);
 			break;
 		}
 	}

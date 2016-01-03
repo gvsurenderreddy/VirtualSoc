@@ -123,16 +123,25 @@ int main(int argc, char *argv[])
 			accFriend(socketConnect, logged);
 			break;
 
-		case 11:
-			accChat(socketConnect, logged);
-			break;
-
 		case 12:
 			friends(socketConnect, logged);
 			break;
 
 		case 13:
 			online(socketConnect, logged);
+			break;
+
+		case 14:
+			createChat(socketConnect, logged);
+			break;
+		case 15:
+			chat(socketConnect, logged);
+			break;
+		case 16:
+			deleteChat(socketConnect, logged);
+			break;
+		case 17:
+			joinChat(socketConnect, logged);
 			break;
 		}
 	}

@@ -1,7 +1,7 @@
 #include "vsoc.h"
 
 
-/* TYPE OF REQUESTS: 1-Add Friend, 2-Chat Invite */
+/* TYPE OF REQUESTS: 1-Add Friend */
 
 
 int callback(void *data, int argc, char **argv, char **azColName)
@@ -197,9 +197,9 @@ void dbForceQuit(void)
 {
 	// delogheaza toti ID din tabela
 	char *sql;
-	sql = calloc(20, sizeof(char));
+	sql = calloc(50, sizeof(char));
 
-	sprintf(sql, "DELETE FROM ONLINE;");
+	sprintf(sql, "DELETE FROM ONLINE;DELETE FROM CHATUSERS;");
 
 	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
 
@@ -447,7 +447,7 @@ int dbFriendsCount(const char *ID)
 
 void dbFriends(const char *ID, int sC)
 {
-	//intoarce prietenii lui ID / paseaza lui cbSmartFriends desc. sC
+	//intoarce prietenii lui ID
 	char *sql;
 	sql = calloc(60 + strlen(ID), sizeof(char));
 	sprintf(sql, "SELECT friend,type FROM FRIENDS WHERE owner=\"%s\";", ID);
@@ -704,4 +704,252 @@ void dbGetPosts(const char *ID, int sC, const char *posttype, int limit)
 	}
 
 	free(sql);
+}
+
+int dbCheckRoom(const char *ROOM)
+{
+	//verifica daca exista o camera de chat ROOM
+
+	char *sql;
+	sql = calloc(50 + strlen(ROOM), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM chats WHERE room=\"%s\";", ROOM);
+
+	char *data;
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbCheckRoom:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbCheckRoom:Succes \n");
+	}
+
+
+	free(sql);
+	return atoi((char *)&data);
+}
+
+void dbInsertRoom(const char *ROOM, const char *ID)
+{
+	// adauga in chats ROOM cu owneru ID
+	char *sql;
+	sql = calloc(60 + strlen(ID) + strlen(ROOM), sizeof(char));
+
+	sprintf(sql, "INSERT INTO chats (room,owner) VALUES (\"%s\",\"%s\");",
+			ROOM, ID);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbInsertRoom:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbInsertRoom:Succes \n");
+	}
+
+	free(sql);
+}
+
+int dbGetRoomsCount(const char *ID)
+{
+	//returneaza numarul de camere create de prietenii lui ID sau de el
+
+	char *sql;
+	sql = calloc(170 + 2 * strlen(ID), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM (SELECT c.room,c.owner FROM friends f,chats c WHERE (f.owner=\"%s\" AND c.owner=f.friend) UNION SELECT room,owner FROM chats WHERE owner=\"%s\");", ID, ID);
+
+	char *data;
+
+
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetRoomsCount:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetRoomsCount:Succes \n");
+	}
+
+	free(sql);
+	return atoi((char *)&data);
+}
+
+void dbGetRooms(const char *ID, int sC)
+{
+	// intoarce numele camerelor lui ID si a prietenilor sai
+	char *sql;
+	sql = calloc(150 + 2 * strlen(ID), sizeof(char));
+	sprintf(sql, "SELECT c.room,c.owner FROM friends f,chats c WHERE (f.owner=\"%s\" AND c.owner=f.friend) UNION SELECT room,owner FROM chats WHERE owner=\"%s\";", ID, ID);
+
+	int data[2];
+	data[0] = sC;
+
+	rc = sqlite3_exec(db, sql, (void *)cbDSlines, data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetRooms:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetRooms:Succes \n");
+	}
+
+	free(sql);
+}
+
+int dbIsEmptyRoom(const char *ROOM)
+{
+	//verifica daca ROOM are useri in ea
+	char *sql;
+	sql = calloc(50 + strlen(ROOM), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM chatusers WHERE room=\"%s\"", ROOM);
+
+	char *data;
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbIsEmptyRooms:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbIsEmptyRooms:Succes \n");
+	}
+
+	free(sql);
+	return atoi((char *)&data);
+}
+
+int dbIsOwnerRoom(const char *ID, const char *ROOM)
+{
+	//verifica daca ID este ownerul camerei ROOM
+	char *sql;
+	sql = calloc(65 + strlen(ROOM) + strlen(ID), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM chats WHERE room=\"%s\" AND owner=\"%s\"", ROOM, ID);
+
+	char *data;
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbIsOwnerRoom:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbIsOwnerRoom:Succes \n");
+	}
+
+	free(sql);
+	return atoi((char *)&data);
+}
+
+void dbDeleteRoom(const char *ROOM)
+{
+	// sterge roomul ROOM
+	char *sql;
+	sql = calloc(40 + strlen(ROOM), sizeof(char));
+
+	sprintf(sql, "DELETE FROM chats WHERE room=\"%s\";", ROOM);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbDeleteRoom:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbDeleteRoom:Succes \n");
+	}
+
+	free(sql);
+}
+
+void dbJoinRoom(const char *ID, const char *ROOM, int sC)
+{
+	// adauga in chatusers ID ce intra in ROOM
+	char *sql;
+	sql = calloc(75 + strlen(ID) + strlen(ROOM), sizeof(char));
+
+	sprintf(sql, "INSERT INTO chatusers (room,user,sock) VALUES (\"%s\",\"%s\",\"%d\");",
+			ROOM, ID, sC);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbJoinRoom:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbJoinRoom:Succes \n");
+	}
+
+	free(sql);
+}
+
+void dbLeaveRoom(const char *ID)
+{
+	// sterge ID ce a intrat in ROOM din el
+	char *sql;
+	sql = calloc(60 + strlen(ID), sizeof(char));
+
+	sprintf(sql, "DELETE FROM CHATUSERS WHERE user=\"%s\";", ID);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbLeaveRoom:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbLeaveRoom:Succes \n");
+	}
+
+	free(sql);
+}
+
+int dbCheckRoomFriends(const char *ID, const char *ROOM)
+{
+	//verifica daca ROOM in care ID vrea sa intre e a lui sa a prietenilor lui
+	char *sql;
+	sql = calloc(210 + 2 * strlen(ROOM) + 2 * strlen(ID), sizeof(char));
+
+	sprintf(sql, "select count(*) from (select c.room,c.owner from friends f,chats c where (f.owner=\"%s\" and c.owner=f.friend and c.room=\"%s\") union select room,owner from chats where owner=\"%s\" and room=\"%s\");", ID, ROOM, ID, ROOM);
+
+	char *data;
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbCheckRoomFriends:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbCheckRoomFriends:Succes \n");
+	}
+
+	free(sql);
+	return atoi((char *)&data);
 }

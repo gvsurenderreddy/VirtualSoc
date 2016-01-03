@@ -67,10 +67,13 @@ void addPost(int, bool);
 void setProfile(int, bool);
 void checkReq(int, bool);
 void accFriend(int, bool);
-void accChat(int, bool);
 void friends(int, bool);
 void online(int, bool);
 void quit(int, bool);
+void createChat(int, bool);
+void chat(int, bool);
+void deleteChat(int, bool);
+void joinChat(int, bool);
 int encodeCommand(const char *);
 __sighandler_t quitforce(void);
 

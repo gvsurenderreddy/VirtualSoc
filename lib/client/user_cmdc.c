@@ -13,7 +13,7 @@ int getPassV2(const char *prompt, char *pass, int length)
 
 	if (tcsetattr(fileno(stdin), TCSANOW, &nflags) != 0)
 	{
-		perror("tcsetattr");
+		perror("tcsetattr() error ! Exiting !\n");
 		return EXIT_FAILURE;
 	}
 
@@ -23,7 +23,7 @@ int getPassV2(const char *prompt, char *pass, int length)
 	//restore echo
 	if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0)
 	{
-		perror("tcsetattr");
+		perror("tcsetattr() error ! Exiting!\n");
 		return EXIT_FAILURE;
 	}
 	return 0;
@@ -114,7 +114,7 @@ void help(bool check)
 {
 	printf("\n Available commands :\n /login\n /logout\n /register\n "
 		   "/quit\n "
-		   "/viewProfile\n /addFriend\n /addPost\n /checkReq\n /accFriend\n /friends\n /online\n\n");
+		   "/viewProfile\n /addFriend\n /addPost\n /checkReq\n /accFriend\n /friends\n /online\n /setProfile\n /createChat\n /chat\n /deleteChat\n /joinChat\n\n");
 }
 
 int login(int sC, bool check, char *currentUser)
@@ -740,22 +740,6 @@ void accFriend(int sC, bool check)
 	return;
 }
 
-void accChat(int sC, bool check)
-{
-	//int resultAnswer = -1;
-
-	safeWrite(sC, &check, sizeof(bool));
-
-	if (check == 0)
-	{
-		printf("You're not logged in !\n");
-	}
-	else
-	{
-	}
-
-	return;
-}
 
 void friends(int sC, bool check)
 {
@@ -880,6 +864,171 @@ void online(int sC, bool check)
 	return;
 }
 
+void createChat(int sC, bool check)
+{
+	int resultAnswer = -1;
+
+	char room[33];
+	memset(room, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+	}
+	else
+	{
+		safeStdinRead("Room name (5-32 ch.): ", room, 33);
+
+		safePrefWrite(sC, room);
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 1401:
+			printf("Invalid room name !(5-32 ch. alpha-numerical, dot and underline, no quotes)\n");
+			break;
+
+		case 1402:
+			printf("A room with name '%s' already exists !\n", room);
+			break;
+
+		case 1414:
+			printf("Room '%s' created !\n", room);
+			break;
+		}
+	}
+	return;
+}
+
+void chat(int sC, bool check)
+{
+	int resultAnswer = -1, roomsCount;
+
+	char user[33], room[33];
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+	}
+	else
+	{
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 1501:
+			printf("No rooms created !\n");
+			break;
+
+		case 1515:
+			safeRead(sC, &roomsCount, sizeof(int));
+
+			printf("There are %d room created: \n\n", roomsCount);
+			while (roomsCount != 0)
+			{
+				memset(room, 0, 33);
+				memset(user, 0, 33);
+				safePrefRead(sC, room);
+				safePrefRead(sC, user);
+				printf("%s	[Owner: %s]\n", room, user);
+				roomsCount--;
+			}
+
+			printf("\n");
+			break;
+		}
+	}
+
+	return;
+}
+
+void deleteChat(int sC, bool check)
+{
+	int resultAnswer = -1;
+
+	char room[33];
+	memset(room, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+	}
+	else
+	{
+		safeStdinRead("Delete room: ", room, 33);
+
+		safePrefWrite(sC, room);
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 1601:
+			printf("Room '%s' doesn't exist !\n", room);
+			break;
+
+		case 1602:
+			printf("You're not the owner of room '%s' !\n", room);
+			break;
+
+		case 1603:
+			printf("Room '%s' is not empty !\n", room);
+			break; //trateaza asta
+
+		case 1616:
+			printf("Room '%s' has been deleted !\n", room);
+			break;
+		}
+	}
+	return;
+}
+
+void joinChat(int sC, bool check)
+{
+	int resultAnswer = -1;
+
+	char room[33];
+	memset(room, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+	}
+	else
+	{
+		safeStdinRead("Join chat: ", room, 33);
+
+		safePrefWrite(sC, room);
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 1701:
+			printf("Room '%s' invalid or doesn't exist !\n", room);
+			break;
+
+		case 1702:
+			printf("Room '%s' doesn't belong to you or to your friends !\n", room);
+			break;
+
+		case 1717:
+			printf("You joined room '%s' !\n", room);
+			break;
+		}
+	}
+	return;
+}
+
 int encodeCommand(const char *clientCommandChar)
 {
 	if (strcmp(clientCommandChar, "/login") == 0)
@@ -904,12 +1053,19 @@ int encodeCommand(const char *clientCommandChar)
 		return 9;
 	if (strcmp(clientCommandChar, "/accFriend") == 0)
 		return 10;
-	if (strcmp(clientCommandChar, "/accChat") == 0)
-		return 11;
 	if (strcmp(clientCommandChar, "/friends") == 0)
 		return 12;
 	if (strcmp(clientCommandChar, "/online") == 0)
 		return 13;
+	if (strcmp(clientCommandChar, "/createChat") == 0)
+		return 14;
+	if (strcmp(clientCommandChar, "/chat") == 0)
+		return 15;
+	if (strcmp(clientCommandChar, "/deleteChat") == 0)
+		return 16;
+	if (strcmp(clientCommandChar, "/joinChat") == 0)
+		return 17;
+
 	return -1;
 }
 
