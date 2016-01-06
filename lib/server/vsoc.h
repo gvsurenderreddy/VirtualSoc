@@ -69,6 +69,7 @@ void answer(void *);
 int callback(void *, int, char **, char **);
 int cbSingle(char *, int, char **, char **);
 int cbDSlines(int *, int, char **, char **);
+int cbSendMsg(char **, int, char **, char **);
 void dbInsertUser(const char *, const char *, const char *, const char *, const char *, const char *);
 int dbRegCheckUser(const char *);
 int dbCheckUser(const char *);
@@ -105,6 +106,8 @@ void dbDeleteRoom(const char *);
 void dbJoinRoom(const char *, const char *, int);
 void dbLeaveRoom(const char *);
 int dbCheckRoomFriends(const char *, const char *);
+void activeChat(int, const char *, const char *);
+void dbSendMsgToRoom(const char *, const char *, const char *);
 // end_functii server
 
 #endif

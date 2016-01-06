@@ -22,6 +22,7 @@
 #include <stdio_ext.h>
 #include <stdbool.h>
 #include <termios.h>
+#include <ncurses.h>
 
 #define RESET "\033[0m"
 #define BLACK "\033[30m" /* Black */
@@ -43,13 +44,6 @@
 
 int port;
 
-typedef struct thData
-{
-	int idThread;
-	int client;
-} thData; // structura pentru thread-uri
-
-void answer(void *arg); // functie de deservire pentru fiecare client
 
 int getPassV2(const char *, char *, int);
 void safeStdinRead(const char *, char *, int);
@@ -73,8 +67,10 @@ void quit(int, bool);
 void createChat(int, bool);
 void chat(int, bool);
 void deleteChat(int, bool);
-void joinChat(int, bool);
+void joinChat(int, bool, const char *);
+void activeChat(int, const char *, const char *);
 int encodeCommand(const char *);
 __sighandler_t quitforce(void);
+
 
 #endif

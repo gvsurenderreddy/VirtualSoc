@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
 		printf("[client] Run:   %s ServerAddr Port \n", argv[0]);
 		return -1;
 	}
+
 	int socketConnect;
 	if ((socketConnect = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
@@ -141,7 +142,7 @@ int main(int argc, char *argv[])
 			deleteChat(socketConnect, logged);
 			break;
 		case 17:
-			joinChat(socketConnect, logged);
+			joinChat(socketConnect, logged, currentID);
 			break;
 		}
 	}

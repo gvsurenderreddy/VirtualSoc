@@ -5,7 +5,7 @@ static void *treat(void *arg);
 int main(int argc, char *argv[])
 {
 	signal(SIGINT, (__sighandler_t)forcequit);
-
+	signal(SIGPIPE, (__sighandler_t)forcequit);
 	int i = 0;
 	pthread_t th[100];
 	if (argc < 2)
@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
 	{ // debugging mode
 		printf("[server]Debug Mode\n");
 
+		dbSendMsgToRoom("CristeaAlex", "room1", "salut !");
 
 		sqlite3_close(db);
 		return 0;

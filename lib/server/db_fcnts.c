@@ -40,6 +40,21 @@ int cbDSlines(int *data, int argc, char **argv, char **azColName)
 	return 0;
 }
 
+int cbSendMsg(char **data, int argc, char **argv, char **azColName)
+{
+	//callback - trimite mesaje de la data la toti descr din room
+	int i;
+
+	for (i = 0; i < argc; i++)
+	{
+		printf("Scriu de la '%s' la '%d' mesajul '%s'\n", data[0], atoi(argv[i]), data[1]);
+		safePrefWrite(atoi(argv[i]), data[0]);
+		safePrefWrite(atoi(argv[i]), data[1]);
+	}
+
+	return 0;
+}
+
 void dbInsertUser(const char *ID, const char *PASS, const char *FULLNAME, const char *SEX, const char *ABOUT,
 				  const char *TYPE)
 {
@@ -952,4 +967,38 @@ int dbCheckRoomFriends(const char *ID, const char *ROOM)
 
 	free(sql);
 	return atoi((char *)&data);
+}
+
+void dbSendMsgToRoom(const char *ID, const char *ROOM, const char *MESG)
+{
+	// trimite MESG lui ID catre userii din ROOM
+	char *sql;
+	sql = calloc(70 + strlen(ROOM) + strlen(ID), sizeof(char));
+
+	sprintf(sql, "SELECT SOCK FROM CHATUSERS WHERE room=\"%s\" AND user <> \"%s\";", ROOM, ID);
+
+	char **data;
+	data = calloc(2, sizeof(char *));
+
+	data[0] = calloc(strlen(ID) + 5, sizeof(char));
+	data[1] = calloc(strlen(MESG) + 5, sizeof(char));
+	strcpy(data[0], ID);
+	strcpy(data[1], MESG);
+
+	rc = sqlite3_exec(db, sql, (void *)cbSendMsg, data, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbSendMsgToRoom:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbSendMsgToRoom:Succes \n");
+	}
+
+	free(data[0]);
+	free(data[1]);
+	free(data);
+	free(sql);
 }

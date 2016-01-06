@@ -1045,7 +1045,36 @@ void joinChat(int sC, const char *currentUser)
 
 		safeWrite(sC, &resultAnswer, sizeof(int));
 		dbJoinRoom(currentUser, room, sC);
+
+		activeChat(sC, currentUser, room);
+
+		dbLeaveRoom(currentUser);
 	}
+	return;
+}
+
+void activeChat(int sC, const char *currentUser, const char *room)
+{
+	bool run = true;
+	char mesg[513];
+	while (run)
+	{
+		memset(mesg, 0, 33);
+		safePrefRead(sC, mesg);
+		if (strcmp(mesg, "/quitChat") == 0)
+		{
+			run = false;
+		}
+		else
+		{
+			safePrefWrite(sC, currentUser);
+			safePrefWrite(sC, mesg);
+
+			dbSendMsgToRoom(currentUser, room, mesg);
+		}
+	}
+
+
 	return;
 }
 

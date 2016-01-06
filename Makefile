@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -c -std=gnu11 -g -Wall -fdiagnostics-color
-LINK_FLAGS = -pthread -l sqlite3
+LINK_FLAGS = -pthread -l sqlite3 -lncurses
 LIBS_CLIENT = $(wildcard lib/client/*.c)
 LIBS_SERVER = $(wildcard lib/server/*.c)
 OBJECT_SERVER = $(wildcard build/server/*.o)
@@ -39,3 +39,8 @@ mem-server:
 	valgrind ./bin/server 1
 mem-client:
 	valgrind ./bin/client 127.0.0.1 6047
+
+srun:
+	./bin/server 1
+crun:
+	./bin/client 127.0.0.1 6047

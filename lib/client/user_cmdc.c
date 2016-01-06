@@ -990,7 +990,7 @@ void deleteChat(int sC, bool check)
 	return;
 }
 
-void joinChat(int sC, bool check)
+void joinChat(int sC, bool check, const char *currentUser)
 {
 	int resultAnswer = -1;
 
@@ -1023,11 +1023,107 @@ void joinChat(int sC, bool check)
 
 		case 1717:
 			printf("You joined room '%s' !\n", room);
+
+			activeChat(sC, currentUser, room);
+
+			printf("You've exited the room '%s' !\n", room);
 			break;
 		}
 	}
 	return;
 }
+
+
+
+// chat part -----------------------------------------------------
+
+void activeChat(int sC, const char *currentUser, const char *room)
+{
+	char inMesg[513], outMesg[513];
+	char user[33];
+
+
+	int winrows, wincols;
+	WINDOW *winput, *woutput;
+
+	initscr();
+	nocbreak();
+	getmaxyx(stdscr, winrows, wincols);
+	winput = newwin(1, wincols, winrows - 1, 0);
+	woutput = newwin(winrows - 1, wincols, 0, 0);
+	keypad(winput, true);
+	scrollok(woutput, true);
+	wrefresh(woutput);
+	wrefresh(winput);
+
+
+
+	fd_set all;
+	fd_set read_fds;
+	FD_ZERO(&all);
+	FD_ZERO(&read_fds);
+	FD_SET(0, &all);
+	FD_SET(sC, &all);
+
+	wprintw(woutput, "Welcome to room '%s' \n Use /quitChat to exit !\n!", room);
+	wrefresh(woutput);
+
+	while (true)
+	{
+		read_fds = all;
+		if (select(sC + 1, &read_fds, NULL, NULL, NULL) == -1)
+		{
+			perror("select() error or forced exit !\n");
+			endwin();
+			break;
+		}
+
+		if (FD_ISSET(sC, &read_fds))
+		{
+			memset(inMesg, 0, 513);
+			safePrefRead(sC, user);
+			safePrefRead(sC, inMesg);
+			wprintw(woutput, "%s : %s\n", user, inMesg);
+			wrefresh(woutput);
+			wrefresh(winput);
+		}
+
+		if (FD_ISSET(0, &read_fds))
+		{
+
+			//wgetnstr(winput, "%s", outMesg);
+
+			int a, i = 0;
+
+			while ((a = wgetch(winput)) != '\n')
+			{
+				outMesg[i] = a;
+				i++;
+			}
+			outMesg[i] = 0;
+
+
+			if (outMesg[0] == 0)
+				continue;
+			if (strcmp(outMesg, "/quitChat") == 0)
+			{
+				safePrefWrite(sC, outMesg);
+				break;
+			}
+			safePrefWrite(sC, outMesg);
+			delwin(winput);
+			winput = newwin(1, wincols, winrows - 1, 0);
+			keypad(winput, true);
+			wrefresh(winput);
+		}
+	}
+
+	delwin(winput);
+	delwin(woutput);
+	endwin();
+}
+
+//chat end ---------------------------------------------------------
 
 int encodeCommand(const char *clientCommandChar)
 {
