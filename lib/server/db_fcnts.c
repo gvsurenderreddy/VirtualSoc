@@ -63,8 +63,8 @@ void dbInsertUser(const char *ID, const char *PASS, const char *FULLNAME, const 
 	sql = calloc(110 + strlen(ID) + strlen(PASS) + strlen(FULLNAME) + strlen(SEX) + strlen(ABOUT) + strlen(TYPE) + 10,
 				 sizeof(char));
 
-	sprintf(sql, "INSERT INTO USERS (ID,PASS,FULLNAME,SEX,ABOUT,TYPE) "
-				 "VALUES (\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\");",
+	sprintf(sql, "INSERT INTO USERS (ID,PASS,FULLNAME,SEX,ABOUT,TYPE,PRIV) "
+				 "VALUES (\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"1 \");",
 			ID, PASS, FULLNAME, SEX, ABOUT, TYPE);
 
 	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
@@ -650,7 +650,7 @@ void dbGetInfoUser(const char *ID, int sC)
 	// trimite la sC toate informatiile despre ID din tabela USERS
 	char *sql;
 	sql = calloc(70 + strlen(ID), sizeof(char));
-	sprintf(sql, "SELECT ID,FULLNAME,SEX,ABOUT,TYPE FROM USERS WHERE ID=\"%s\"", ID);
+	sprintf(sql, "SELECT ID,FULLNAME,SEX,ABOUT,TYPE,PRIV FROM USERS WHERE ID=\"%s\"", ID);
 
 	int data[3];
 	data[0] = sC;
@@ -1003,4 +1003,29 @@ void dbSendMsgToRoom(char *ID, const char *ROOM, const char *MESG)
 	free(data[1]);
 	free(data);
 	free(sql);
+}
+
+int dbGetPrivilege(const char *ID)
+{
+	// intoarce tipul de privilegiu a lui ID (0 root, 1 common user, 2 admin)
+	char *sql;
+	sql = calloc(70 + strlen(ID), sizeof(char));
+	sprintf(sql, "SELECT priv FROM users WHERE id=\"%s\";", ID);
+
+	char *data;
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetPrivilege:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetPrivilege:Succes \n");
+	}
+
+	free(sql);
+
+	return atoi((char *)&data);
 }

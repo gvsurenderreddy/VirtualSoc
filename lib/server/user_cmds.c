@@ -274,8 +274,9 @@ void register_now(int sC)
 
 void viewProfile(int sC, const char *currentUser)
 {
-	int resultAnswer = 44, postsCount;
+	int resultAnswer = 44, postsCount, userPriv;
 	bool check, isFriend;
+
 
 	char user[33], *userType, *friendsType;
 	memset(user, 0, 33);
@@ -311,6 +312,23 @@ void viewProfile(int sC, const char *currentUser)
 		dbGetInfoUser(currentUser, sC);
 
 		postsCount = dbGetPostsCount(currentUser, "3", -1);
+		safeWrite(sC, &postsCount, sizeof(int));
+
+		dbGetPosts(user, sC, "3", -1);
+
+		return;
+	}
+
+	//este admin sau root ? Daca da, pot vizualiza orice
+	userPriv = dbGetPrivilege(currentUser);
+	if (userPriv != 1)
+	{
+		resultAnswer = 444;
+		safeWrite(sC, &resultAnswer, sizeof(int));
+
+		dbGetInfoUser(user, sC);
+
+		postsCount = dbGetPostsCount(user, "3", -1);
 		safeWrite(sC, &postsCount, sizeof(int));
 
 		dbGetPosts(user, sC, "3", -1);
@@ -567,17 +585,18 @@ void addPost(int sC, const char *currentUser)
 
 void setProfile(int sC, const char *currentUser)
 {
-	int resultAnswer = 88;
+	int resultAnswer = 88, userPriv;
 	bool check;
 	size_t i;
 
-	char option[3], fullname[65], sex[5], about[513], type[17], password[33];
+	char option[3], fullname[65], sex[5], about[513], type[17], password[33], user[33];
 	memset(option, 0, 3);
 	memset(fullname, 0, 65);
 	memset(sex, 0, 5);
 	memset(about, 0, 513);
 	memset(type, 0, 17);
 	memset(password, 0, 33);
+	memset(user, 0, 33);
 
 	safeRead(sC, &check, sizeof(bool));
 
@@ -587,7 +606,20 @@ void setProfile(int sC, const char *currentUser)
 	}
 	else
 	{
+		userPriv = dbGetPrivilege(currentUser);
+		safeWrite(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safePrefRead(sC, user);
+		}
+		else
+		{
+			strcpy(user, currentUser);
+		}
+
 		safePrefRead(sC, option);
+
 
 		if (strlen(option) > 1)
 		{
@@ -616,7 +648,7 @@ void setProfile(int sC, const char *currentUser)
 				}
 			}
 			safeWrite(sC, &resultAnswer, sizeof(int));
-			dbSetProfile(currentUser, fullname, "fullname");
+			dbSetProfile(user, fullname, "fullname");
 			return;
 
 		case 2:
@@ -629,7 +661,7 @@ void setProfile(int sC, const char *currentUser)
 				return;
 			}
 			safeWrite(sC, &resultAnswer, sizeof(int));
-			dbSetProfile(currentUser, sex, "sex");
+			dbSetProfile(user, sex, "sex");
 			return;
 
 		case 3:
@@ -642,7 +674,7 @@ void setProfile(int sC, const char *currentUser)
 				return;
 			}
 			safeWrite(sC, &resultAnswer, sizeof(int));
-			dbSetProfile(currentUser, about, "about");
+			dbSetProfile(user, about, "about");
 			return;
 
 		case 4:
@@ -655,7 +687,7 @@ void setProfile(int sC, const char *currentUser)
 				return;
 			}
 			safeWrite(sC, &resultAnswer, sizeof(int));
-			dbSetProfile(currentUser, password, "pass");
+			dbSetProfile(user, password, "pass");
 			return;
 
 		case 5:
@@ -668,7 +700,7 @@ void setProfile(int sC, const char *currentUser)
 				return;
 			}
 			safeWrite(sC, &resultAnswer, sizeof(int));
-			dbSetProfile(currentUser, type, "type");
+			dbSetProfile(user, type, "type");
 			return;
 		}
 	}
@@ -817,12 +849,17 @@ void friends(int sC, const char *currentUser)
 			return;
 		}
 
-		if (dbFriendCheck(currentUser, user) == 0 && strcmp(currentUser, user) != 0)
+		// este admin / root ? daca nu, verifica daca sunt prieteni
+		if (dbGetPrivilege(currentUser) == 1)
 		{
-			resultAnswer = 1202;
-			safeWrite(sC, &resultAnswer, sizeof(int));
-			return;
+			if (dbFriendCheck(currentUser, user) == 0 && strcmp(currentUser, user) != 0)
+			{
+				resultAnswer = 1202;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
 		}
+
 
 		friendsCount = dbFriendsCount(user);
 
@@ -844,8 +881,11 @@ void friends(int sC, const char *currentUser)
 
 void online(int sC, const char *currentUser)
 {
-	int resultAnswer = 1313, onlineCount;
+	int resultAnswer = 1313, onlineCount, userPriv;
 	bool check;
+
+	char user[33];
+	memset(user, 0, 33);
 
 	safeRead(sC, &check, sizeof(bool));
 
@@ -855,7 +895,19 @@ void online(int sC, const char *currentUser)
 	}
 	else
 	{
-		onlineCount = dbOnlineCount(currentUser);
+		userPriv = dbGetPrivilege(currentUser);
+		safeWrite(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safePrefRead(sC, user);
+		}
+		else
+		{
+			strcpy(user, currentUser);
+		}
+
+		onlineCount = dbOnlineCount(user);
 
 		if (onlineCount == 0)
 		{
@@ -867,7 +919,7 @@ void online(int sC, const char *currentUser)
 		safeWrite(sC, &resultAnswer, sizeof(int));
 		safeWrite(sC, &onlineCount, sizeof(int));
 
-		dbOnline(currentUser, sC);
+		dbOnline(user, sC);
 	}
 	return;
 }
@@ -925,8 +977,11 @@ void createChat(int sC, const char *currentUser)
 
 void chat(int sC, const char *currentUser)
 {
-	int resultAnswer = 1515, roomsCount;
+	int resultAnswer = 1515, roomsCount, userPriv;
 	bool check;
+
+	char user[33];
+	memset(user, 0, 33);
 
 	safeRead(sC, &check, sizeof(bool));
 
@@ -936,7 +991,19 @@ void chat(int sC, const char *currentUser)
 	}
 	else
 	{
-		roomsCount = dbGetRoomsCount(currentUser);
+		userPriv = dbGetPrivilege(currentUser);
+		safeWrite(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safePrefRead(sC, user);
+		}
+		else
+		{
+			strcpy(user, currentUser);
+		}
+
+		roomsCount = dbGetRoomsCount(user);
 
 		if (roomsCount == 0)
 		{
@@ -947,7 +1014,7 @@ void chat(int sC, const char *currentUser)
 
 		safeWrite(sC, &resultAnswer, sizeof(int));
 		safeWrite(sC, &roomsCount, sizeof(int));
-		dbGetRooms(currentUser, sC);
+		dbGetRooms(user, sC);
 	}
 	return;
 }
@@ -984,11 +1051,14 @@ void deleteChat(int sC, const char *currentUser)
 			return;
 		}
 
-		if (dbIsOwnerRoom(currentUser, room) == 0)
+		if (dbGetPrivilege(currentUser) == 1)
 		{
-			resultAnswer = 1602;
-			safeWrite(sC, &resultAnswer, sizeof(int));
-			return;
+			if (dbIsOwnerRoom(currentUser, room) == 0)
+			{
+				resultAnswer = 1602;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
 		}
 
 		if (dbIsEmptyRoom(room) != 0)
@@ -1036,11 +1106,14 @@ void joinChat(int sC, char *currentUser)
 			return;
 		}
 
-		if (dbCheckRoomFriends(currentUser, room) == 0)
+		if (dbGetPrivilege(currentUser) == 1)
 		{
-			resultAnswer = 1702;
-			safeWrite(sC, &resultAnswer, sizeof(int));
-			return;
+			if (dbCheckRoomFriends(currentUser, room) == 0)
+			{
+				resultAnswer = 1702;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
 		}
 
 		safeWrite(sC, &resultAnswer, sizeof(int));

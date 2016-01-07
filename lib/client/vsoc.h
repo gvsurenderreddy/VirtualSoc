@@ -41,8 +41,9 @@
 #define BOLDMAGENTA "\033[1m\033[35m" /* Bold Magenta */
 #define BOLDCYAN "\033[1m\033[36m" /* Bold Cyan */
 #define BOLDWHITE "\033[1m\033[37m" /* Bold White */
+#define PORT 6047
 
-int port;
+struct termios oflags, nflags;
 
 int getPassV2(const char *, char *, int);
 void safeStdinRead(const char *, char *, int);

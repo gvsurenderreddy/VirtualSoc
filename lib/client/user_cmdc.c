@@ -3,10 +3,8 @@
 
 int getPassV2(const char *prompt, char *pass, int length)
 {
-	struct termios oflags, nflags;
 
 	// disable echo
-	tcgetattr(fileno(stdin), &oflags);
 	nflags = oflags;
 	nflags.c_lflag &= ~ECHO;
 	nflags.c_lflag |= ECHONL;
@@ -278,7 +276,23 @@ static void infoUserPrints(int i, char *info)
 		fprintf(stdout, GREEN "About: " RESET "%s\n\n", info);
 		break;
 	case 4:
-		fprintf(stdout, GREEN "Profile type: " RESET "%s\n\n", info);
+		fprintf(stdout, GREEN "Profile type: " RESET "%s", info);
+		break;
+	case 5:
+		switch (atoi(info))
+		{
+		case 0:
+			fprintf(stdout, GREEN "	Privileges: " RESET "root\n\n");
+			break;
+
+		case 1:
+			fprintf(stdout, GREEN "	Privileges: " RESET "Common\n\n");
+			break;
+
+		case 2:
+			fprintf(stdout, GREEN "	Privileges: " RESET "Admin\n\n");
+			break;
+		}
 		break;
 	}
 }
@@ -288,7 +302,7 @@ static void userPrints(int sC, const char *user)
 	int i, postsCount;
 	char info[520], postType[5], date[60];
 
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < 6; i++)
 	{
 		memset(info, 0, 520);
 		safePrefRead(sC, info);
@@ -503,15 +517,16 @@ void addPost(int sC, bool check)
 
 void setProfile(int sC, bool check)
 {
-	int resultAnswer = -1;
+	int resultAnswer = -1, userPriv;
 
-	char option[3], fullname[65], sex[5], about[513], type[17], password[33];
+	char option[3], fullname[65], sex[5], about[513], type[17], password[33], user[33];
 	memset(option, 0, 3);
 	memset(fullname, 0, 65);
 	memset(sex, 0, 5);
 	memset(about, 0, 513);
 	memset(type, 0, 17);
 	memset(password, 0, 33);
+	memset(user, 0, 33);
 
 	safeWrite(sC, &check, sizeof(bool));
 
@@ -521,6 +536,17 @@ void setProfile(int sC, bool check)
 	}
 	else
 	{
+		safeRead(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safeStdinRead("Set profile of user: ", user, 33);
+			safePrefWrite(sC, user);
+		}
+		else
+		{
+			strcpy(user, "yourself");
+		}
 
 		safeStdinRead("Choose what you'd like to modify:\n 1-Fullname\n 2-Sex\n 3-About\n 4-Password\n 5-Account Type\n\n", option, 3);
 
@@ -531,6 +557,7 @@ void setProfile(int sC, bool check)
 			printf("Invalid option !\n");
 			return;
 		}
+
 
 		switch (atoi(option))
 		{
@@ -572,19 +599,19 @@ void setProfile(int sC, bool check)
 			switch (atoi(option))
 			{
 			case 1:
-				printf("Fullname changed to '%s' !\n", fullname);
+				printf("Fullname of '%s' changed to '%s' !\n", user, fullname);
 				break;
 			case 2:
-				printf("Sex changed to '%s' \n", sex);
+				printf("Sex of '%s' changed to '%s' \n", user, sex);
 				break;
 			case 3:
-				printf("Description changed to : %s \n", about);
+				printf("Description of '%s' changed to : %s \n", user, about);
 				break;
 			case 4:
-				printf("Password changed !\n");
+				printf("Password of '%s' changed !\n", user);
 				break;
 			case 5:
-				printf("Profile type changed to %s !\n", type);
+				printf("Profile type of '%s' changed to %s !\n", user, type);
 				break;
 			}
 			break;
@@ -812,9 +839,12 @@ void friends(int sC, bool check)
 
 void online(int sC, bool check)
 {
-	int resultAnswer = -1, onlineCount;
+	int resultAnswer = -1, onlineCount, userPriv;
 
-	char online[35], friendType[5];
+	char online[35], friendType[5], user[33];
+	memset(online, 0, 35);
+	memset(friendType, 0, 5);
+	memset(user, 0, 33);
 
 	safeWrite(sC, &check, sizeof(bool));
 
@@ -824,6 +854,18 @@ void online(int sC, bool check)
 	}
 	else
 	{
+		safeRead(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safeStdinRead("Online friends of user: ", user, 33);
+			safePrefWrite(sC, user);
+		}
+		else
+		{
+			strcpy(user, "yourself");
+		}
+
 		safeRead(sC, &resultAnswer, sizeof(int));
 
 		switch (resultAnswer)
@@ -834,7 +876,7 @@ void online(int sC, bool check)
 
 		case 1313:
 			safeRead(sC, &onlineCount, sizeof(int));
-			printf("\n%d friends online :\n\n", onlineCount);
+			printf("\n%d friends of '%s' online :\n\n", onlineCount, user);
 
 			while (onlineCount != 0)
 			{
@@ -905,7 +947,7 @@ void createChat(int sC, bool check)
 
 void chat(int sC, bool check)
 {
-	int resultAnswer = -1, roomsCount;
+	int resultAnswer = -1, roomsCount, userPriv;
 
 	char user[33], room[33];
 
@@ -917,6 +959,18 @@ void chat(int sC, bool check)
 	}
 	else
 	{
+		safeRead(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safeStdinRead("Available rooms of user: ", user, 33);
+			safePrefWrite(sC, user);
+		}
+		else
+		{
+			strcpy(user, "yourself");
+		}
+
 		safeRead(sC, &resultAnswer, sizeof(int));
 
 		switch (resultAnswer)
@@ -928,7 +982,7 @@ void chat(int sC, bool check)
 		case 1515:
 			safeRead(sC, &roomsCount, sizeof(int));
 
-			printf("There are %d rooms available: \n\n", roomsCount);
+			printf("There are %d rooms available for '%s' : \n\n", roomsCount, user);
 			while (roomsCount != 0)
 			{
 				memset(room, 0, 33);
@@ -1047,6 +1101,7 @@ void activeChat(int sC, const char *currentUser, const char *room)
 	woutput = newwin(winrows - 1, wincols, 0, 0);
 	keypad(winput, true);
 	scrollok(woutput, true);
+	//scrollok(winput, true);
 	wrefresh(woutput);
 	wrefresh(winput);
 
@@ -1170,6 +1225,8 @@ void activeChat(int sC, const char *currentUser, const char *room)
 
 //chat end ---------------------------------------------------------
 
+
+
 int encodeCommand(const char *clientCommandChar)
 {
 	if (strcmp(clientCommandChar, "/login") == 0)
@@ -1218,6 +1275,7 @@ void quit(int sC, bool check)
 
 __sighandler_t quitforce(void)
 {
+	tcsetattr(fileno(stdin), TCSANOW, &oflags);
 	printf("\nForced Quit!\n");
 	exit(EXIT_FAILURE);
 }

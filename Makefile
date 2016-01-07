@@ -38,9 +38,11 @@ clean:
 mem-server:
 	valgrind ./bin/server 1
 mem-client:
-	valgrind ./bin/client 127.0.0.1 6047
+	valgrind ./bin/client 127.0.0.1
 
 srun:
 	./bin/server 1
+srun-deb:
+	./bin/server 0
 crun:
-	./bin/client 127.0.0.1 6047
+	./bin/client 127.0.0.1

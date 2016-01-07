@@ -108,6 +108,7 @@ void dbLeaveRoom(const char *);
 int dbCheckRoomFriends(const char *, const char *);
 void activeChat(int, char *, const char *);
 void dbSendMsgToRoom(char *, const char *, const char *);
+int dbGetPrivilege(const char *);
 // end_functii server
 
 #endif
