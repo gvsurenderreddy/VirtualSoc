@@ -1022,10 +1022,7 @@ void joinChat(int sC, bool check, const char *currentUser)
 			break;
 
 		case 1717:
-			printf("You joined room '%s' !\n", room);
-
 			activeChat(sC, currentUser, room);
-
 			printf("You've exited the room '%s' !\n", room);
 			break;
 		}
@@ -1034,13 +1031,12 @@ void joinChat(int sC, bool check, const char *currentUser)
 }
 
 
-
 // chat part -----------------------------------------------------
 
 void activeChat(int sC, const char *currentUser, const char *room)
 {
 	WINDOW *winput, *woutput;
-	int winrows, wincols, i = 0, a;
+	int winrows, wincols, i = 0, inChar;
 	char inMesg[513], outMesg[513];
 	char user[33];
 
@@ -1064,6 +1060,7 @@ void activeChat(int sC, const char *currentUser, const char *room)
 	wrefresh(woutput);
 	wrefresh(winput);
 
+	signal(SIGWINCH, NULL);
 
 	while (true)
 	{
@@ -1078,23 +1075,61 @@ void activeChat(int sC, const char *currentUser, const char *room)
 
 		if (FD_ISSET(sC, &read_fds))
 		{
+			memset(user, 0, 513);
 			memset(inMesg, 0, 513);
 			safePrefRead(sC, user);
 			safePrefRead(sC, inMesg);
-			wprintw(woutput, "%s : %s\n", user, inMesg);
-			wrefresh(woutput);
-			wrefresh(winput);
+
+			switch (user[0])
+			{
+			case '>':
+				strcpy(user, user + 1);
+				wprintw(woutput, "%s entered the room '%s'!\n", user, room);
+				wrefresh(woutput);
+				wrefresh(winput);
+				break;
+
+			case '<':
+				strcpy(user, user + 1);
+				wprintw(woutput, "%s exited the room '%s' !\n", user, room);
+				wrefresh(woutput);
+				wrefresh(winput);
+				break;
+
+			default:
+				wprintw(woutput, "%s : %s\n", user, inMesg);
+				wrefresh(woutput);
+				wrefresh(winput);
+				break;
+			}
 		}
 
 		if (FD_ISSET(0, &read_fds))
 		{
-			a = wgetch(winput);
-			outMesg[i] = (char)a;
-			i++;
+
+
+			inChar = wgetch(winput);
+
+			if (inChar == KEY_BACKSPACE || inChar == KEY_DC || inChar == 127)
+			{
+				wdelch(winput);
+				wrefresh(winput);
+				if (i != 0)
+				{
+					outMesg[i - 1] = 0;
+					i--;
+				}
+			}
+			else
+			{
+
+				outMesg[i] = (char)inChar;
+				i++;
+			}
+
 
 			if (outMesg[i - 1] == '\n')
 			{
-
 				outMesg[i - 1] = 0;
 				i = 0;
 

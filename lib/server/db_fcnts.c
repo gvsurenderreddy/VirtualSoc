@@ -969,21 +969,23 @@ int dbCheckRoomFriends(const char *ID, const char *ROOM)
 	return atoi((char *)&data);
 }
 
-void dbSendMsgToRoom(const char *ID, const char *ROOM, const char *MESG)
+void dbSendMsgToRoom(char *ID, const char *ROOM, const char *MESG)
 {
 	// trimite MESG lui ID catre userii din ROOM
-	char *sql;
+	char *sql, **data;
 	sql = calloc(70 + strlen(ROOM) + strlen(ID), sizeof(char));
+	data = calloc(2, sizeof(char *));
+	data[0] = calloc(strlen(ID) + 5, sizeof(char));
+	data[1] = calloc(strlen(MESG) + 5, sizeof(char));
+
+	strcpy(data[0], ID);
+	strcpy(data[1], MESG);
+
+	if (ID[0] == '>' || ID[0] == '<')
+		strcpy(ID, ID + 1);
 
 	sprintf(sql, "SELECT SOCK FROM CHATUSERS WHERE room=\"%s\" AND user <> \"%s\";", ROOM, ID);
 
-	char **data;
-	data = calloc(2, sizeof(char *));
-
-	data[0] = calloc(strlen(ID) + 5, sizeof(char));
-	data[1] = calloc(strlen(MESG) + 5, sizeof(char));
-	strcpy(data[0], ID);
-	strcpy(data[1], MESG);
 
 	rc = sqlite3_exec(db, sql, (void *)cbSendMsg, data, &zErrMsg);
 

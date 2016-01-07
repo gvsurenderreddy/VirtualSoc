@@ -1004,7 +1004,7 @@ void deleteChat(int sC, const char *currentUser)
 	return;
 }
 
-void joinChat(int sC, const char *currentUser)
+void joinChat(int sC, char *currentUser)
 {
 	int resultAnswer = 1717;
 	bool check;
@@ -1053,17 +1053,24 @@ void joinChat(int sC, const char *currentUser)
 	return;
 }
 
-void activeChat(int sC, const char *currentUser, const char *room)
+void activeChat(int sC, char *currentUser, const char *room)
 {
 	bool run = true;
-	char mesg[513];
+	char mesg[513], actionUser[35];
+
+
+	sprintf(actionUser, ">%s", currentUser);
+	dbSendMsgToRoom(actionUser, room, "");
+
 	while (run)
 	{
-		memset(mesg, 0, 33);
+		memset(mesg, 0, 513);
 		safePrefRead(sC, mesg);
 		if (strcmp(mesg, "/quitChat") == 0)
 		{
 			run = false;
+			sprintf(actionUser, "<%s", currentUser);
+			dbSendMsgToRoom(actionUser, room, "");
 		}
 		else
 		{
@@ -1073,6 +1080,7 @@ void activeChat(int sC, const char *currentUser, const char *room)
 			dbSendMsgToRoom(currentUser, room, mesg);
 		}
 	}
+
 
 
 	return;

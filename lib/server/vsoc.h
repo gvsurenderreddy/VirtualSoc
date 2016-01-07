@@ -60,7 +60,7 @@ void online(int, const char *);
 void createChat(int, const char *);
 void chat(int, const char *);
 void deleteChat(int, const char *);
-void joinChat(int, const char *);
+void joinChat(int, char *);
 void quit(int, char *);
 __sighandler_t forcequit(void);
 void answer(void *);
@@ -106,8 +106,8 @@ void dbDeleteRoom(const char *);
 void dbJoinRoom(const char *, const char *, int);
 void dbLeaveRoom(const char *);
 int dbCheckRoomFriends(const char *, const char *);
-void activeChat(int, const char *, const char *);
-void dbSendMsgToRoom(const char *, const char *, const char *);
+void activeChat(int, char *, const char *);
+void dbSendMsgToRoom(char *, const char *, const char *);
 // end_functii server
 
 #endif
