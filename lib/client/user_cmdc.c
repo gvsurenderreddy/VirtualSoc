@@ -1039,15 +1039,12 @@ void joinChat(int sC, bool check, const char *currentUser)
 
 void activeChat(int sC, const char *currentUser, const char *room)
 {
+	WINDOW *winput, *woutput;
+	int winrows, wincols, i = 0, a;
 	char inMesg[513], outMesg[513];
 	char user[33];
 
-
-	int winrows, wincols;
-	WINDOW *winput, *woutput;
-
 	initscr();
-	nocbreak();
 	getmaxyx(stdscr, winrows, wincols);
 	winput = newwin(1, wincols, winrows - 1, 0);
 	woutput = newwin(winrows - 1, wincols, 0, 0);
@@ -1056,8 +1053,6 @@ void activeChat(int sC, const char *currentUser, const char *room)
 	wrefresh(woutput);
 	wrefresh(winput);
 
-
-
 	fd_set all;
 	fd_set read_fds;
 	FD_ZERO(&all);
@@ -1065,12 +1060,15 @@ void activeChat(int sC, const char *currentUser, const char *room)
 	FD_SET(0, &all);
 	FD_SET(sC, &all);
 
-	wprintw(woutput, "Welcome to room '%s' \n Use /quitChat to exit !\n!", room);
+	wprintw(woutput, "Welcome to room '%s' \nUse /quitChat to exit !\n", room);
 	wrefresh(woutput);
+	wrefresh(winput);
+
 
 	while (true)
 	{
 		read_fds = all;
+
 		if (select(sC + 1, &read_fds, NULL, NULL, NULL) == -1)
 		{
 			perror("select() error or forced exit !\n");
@@ -1090,36 +1088,38 @@ void activeChat(int sC, const char *currentUser, const char *room)
 
 		if (FD_ISSET(0, &read_fds))
 		{
+			a = wgetch(winput);
+			outMesg[i] = (char)a;
+			i++;
 
-			//wgetnstr(winput, "%s", outMesg);
-
-			int a, i = 0;
-
-			while ((a = wgetch(winput)) != '\n')
+			if (outMesg[i - 1] == '\n')
 			{
-				outMesg[i] = a;
-				i++;
-			}
-			outMesg[i] = 0;
 
+				outMesg[i - 1] = 0;
+				i = 0;
 
-			if (outMesg[0] == 0)
-				continue;
-			if (strcmp(outMesg, "/quitChat") == 0)
-			{
+				if (outMesg[0] == 0)
+					continue;
+
+				if (strcmp(outMesg, "/quitChat") == 0)
+				{
+					safePrefWrite(sC, outMesg);
+					break;
+				}
+
 				safePrefWrite(sC, outMesg);
-				break;
+				delwin(winput);
+				winput = newwin(1, wincols, winrows - 1, 0);
+				keypad(winput, true);
+				wrefresh(winput);
+				memset(outMesg, 0, 513);
 			}
-			safePrefWrite(sC, outMesg);
-			delwin(winput);
-			winput = newwin(1, wincols, winrows - 1, 0);
-			keypad(winput, true);
-			wrefresh(winput);
 		}
 	}
 
 	delwin(winput);
 	delwin(woutput);
+	endwin();
 	endwin();
 }
 
