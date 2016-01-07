@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
 
 	//##############################CLIENT##################################
 	signal(SIGINT, (__sighandler_t)quitforce);
+	signal(SIGWINCH, NULL);
+
 	int clientCommand = -1;
 	char clientCommandChar[1000];
 	char currentID[33];

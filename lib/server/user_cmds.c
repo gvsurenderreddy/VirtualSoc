@@ -1066,12 +1066,16 @@ void activeChat(int sC, char *currentUser, const char *room)
 	{
 		memset(mesg, 0, 513);
 		safePrefRead(sC, mesg);
-		if (strcmp(mesg, "/quitChat") == 0)
+		if (strcmp(mesg, "/quit") == 0)
 		{
 			run = false;
 			sprintf(actionUser, "<%s", currentUser);
 			dbSendMsgToRoom(actionUser, room, "");
 		}
+		/*if (strcmp(mesg, "/online") == 0)
+		{
+			// implmenteaza functie onlineChat
+		}*/
 		else
 		{
 			safePrefWrite(sC, currentUser);
@@ -1080,8 +1084,6 @@ void activeChat(int sC, char *currentUser, const char *room)
 			dbSendMsgToRoom(currentUser, room, mesg);
 		}
 	}
-
-
 
 	return;
 }

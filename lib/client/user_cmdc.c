@@ -928,7 +928,7 @@ void chat(int sC, bool check)
 		case 1515:
 			safeRead(sC, &roomsCount, sizeof(int));
 
-			printf("There are %d room created: \n\n", roomsCount);
+			printf("There are %d rooms available: \n\n", roomsCount);
 			while (roomsCount != 0)
 			{
 				memset(room, 0, 33);
@@ -1041,6 +1041,7 @@ void activeChat(int sC, const char *currentUser, const char *room)
 	char user[33];
 
 	initscr();
+	raw();
 	getmaxyx(stdscr, winrows, wincols);
 	winput = newwin(1, wincols, winrows - 1, 0);
 	woutput = newwin(winrows - 1, wincols, 0, 0);
@@ -1056,11 +1057,9 @@ void activeChat(int sC, const char *currentUser, const char *room)
 	FD_SET(0, &all);
 	FD_SET(sC, &all);
 
-	wprintw(woutput, "Welcome to room '%s' \nUse /quitChat to exit !\n", room);
+	wprintw(woutput, "	Welcome to room '%s' \n	Use /quit to exit or ESC !\n\n", room);
 	wrefresh(woutput);
 	wrefresh(winput);
-
-	signal(SIGWINCH, NULL);
 
 	while (true)
 	{
@@ -1075,6 +1074,7 @@ void activeChat(int sC, const char *currentUser, const char *room)
 
 		if (FD_ISSET(sC, &read_fds))
 		{
+			//interpreteaza date(mesaje / comenzi)
 			memset(user, 0, 513);
 			memset(inMesg, 0, 513);
 			safePrefRead(sC, user);
@@ -1104,11 +1104,22 @@ void activeChat(int sC, const char *currentUser, const char *room)
 			}
 		}
 
+
+
 		if (FD_ISSET(0, &read_fds))
 		{
 
 
 			inChar = wgetch(winput);
+
+			if (inChar == 27)
+			{
+				safePrefWrite(sC, "/quit");
+				break;
+			}
+
+			if (inChar == KEY_UP || inChar == KEY_DOWN || inChar == KEY_LEFT || inChar == KEY_RIGHT)
+				continue;
 
 			if (inChar == KEY_BACKSPACE || inChar == KEY_DC || inChar == 127)
 			{
@@ -1122,7 +1133,6 @@ void activeChat(int sC, const char *currentUser, const char *room)
 			}
 			else
 			{
-
 				outMesg[i] = (char)inChar;
 				i++;
 			}
@@ -1136,7 +1146,7 @@ void activeChat(int sC, const char *currentUser, const char *room)
 				if (outMesg[0] == 0)
 					continue;
 
-				if (strcmp(outMesg, "/quitChat") == 0)
+				if (strcmp(outMesg, "/quit") == 0)
 				{
 					safePrefWrite(sC, outMesg);
 					break;
