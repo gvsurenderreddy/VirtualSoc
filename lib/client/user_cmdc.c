@@ -112,7 +112,7 @@ void help(bool check)
 {
 	printf("\n Available commands :\n /login\n /logout\n /register\n "
 		   "/quit\n "
-		   "/viewProfile\n /addFriend\n /addPost\n /checkReq\n /accFriend\n /friends\n /online\n /setProfile\n /createChat\n /chat\n /deleteChat\n /joinChat\n\n");
+		   "/viewProfile\n /addFriend\n /addPost\n /recvReq\n /sentReq\n /accFriend\n /friends\n /online\n /setProfile\n /createChat\n /chat\n /deleteChat\n /joinChat\n /deleteRecvReq\n /deleteSentReq\n /deleteFriend\n\n");
 }
 
 int login(int sC, bool check, char *currentUser)
@@ -519,6 +519,7 @@ void setProfile(int sC, bool check)
 {
 	int resultAnswer = -1, userPriv;
 
+
 	char option[3], fullname[65], sex[5], about[513], type[17], password[33], user[33];
 	memset(option, 0, 3);
 	memset(fullname, 0, 65);
@@ -542,11 +543,21 @@ void setProfile(int sC, bool check)
 		{
 			safeStdinRead("Set profile of user: ", user, 33);
 			safePrefWrite(sC, user);
+
+			bool validUser;
+			safeRead(sC, &validUser, sizeof(bool));
+			if (validUser == 0)
+			{
+				printf("User '%s' doesn't exist or invalid !\n", user);
+				return;
+			}
 		}
 		else
 		{
 			strcpy(user, "yourself");
 		}
+
+
 
 		safeStdinRead("Choose what you'd like to modify:\n 1-Fullname\n 2-Sex\n 3-About\n 4-Password\n 5-Account Type\n\n", option, 3);
 
@@ -637,15 +648,19 @@ void setProfile(int sC, bool check)
 		case 806:
 			printf("Invalid Profile Type ! (private/public)\n");
 			break;
+
+		case 807:
+			break;
 		}
 	}
 }
 
-void checkReq(int sC, bool check)
+void recvReq(int sC, bool check)
 {
-	int resultAnswer = -1, requestsCount;
+	int resultAnswer = -1, requestsCount, userPriv;
 
-	char request[40], type[5];
+	char request[40], type[5], user[33];
+	memset(user, 0, 33);
 
 	safeWrite(sC, &check, sizeof(bool));
 	if (check == 0)
@@ -655,17 +670,37 @@ void checkReq(int sC, bool check)
 	}
 	else
 	{
+		safeRead(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safeStdinRead("Received requests of: ", user, 33);
+			safePrefWrite(sC, user);
+
+			bool validUser;
+			safeRead(sC, &validUser, sizeof(bool));
+			if (validUser == 0)
+			{
+				printf("User '%s' doesn't exist or invalid !\n", user);
+				return;
+			}
+		}
+		else
+		{
+			strcpy(user, "you");
+		}
+
 		safeRead(sC, &resultAnswer, sizeof(int));
 
 		switch (resultAnswer)
 		{
 		case 901:
-			printf("You have no requests !\n");
+			printf("'%s' received no requests !\n", user);
 			return;
 
 		case 99:
 			safeRead(sC, &requestsCount, sizeof(int));
-			printf("You have %d requests :\n", requestsCount);
+			printf("'%s' received %d requests :\n", user, requestsCount);
 
 			while (requestsCount != 0)
 			{
@@ -677,11 +712,11 @@ void checkReq(int sC, bool check)
 				switch (atoi(type))
 				{
 				case 1:
-					printf("'%s' wants to be your friend ! (/accFriend to accept him)\n", request);
+					printf("'%s' wants to be a friend of '%s'! \n", request, user);
 					break;
 
 				case 2:
-					printf("'%s' wants to chat with you ! (/accChat to start chatting )\n", request);
+					printf("'%s' wants to chat with '%s' !\n", request, user);
 					break;
 				}
 				requestsCount--;
@@ -860,10 +895,18 @@ void online(int sC, bool check)
 		{
 			safeStdinRead("Online friends of user: ", user, 33);
 			safePrefWrite(sC, user);
+
+			bool validUser;
+			safeRead(sC, &validUser, sizeof(bool));
+			if (validUser == 0)
+			{
+				printf("User '%s' doesn't exist or invalid !\n", user);
+				return;
+			}
 		}
 		else
 		{
-			strcpy(user, "yourself");
+			strcpy(user, "you");
 		}
 
 		safeRead(sC, &resultAnswer, sizeof(int));
@@ -871,7 +914,7 @@ void online(int sC, bool check)
 		switch (resultAnswer)
 		{
 		case 1301:
-			printf("There are NO friends online at the moment !\n");
+			printf("There are NO friends online at the moment for '%s' !\n", user);
 			return;
 
 		case 1313:
@@ -965,10 +1008,18 @@ void chat(int sC, bool check)
 		{
 			safeStdinRead("Available rooms of user: ", user, 33);
 			safePrefWrite(sC, user);
+
+			bool validUser;
+			safeRead(sC, &validUser, sizeof(bool));
+			if (validUser == 0)
+			{
+				printf("User '%s' doesn't exist or invalid !\n", user);
+				return;
+			}
 		}
 		else
 		{
-			strcpy(user, "yourself");
+			strcpy(user, "you");
 		}
 
 		safeRead(sC, &resultAnswer, sizeof(int));
@@ -976,7 +1027,7 @@ void chat(int sC, bool check)
 		switch (resultAnswer)
 		{
 		case 1501:
-			printf("No rooms created !\n");
+			printf("No rooms available for '%s' !\n", user);
 			break;
 
 		case 1515:
@@ -1044,7 +1095,7 @@ void deleteChat(int sC, bool check)
 	return;
 }
 
-void joinChat(int sC, bool check, const char *currentUser)
+void joinChat(int sC, bool check)
 {
 	int resultAnswer = -1;
 
@@ -1076,7 +1127,7 @@ void joinChat(int sC, bool check, const char *currentUser)
 			break;
 
 		case 1717:
-			activeChat(sC, currentUser, room);
+			activeChat(sC, room);
 			printf("You've exited the room '%s' !\n", room);
 			break;
 		}
@@ -1084,15 +1135,16 @@ void joinChat(int sC, bool check, const char *currentUser)
 	return;
 }
 
-
 // chat part -----------------------------------------------------
 
-void activeChat(int sC, const char *currentUser, const char *room)
+void activeChat(int sC, const char *room)
 {
 	WINDOW *winput, *woutput;
 	int winrows, wincols, i = 0, inChar;
-	char inMesg[513], outMesg[513];
-	char user[33];
+	char inMesg[513], outMesg[513], user[33];
+	memset(inMesg, 0, 513);
+	memset(outMesg, 0, 513);
+	memset(user, 0, 33);
 
 	initscr();
 	raw();
@@ -1130,7 +1182,7 @@ void activeChat(int sC, const char *currentUser, const char *room)
 		if (FD_ISSET(sC, &read_fds))
 		{
 			//interpreteaza date(mesaje / comenzi)
-			memset(user, 0, 513);
+			memset(user, 0, 33);
 			memset(inMesg, 0, 513);
 			safePrefRead(sC, user);
 			safePrefRead(sC, inMesg);
@@ -1225,7 +1277,283 @@ void activeChat(int sC, const char *currentUser, const char *room)
 
 //chat end ---------------------------------------------------------
 
+void setPriv(int sC, bool check)
+{
+	int resultAnswer = -1;
 
+	char user[33], priv[5];
+	memset(user, 0, 33);
+	memset(priv, 0, 5);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+	}
+	else
+	{
+		safeStdinRead("Set privilege of user: ", user, 33);
+		safeStdinRead("Privilege (1 - common /2 - admin): ", priv, 5);
+		safePrefWrite(sC, user);
+		safePrefWrite(sC, priv);
+
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 1818:
+			switch (atoi(priv))
+			{
+			case 1:
+				printf("Privilege for user '%s' has been set to Common !\n", user);
+				break;
+
+			case 2:
+				printf("Privilege for user '%s' has been set to Admin !\n", user);
+				break;
+			}
+			break;
+
+		case 1801:
+			printf("You must be root to set privileges !\n");
+			break;
+
+		case 1802:
+			printf("User '%s' doesn't exist or is invalid ! \n", user);
+			break;
+
+		case 1804:
+			printf("User '%s' is root ! You can't set his privileges ! \n", user);
+			break;
+
+		case 1805:
+			printf("Privilege invalid !\n");
+			break;
+		}
+	}
+}
+
+void deleteFriend(int sC, bool check)
+{
+	int resultAnswer = -1, userPriv;
+
+	char user[33], friend[33];
+	memset(user, 0, 33);
+	memset(friend, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+		return;
+	}
+	else
+	{
+		safeRead(sC, &userPriv, sizeof(int));
+
+		safeStdinRead("Delete friend: ", friend, 33);
+		safePrefWrite(sC, friend);
+
+		if (userPriv != 1)
+		{
+			safeStdinRead("From this user's list: ", user, 33);
+			safePrefWrite(sC, user);
+		}
+		else
+		{
+			strcpy(user, "you");
+		}
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 1919:
+			printf("'%s' is no longer friend with '%s' !\n", friend, user);
+			break;
+
+		case 1901:
+			printf("Friend '%s' doesn't exist or is invalid !\n", friend);
+			break;
+
+		case 1902:
+			printf("User '%s' doesn't exist or is invalid !\n", user);
+			break;
+
+		case 1903:
+			printf("'%s' is not your friend !\n", friend);
+			break;
+		}
+	}
+	return;
+}
+
+void deleteRecvReq(int sC, bool check)
+{
+	int resultAnswer = -1, userPriv;
+
+	char user[33];
+	memset(user, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+		return;
+	}
+	else
+	{
+		safeRead(sC, &userPriv, sizeof(int));
+
+
+		if (userPriv != 1)
+		{
+			safeStdinRead("Delete requests received by: ", user, 33);
+			safePrefWrite(sC, user);
+		}
+		else
+		{
+			strcpy(user, "you");
+		}
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 2020:
+			printf("Received requests deleted for '%s' !\n", user);
+			break;
+
+		case 2001:
+			printf("User '%s' doesn't exist or is invalid !\n", user);
+			break;
+		}
+	}
+	return;
+}
+
+void sentReq(int sC, bool check)
+{
+	int resultAnswer = -1, requestsCount, userPriv;
+
+	char request[40], type[5], user[33];
+	memset(user, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+	if (check == 0)
+	{
+		printf("You're not logged in ! \n");
+		return;
+	}
+	else
+	{
+		safeRead(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safeStdinRead("Received requests of: ", user, 33);
+			safePrefWrite(sC, user);
+
+			bool validUser;
+			safeRead(sC, &validUser, sizeof(bool));
+			if (validUser == 0)
+			{
+				printf("User '%s' doesn't exist or invalid !\n", user);
+				return;
+			}
+		}
+		else
+		{
+			strcpy(user, "you");
+		}
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 2101:
+			printf("'%s' sent no requests !\n", user);
+			return;
+
+		case 2121:
+			safeRead(sC, &requestsCount, sizeof(int));
+			printf("'%s' sent %d requests :\n", user, requestsCount);
+
+			while (requestsCount != 0)
+			{
+				memset(request, 0, sizeof(request));
+				memset(type, 0, 5);
+				safePrefRead(sC, request);
+				safePrefRead(sC, type);
+
+				switch (atoi(type))
+				{
+				case 1:
+					printf("'%s' sent '%s' a friend request !\n", user, request);
+					break;
+
+				case 2:
+					printf("'%s' sent '%s' a chat request !\n", user, request);
+					break;
+				}
+				requestsCount--;
+			}
+			return;
+		}
+	}
+
+	return;
+}
+
+
+void deleteSentReq(int sC, bool check)
+{
+	int resultAnswer = -1, userPriv;
+
+	char user[33];
+	memset(user, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+		return;
+	}
+	else
+	{
+		safeRead(sC, &userPriv, sizeof(int));
+
+
+		if (userPriv != 1)
+		{
+			safeStdinRead("Delete requests sent by: ", user, 33);
+			safePrefWrite(sC, user);
+		}
+		else
+		{
+			strcpy(user, "you");
+		}
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 2222:
+			printf("Sent requests deleted for '%s' !\n", user);
+			break;
+
+		case 2201:
+			printf("User '%s' doesn't exist or is invalid !\n", user);
+			break;
+		}
+	}
+	return;
+}
 
 int encodeCommand(const char *clientCommandChar)
 {
@@ -1247,7 +1575,7 @@ int encodeCommand(const char *clientCommandChar)
 		return 7;
 	if (strcmp(clientCommandChar, "/setProfile") == 0)
 		return 8;
-	if (strcmp(clientCommandChar, "/checkReq") == 0)
+	if (strcmp(clientCommandChar, "/recvReq") == 0)
 		return 9;
 	if (strcmp(clientCommandChar, "/accFriend") == 0)
 		return 10;
@@ -1263,6 +1591,16 @@ int encodeCommand(const char *clientCommandChar)
 		return 16;
 	if (strcmp(clientCommandChar, "/joinChat") == 0)
 		return 17;
+	if (strcmp(clientCommandChar, "/setPriv") == 0)
+		return 18;
+	if (strcmp(clientCommandChar, "/deleteFriend") == 0)
+		return 19;
+	if (strcmp(clientCommandChar, "/deleteRecvReq") == 0)
+		return 20;
+	if (strcmp(clientCommandChar, "/sentReq") == 0)
+		return 21;
+	if (strcmp(clientCommandChar, "/deleteSentReq") == 0)
+		return 22;
 
 	return -1;
 }

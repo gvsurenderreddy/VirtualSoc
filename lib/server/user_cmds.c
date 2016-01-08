@@ -221,6 +221,7 @@ void register_now(int sC)
 				return;
 			}
 		}
+
 		for (i = 0; i < strlen(about); i++)
 		{
 			if (about[i] == '\"')
@@ -501,7 +502,14 @@ void addFriend(int sC, const char *currentUser)
 			return;
 		}
 
-		if (dbCheckUser(user) == 0 || strchr(user, '\"') != NULL)
+		if (strchr(user, '\"') != NULL)
+		{
+			resultAnswer = 601;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbCheckUser(user) == 0)
 		{
 			resultAnswer = 601;
 			safeWrite(sC, &resultAnswer, sizeof(int));
@@ -612,6 +620,23 @@ void setProfile(int sC, const char *currentUser)
 		if (userPriv != 1)
 		{
 			safePrefRead(sC, user);
+			bool validUser = 1;
+
+			if (strchr(user, '\"') != NULL || strlen(user) < 5)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			if (dbCheckUser(user) == 0)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			safeWrite(sC, &validUser, sizeof(bool));
 		}
 		else
 		{
@@ -709,10 +734,13 @@ void setProfile(int sC, const char *currentUser)
 
 
 
-void checkReq(int sC, const char *currentUser)
+void recvReq(int sC, const char *currentUser)
 {
-	int resultAnswer = 99, requestsCount;
+	int resultAnswer = 99, requestsCount, userPriv;
 	bool check;
+
+	char user[33];
+	memset(user, 0, 33);
 
 	safeRead(sC, &check, sizeof(bool));
 	if (check == 0)
@@ -721,7 +749,39 @@ void checkReq(int sC, const char *currentUser)
 	}
 	else
 	{
-		requestsCount = dbRequestCheckCount(currentUser);
+
+		userPriv = dbGetPrivilege(currentUser);
+		safeWrite(sC, &userPriv, sizeof(int));
+
+
+		if (userPriv != 1)
+		{
+			safePrefRead(sC, user);
+
+			bool validUser = 1;
+
+			if (strchr(user, '\"') != NULL || strlen(user) < 5)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			if (dbCheckUser(user) == 0)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			safeWrite(sC, &validUser, sizeof(bool));
+		}
+		else
+		{
+			strcpy(user, currentUser);
+		}
+
+		requestsCount = dbRequestCheckCount(user, 1);
 
 		if (requestsCount == 0)
 		{
@@ -733,7 +793,7 @@ void checkReq(int sC, const char *currentUser)
 		safeWrite(sC, &resultAnswer, sizeof(int));
 		safeWrite(sC, &requestsCount, sizeof(int));
 
-		dbRequestCheck(currentUser, sC);
+		dbRequestCheck(user, sC, 1);
 	}
 	return;
 }
@@ -901,6 +961,24 @@ void online(int sC, const char *currentUser)
 		if (userPriv != 1)
 		{
 			safePrefRead(sC, user);
+
+			bool validUser = 1;
+
+			if (strchr(user, '\"') != NULL || strlen(user) < 5)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			if (dbCheckUser(user) == 0)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			safeWrite(sC, &validUser, sizeof(bool));
 		}
 		else
 		{
@@ -997,6 +1075,24 @@ void chat(int sC, const char *currentUser)
 		if (userPriv != 1)
 		{
 			safePrefRead(sC, user);
+
+			bool validUser = 1;
+
+			if (strchr(user, '\"') != NULL || strlen(user) < 5)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			if (dbCheckUser(user) == 0)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			safeWrite(sC, &validUser, sizeof(bool));
 		}
 		else
 		{
@@ -1161,6 +1257,323 @@ void activeChat(int sC, char *currentUser, const char *room)
 	return;
 }
 
+void setPriv(int sC, const char *currentUser)
+{
+	int resultAnswer = 1818;
+	bool check;
+
+	char user[33], priv[5];
+	memset(user, 0, 33);
+	memset(priv, 0, 5);
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		safePrefRead(sC, user);
+		safePrefRead(sC, priv);
+
+		if (dbGetPrivilege(currentUser) != 0)
+		{
+			resultAnswer = 1801;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		switch (atoi(priv))
+		{
+		case 1:
+		case 2:
+			resultAnswer = 1818;
+			break;
+
+		default:
+			resultAnswer = 1805;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (strchr(user, '\"') != NULL)
+		{
+			resultAnswer = 1802;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbCheckUser(user) == 0)
+		{
+			resultAnswer = 1802;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbGetPrivilege(user) == 0)
+		{
+			resultAnswer = 1804;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		dbSetPrivilege(user, priv);
+		safeWrite(sC, &resultAnswer, sizeof(int));
+	}
+
+	return;
+}
+
+void deleteFriend(int sC, const char *currentUser)
+{
+	int resultAnswer = 1919, userPriv;
+	bool check;
+
+	char friend[33], user[33];
+	memset(friend, 0, 33);
+	memset(user, 0, 33);
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		userPriv = dbGetPrivilege(currentUser);
+		safeWrite(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safePrefRead(sC, friend);
+			safePrefRead(sC, user);
+		}
+		else
+		{
+			safePrefRead(sC, friend);
+			strcpy(user, currentUser);
+		}
+
+		if (strchr(friend, '\"') != NULL || strlen(friend) < 5)
+		{
+			resultAnswer = 1901;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbCheckUser(friend) == 0)
+		{
+			resultAnswer = 1901;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (userPriv != 1)
+		{
+			if (strchr(user, '\"') != NULL || strlen(user) < 5)
+			{
+				resultAnswer = 1902;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+
+			if (dbCheckUser(user) == 0)
+			{
+				resultAnswer = 1902;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+		}
+
+		if (userPriv == 1)
+		{
+			if (dbFriendCheck(currentUser, friend) == 0)
+			{
+				resultAnswer = 1903;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+		}
+
+
+		dbDeleteFriend(user, friend);
+		dbDeleteFriend(friend, user);
+		safeWrite(sC, &resultAnswer, sizeof(int));
+	}
+
+	return;
+}
+
+void deleteRecvReq(int sC, const char *currentUser)
+{
+	int resultAnswer = 2020, userPriv;
+	bool check;
+
+	char user[33];
+	memset(user, 0, 33);
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		userPriv = dbGetPrivilege(currentUser);
+		safeWrite(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safePrefRead(sC, user);
+		}
+		else
+		{
+			strcpy(user, currentUser);
+		}
+
+		if (userPriv != 1)
+		{
+			if (strchr(user, '\"') != NULL || strlen(user) < 5)
+			{
+				resultAnswer = 2001;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+
+			if (dbCheckUser(user) == 0)
+			{
+				resultAnswer = 2001;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+		}
+
+		dbDeleteRequests(user, 1);
+		safeWrite(sC, &resultAnswer, sizeof(int));
+	}
+
+	return;
+}
+
+void sentReq(int sC, const char *currentUser)
+{
+	int resultAnswer = 2121, requestsCount, userPriv;
+	bool check;
+
+	char user[33];
+	memset(user, 0, 33);
+
+	safeRead(sC, &check, sizeof(bool));
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+
+		userPriv = dbGetPrivilege(currentUser);
+		safeWrite(sC, &userPriv, sizeof(int));
+
+
+		if (userPriv != 1)
+		{
+			safePrefRead(sC, user);
+
+			bool validUser = 1;
+
+			if (strchr(user, '\"') != NULL || strlen(user) < 5)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			if (dbCheckUser(user) == 0)
+			{
+				validUser = 0;
+				safeWrite(sC, &validUser, sizeof(bool));
+				return;
+			}
+
+			safeWrite(sC, &validUser, sizeof(bool));
+		}
+		else
+		{
+			strcpy(user, currentUser);
+		}
+
+		requestsCount = dbRequestCheckCount(user, 2);
+
+		if (requestsCount == 0)
+		{
+			resultAnswer = 2101;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		safeWrite(sC, &resultAnswer, sizeof(int));
+		safeWrite(sC, &requestsCount, sizeof(int));
+
+		dbRequestCheck(user, sC, 2);
+	}
+	return;
+}
+
+void deleteSentReq(int sC, const char *currentUser)
+{
+	int resultAnswer = 2222, userPriv;
+	bool check;
+
+	char user[33];
+	memset(user, 0, 33);
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		userPriv = dbGetPrivilege(currentUser);
+		safeWrite(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safePrefRead(sC, user);
+		}
+		else
+		{
+			strcpy(user, currentUser);
+		}
+
+		if (userPriv != 1)
+		{
+			if (strchr(user, '\"') != NULL || strlen(user) < 5)
+			{
+				resultAnswer = 2201;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+
+			if (dbCheckUser(user) == 0)
+			{
+				resultAnswer = 2201;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+		}
+
+		dbDeleteRequests(user, 2);
+		safeWrite(sC, &resultAnswer, sizeof(int));
+	}
+
+	return;
+}
+
 void quit(int sC, char *currentUser)
 {
 	bool check;
@@ -1244,7 +1657,7 @@ void answer(void *arg)
 			break;
 
 		case 9:
-			checkReq(tdL.client, clientID);
+			recvReq(tdL.client, clientID);
 			break;
 
 		case 10:
@@ -1273,6 +1686,26 @@ void answer(void *arg)
 
 		case 17:
 			joinChat(tdL.client, clientID);
+			break;
+
+		case 18:
+			setPriv(tdL.client, clientID);
+			break;
+
+		case 19:
+			deleteFriend(tdL.client, clientID);
+			break;
+
+		case 20:
+			deleteRecvReq(tdL.client, clientID);
+			break;
+
+		case 21:
+			sentReq(tdL.client, clientID);
+			break;
+
+		case 22:
+			deleteSentReq(tdL.client, clientID);
 			break;
 		}
 	}

@@ -53,7 +53,8 @@ void viewProfile(int, const char *);
 void addFriend(int, const char *);
 void addPost(int, const char *);
 void setProfile(int, const char *);
-void checkReq(int, const char *);
+void recvReq(int, const char *);
+void sentReq(int, const char *);
 void accFriend(int, const char *);
 void friends(int, const char *);
 void online(int, const char *);
@@ -61,6 +62,11 @@ void createChat(int, const char *);
 void chat(int, const char *);
 void deleteChat(int, const char *);
 void joinChat(int, char *);
+void activeChat(int, char *, const char *);
+void setPriv(int, const char *);
+void deleteFriend(int, const char *);
+void deleteRecvReq(int, const char *);
+void deleteSentReq(int, const char *);
 void quit(int, char *);
 __sighandler_t forcequit(void);
 void answer(void *);
@@ -78,8 +84,8 @@ int dbSetOnline(const char *);
 void dbSetOffline(const char *);
 void dbForceQuit(void);
 int dbRequestCheckType(const char *, const char *, const char *);
-int dbRequestCheckCount(const char *);
-void dbRequestCheck(const char *, int);
+int dbRequestCheckCount(const char *, int);
+void dbRequestCheck(const char *, int, int);
 void dbRequestSend(const char *, const char *, const char *, const char *);
 int dbFriendCheck(const char *, const char *);
 void dbInsertFriend(const char *, const char *, const char *);
@@ -109,6 +115,10 @@ int dbCheckRoomFriends(const char *, const char *);
 void activeChat(int, char *, const char *);
 void dbSendMsgToRoom(char *, const char *, const char *);
 int dbGetPrivilege(const char *);
+void dbSetPrivilege(const char *, const char *);
+void dbDeleteFriend(const char *, const char *);
+void dbDeleteRequests(const char *, int);
+
 // end_functii server
 
 #endif

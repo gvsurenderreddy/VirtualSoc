@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 9:
-			checkReq(socketConnect, logged);
+			recvReq(socketConnect, logged);
 			break;
 
 		case 10:
@@ -151,14 +151,37 @@ int main(int argc, char *argv[])
 		case 14:
 			createChat(socketConnect, logged);
 			break;
+
 		case 15:
 			chat(socketConnect, logged);
 			break;
+
 		case 16:
 			deleteChat(socketConnect, logged);
 			break;
+
 		case 17:
-			joinChat(socketConnect, logged, currentID);
+			joinChat(socketConnect, logged);
+			break;
+
+		case 18:
+			setPriv(socketConnect, logged);
+			break;
+
+		case 19:
+			deleteFriend(socketConnect, logged);
+			break;
+
+		case 20:
+			deleteRecvReq(socketConnect, logged);
+			break;
+
+		case 21:
+			sentReq(socketConnect, logged);
+			break;
+
+		case 22:
+			deleteSentReq(socketConnect, logged);
 			break;
 		}
 	}

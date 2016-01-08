@@ -308,12 +308,16 @@ void dbRequestSend(const char *ID1, const char *ID2, const char *type, const cha
 	free(sql);
 }
 
-int dbRequestCheckCount(const char *ID)
+int dbRequestCheckCount(const char *ID, int mode)
 {
-	//verifica daca ID are cereri de tip TYPE > returneaza nr lor
+	//verifica daca ID are cereri PRIMITE/TRIMISE (1/2) de tip TYPE > returneaza nr lor
 	char *sql;
 	sql = calloc(50 + strlen(ID), sizeof(char));
-	sprintf(sql, "SELECT COUNT(*) FROM REQUESTS WHERE toUser=\"%s\";", ID);
+
+	if (mode == 1)
+		sprintf(sql, "SELECT COUNT(*) FROM REQUESTS WHERE toUser=\"%s\";", ID);
+	if (mode == 2)
+		sprintf(sql, "SELECT COUNT(*) FROM REQUESTS WHERE fromUser=\"%s\";", ID);
 
 	char *data;
 
@@ -334,12 +338,16 @@ int dbRequestCheckCount(const char *ID)
 }
 
 
-void dbRequestCheck(const char *ID, int sC)
+void dbRequestCheck(const char *ID, int sC, int mode)
 {
-	//intoarce requesturile primite de ID catre sC
+	//intoarce requesturile PRIMITE/TRIMISE (1/2) de ID catre sC
 	char *sql;
 	sql = calloc(60 + strlen(ID), sizeof(char));
-	sprintf(sql, "SELECT fromUser,type FROM REQUESTS WHERE toUser=\"%s\";", ID);
+
+	if (mode == 1)
+		sprintf(sql, "SELECT fromUser,type FROM REQUESTS WHERE toUser=\"%s\";", ID);
+	if (mode == 2)
+		sprintf(sql, "SELECT toUser,type FROM REQUESTS WHERE fromUser=\"%s\";", ID);
 
 	int data[3];
 	data[0] = sC;
@@ -1028,4 +1036,76 @@ int dbGetPrivilege(const char *ID)
 	free(sql);
 
 	return atoi((char *)&data);
+}
+
+void dbSetPrivilege(const char *ID, const char *priv)
+{
+	// seteaza tipul de privilegiu a lui ID (0 root, 1 common user, 2 admin)
+	char *sql;
+	sql = calloc(50 + strlen(ID) + strlen(priv), sizeof(char));
+	sprintf(sql, "UPDATE USERS SET priv=\"%s\" WHERE id=\"%s\";", priv, ID);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbSetPrivilege:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbSetPrivilege:Succes \n");
+	}
+
+	free(sql);
+
+	return;
+}
+
+void dbDeleteFriend(const char *ID, const char *friend)
+{
+	// sterge prietenul FRIEND a lui ID
+	char *sql;
+	sql = calloc(60 + strlen(ID) + strlen(friend), sizeof(char));
+
+	sprintf(sql, "DELETE FROM friends WHERE owner=\"%s\" AND friend=\"%s\";", ID, friend);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbDeleteFriend:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbDeleteFriend:Succes \n");
+	}
+
+	free(sql);
+}
+
+void dbDeleteRequests(const char *ID, int mode)
+{
+	// sterge requesturile lui ID (1 primite, 2 trimise)
+	char *sql;
+	sql = calloc(50 + strlen(ID), sizeof(char));
+
+	if (mode == 1)
+		sprintf(sql, "DELETE FROM requests WHERE toUser=\"%s\";", ID);
+	if (mode == 2)
+		sprintf(sql, "DELETE FROM requests WHERE fromUser=\"%s\";", ID);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbDeleteRequest:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbDeleteRequest:Succes \n");
+	}
+
+	free(sql);
 }
