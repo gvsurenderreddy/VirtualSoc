@@ -1083,10 +1083,6 @@ void deleteChat(int sC, bool check)
 			printf("You're not the owner of room '%s' !\n", room);
 			break;
 
-		case 1603:
-			printf("Room '%s' is not empty !\n", room);
-			break; //trateaza asta
-
 		case 1616:
 			printf("Room '%s' has been deleted !\n", room);
 			break;

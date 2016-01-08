@@ -1157,13 +1157,6 @@ void deleteChat(int sC, const char *currentUser)
 			}
 		}
 
-		if (dbIsEmptyRoom(room) != 0)
-		{
-			resultAnswer = 1603;
-			safeWrite(sC, &resultAnswer, sizeof(int));
-			return;
-		}
-
 		safeWrite(sC, &resultAnswer, sizeof(int));
 		dbDeleteRoom(room);
 	}
