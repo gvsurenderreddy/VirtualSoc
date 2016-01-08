@@ -1063,7 +1063,7 @@ void dbSetPrivilege(const char *ID, const char *priv)
 
 void dbDeleteFriend(const char *ID, const char *friend)
 {
-	// sterge prietenul FRIEND a lui ID
+	// sterge prietenul FRIEND al lui ID
 	char *sql;
 	sql = calloc(60 + strlen(ID) + strlen(friend), sizeof(char));
 
@@ -1108,4 +1108,59 @@ void dbDeleteRequests(const char *ID, int mode)
 	}
 
 	free(sql);
+}
+
+void dbDeleteUser(const char *ID, int mode)
+{
+	// sterge userul ID in 2 pasi (mode 1 - informatii, prieteni, cereri, postari  /mode 2 - camerele)
+	char *sql;
+	sql = calloc(200 + 6 * strlen(ID), sizeof(char));
+
+	if (mode == 1)
+		sprintf(sql, "DELETE FROM requests WHERE toUser=\"%s\" OR fromUser=\"%s\";DELETE FROM users WHERE id=\"%s\";DELETE FROM posts WHERE user = \"%s\";DELETE FROM friends WHERE owner=\"%s\" OR friend=\"%s\";", ID, ID, ID, ID, ID, ID);
+	if (mode == 2)
+		sprintf(sql, "DELETE FROM chats WHERE owner=\"%s\";DELETE FROM online where id=\"%s\";", ID, ID);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbDeleteRequest:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbDeleteRequest:Succes \n");
+	}
+
+	free(sql);
+}
+
+int dbGetSock(const char *ID)
+{
+	// intoarce socketul lui ID sau 0 daca nu e conectat in nici unchat
+	char *sql, *data;
+	sql = calloc(50 + strlen(ID), sizeof(char));
+
+	sprintf(sql, "SELECT SOCK FROM CHATUSERS WHERE user = \"%s\";", ID);
+
+	data = calloc(10, sizeof(char));
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, data, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetSock:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetSock:Succes \n");
+	}
+
+
+	int sock = atoi(data);
+	free(data);
+	free(sql);
+
+	return sock;
 }

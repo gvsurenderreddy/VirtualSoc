@@ -183,6 +183,10 @@ int main(int argc, char *argv[])
 		case 22:
 			deleteSentReq(socketConnect, logged);
 			break;
+
+		case 23:
+			deleteUser(socketConnect, logged);
+			break;
 		}
 	}
 	close(socketConnect);

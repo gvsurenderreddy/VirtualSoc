@@ -74,6 +74,7 @@ void setPriv(int, bool);
 void deleteFriend(int, bool);
 void deleteRecvReq(int, bool);
 void deleteSentReq(int, bool);
+void deleteUser(int, bool);
 int encodeCommand(const char *);
 __sighandler_t quitforce(void);
 

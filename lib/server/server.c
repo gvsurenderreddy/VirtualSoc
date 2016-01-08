@@ -87,8 +87,7 @@ int main(int argc, char *argv[])
 	{ // debugging mode
 		printf("[server]Debug Mode\n");
 
-		printf("%s : %d\n", "CristeaAlex", dbGetPrivilege("CristeaAlex"));
-		printf("%s : %d\n", "rootVirtualSoc", dbGetPrivilege("rootVirtualSoc"));
+		printf("sock lu userteeeeeest: %d\n", dbGetSock("UserTeeeest"));
 
 		sqlite3_close(db);
 		return 0;

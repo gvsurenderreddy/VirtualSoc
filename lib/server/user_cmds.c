@@ -1574,6 +1574,68 @@ void deleteSentReq(int sC, const char *currentUser)
 	return;
 }
 
+void deleteUser(int sC, const char *currentUser)
+{
+	int resultAnswer = 2323;
+	bool check;
+
+	char user[33];
+	memset(user, 0, 33);
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		safePrefRead(sC, user);
+
+		if (dbGetPrivilege(user) == 0)
+		{
+			resultAnswer = 2303;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbGetPrivilege(currentUser) != 0)
+		{
+			resultAnswer = 2301;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (strchr(user, '\"') != NULL || strlen(user) < 5)
+		{
+			resultAnswer = 2302;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbCheckUser(user) == 0)
+		{
+			resultAnswer = 2302;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		dbDeleteUser(user, 1);
+		int sock = dbGetSock(user);
+		if (sock != 0)
+		{
+			safePrefWrite(sock, "!quit");
+			safePrefWrite(sock, "");
+		}
+		dbSetOffline(user);
+		dbDeleteUser(user, 2);
+
+		safeWrite(sC, &resultAnswer, sizeof(int));
+	}
+	return;
+}
+
+
 void quit(int sC, char *currentUser)
 {
 	bool check;
@@ -1706,6 +1768,10 @@ void answer(void *arg)
 
 		case 22:
 			deleteSentReq(tdL.client, clientID);
+			break;
+
+		case 23:
+			deleteUser(tdL.client, clientID);
 			break;
 		}
 	}

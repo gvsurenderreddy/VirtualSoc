@@ -1196,6 +1196,16 @@ void activeChat(int sC, const char *room)
 				wrefresh(winput);
 				break;
 
+			case '!':
+				safePrefWrite(sC, "/quit");
+				delwin(winput);
+				delwin(woutput);
+				endwin();
+				endwin();
+				printf("You've been disconnected !\n");
+				quitforce();
+				return;
+
 			case '<':
 				strcpy(user, user + 1);
 				wprintw(woutput, "%s exited the room '%s' !\n", user, room);
@@ -1555,6 +1565,49 @@ void deleteSentReq(int sC, bool check)
 	return;
 }
 
+void deleteUser(int sC, bool check)
+{
+	int resultAnswer = -1;
+
+	char user[33];
+	memset(user, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+	}
+	else
+	{
+		safeStdinRead("!!!   Warning   !!!\n!!! It will delete everything about that user !!!\nDelete user: ", user, 33);
+
+		safePrefWrite(sC, user);
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 2301:
+			printf("You must be root to delete an user !\n");
+			break;
+
+		case 2302:
+			printf("User '%s' doesn't exist or invalid !\n", user);
+			break;
+
+		case 2303:
+			printf("You cannot delete root '%s' !\n", user);
+			break;
+
+		case 2323:
+			printf("User '%s' has been deleted !\n", user);
+			break;
+		}
+	}
+	return;
+}
+
 int encodeCommand(const char *clientCommandChar)
 {
 	if (strcmp(clientCommandChar, "/login") == 0)
@@ -1601,7 +1654,8 @@ int encodeCommand(const char *clientCommandChar)
 		return 21;
 	if (strcmp(clientCommandChar, "/deleteSentReq") == 0)
 		return 22;
-
+	if (strcmp(clientCommandChar, "/deleteUser") == 0)
+		return 23;
 	return -1;
 }
 

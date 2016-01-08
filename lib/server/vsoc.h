@@ -67,6 +67,7 @@ void setPriv(int, const char *);
 void deleteFriend(int, const char *);
 void deleteRecvReq(int, const char *);
 void deleteSentReq(int, const char *);
+void deleteUser(int, const char *);
 void quit(int, char *);
 __sighandler_t forcequit(void);
 void answer(void *);
@@ -118,6 +119,8 @@ int dbGetPrivilege(const char *);
 void dbSetPrivilege(const char *, const char *);
 void dbDeleteFriend(const char *, const char *);
 void dbDeleteRequests(const char *, int);
+void dbDeleteUser(const char *, int);
+int dbGetSock(const char *);
 
 // end_functii server
 
