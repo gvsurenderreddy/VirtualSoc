@@ -1,28 +1,3 @@
-main	/home/shagrath/Documents/FII/VirtualSoc/lib/client/client.c	/^int main(int argc, char *argv[])$/;"	function	line:3	signature:(int argc, char *argv[])
-VSOC_H	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define VSOC_H$/;"	macro	line:2
-RESET	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define RESET /;"	macro	line:24
-BLACK	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BLACK /;"	macro	line:25
-RED	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define RED /;"	macro	line:26
-GREEN	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define GREEN /;"	macro	line:27
-YELLOW	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define YELLOW /;"	macro	line:28
-BLUE	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BLUE /;"	macro	line:29
-MAGENTA	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define MAGENTA /;"	macro	line:30
-CYAN	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define CYAN /;"	macro	line:31
-WHITE	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define WHITE /;"	macro	line:32
-BOLDBLACK	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDBLACK /;"	macro	line:33
-BOLDRED	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDRED /;"	macro	line:34
-BOLDGREEN	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDGREEN /;"	macro	line:35
-BOLDYELLOW	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDYELLOW /;"	macro	line:36
-BOLDBLUE	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDBLUE /;"	macro	line:37
-BOLDMAGENTA	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDMAGENTA /;"	macro	line:38
-BOLDCYAN	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDCYAN /;"	macro	line:39
-BOLDWHITE	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDWHITE /;"	macro	line:40
-PORT	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define PORT /;"	macro	line:42
-port	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^int port;$/;"	variable	line:44
-thData	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^typedef struct thData$/;"	struct	line:46
-idThread	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^	int idThread;$/;"	member	line:48	struct:thData
-client	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^	int client;$/;"	member	line:49	struct:thData
-thData	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^} thData; \/\/ structura pentru thread-uri$/;"	typedef	line:50	typeref:struct:thData
 CC	/home/shagrath/Documents/FII/VirtualSoc/Makefile	/^CC = gcc-4.9$/;"	macro	line:1
 CFLAGS	/home/shagrath/Documents/FII/VirtualSoc/Makefile	/^CFLAGS = -c -std=gnu11 -g -Wall -fdiagnostics-color$/;"	macro	line:2
 LINK_FLAGS	/home/shagrath/Documents/FII/VirtualSoc/Makefile	/^LINK_FLAGS = -pthread -l sqlite3$/;"	macro	line:3
@@ -34,38 +9,119 @@ BUILD_PATH	/home/shagrath/Documents/FII/VirtualSoc/Makefile	/^BUILD_PATH = build
 main	/home/shagrath/Documents/FII/VirtualSoc/lib/server/server.c	/^int main(int argc, char *argv[])$/;"	function	line:5	signature:(int argc, char *argv[])
 treat	/home/shagrath/Documents/FII/VirtualSoc/lib/server/server.c	/^static void *treat(void *arg)$/;"	function	line:97	file:	signature:(void *arg)
 VSOC_H	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^#define VSOC_H$/;"	macro	line:2
-PORT	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^#define PORT /;"	macro	line:26
-thData	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^typedef struct thData$/;"	struct	line:30
-idThread	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^	int idThread;$/;"	member	line:32	struct:thData
-client	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^	int client;$/;"	member	line:33	struct:thData
-thData	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^} thData;$/;"	typedef	line:34	typeref:struct:thData
-db	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^sqlite3 *db;$/;"	variable	line:36
-rc	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^int rc;$/;"	variable	line:37
-zErrMsg	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^char *zErrMsg;$/;"	variable	line:38
+PORT	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^#define PORT /;"	macro	line:27
+thData	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^typedef struct thData$/;"	struct	line:31
+idThread	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^	int idThread;$/;"	member	line:33	struct:thData
+client	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^	int client;$/;"	member	line:34	struct:thData
+thData	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^} thData;$/;"	typedef	line:35	typeref:struct:thData
+db	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^sqlite3 *db;$/;"	variable	line:37
+rc	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^int rc;$/;"	variable	line:38
+zErrMsg	/home/shagrath/Documents/FII/VirtualSoc/lib/server/vsoc.h	/^char *zErrMsg;$/;"	variable	line:39
 callback	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int callback(void *data, int argc, char **argv, char **azColName)$/;"	function	line:7	signature:(void *data, int argc, char **argv, char **azColName)
 cbSingle	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int cbSingle(char *data, int argc, char **argv, char **azColName)$/;"	function	line:21	signature:(char *data, int argc, char **argv, char **azColName)
-cbDynamicSender	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int cbDynamicSender(int *data, int argc, char **argv, char **azColName)$/;"	function	line:30	signature:(int *data, int argc, char **argv, char **azColName)
-dbInsertUser	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbInsertUser(char *ID, char *PASS, char *FULLNAME, char *SEX, char *ABOUT,$/;"	function	line:52	signature:(char *ID, char *PASS, char *FULLNAME, char *SEX, char *ABOUT, char *TYPE)
-dbRegCheckUser	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbRegCheckUser(char *ID)$/;"	function	line:78	signature:(char *ID)
-dbLogCheckUser	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbLogCheckUser(char *ID)$/;"	function	line:105	signature:(char *ID)
-dbLogCheck	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbLogCheck(char *ID, char *PASS)$/;"	function	line:132	signature:(char *ID, char *PASS)
-dbSetOnline	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbSetOnline(char *ID)$/;"	function	line:160	signature:(char *ID)
-dbSetOffline	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbSetOffline(char *ID)$/;"	function	line:185	signature:(char *ID)
-dbForceQuit	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbForceQuit(void)$/;"	function	line:208	signature:(void)
-dbRequestCheckType	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbRequestCheckType(char *ID1, char *ID2, char *type)$/;"	function	line:231	signature:(char *ID1, char *ID2, char *type)
-dbFriendCheck	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbFriendCheck(char *ID1, char *ID2)$/;"	function	line:259	signature:(char *ID1, char *ID2)
-dbRequestSend	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbRequestSend(char *ID1, char *ID2, char *type, char *friendtype)$/;"	function	line:286	signature:(char *ID1, char *ID2, char *type, char *friendtype)
-dbRequestCheckCount	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbRequestCheckCount(char *ID)$/;"	function	line:310	signature:(char *ID)
-dbRequestCheck	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbRequestCheck(char *ID, int sC, int length)$/;"	function	line:338	signature:(char *ID, int sC, int length)
-dbInsertFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbInsertFriend(char *ID1, char *ID2, char *friendtype)$/;"	function	line:366	signature:(char *ID1, char *ID2, char *friendtype)
-dbGetFTypeFromReq	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^char *dbGetFTypeFromReq(char *ID1, char *ID2)$/;"	function	line:390	signature:(char *ID1, char *ID2)
-dbDeleteRequestType	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbDeleteRequestType(char *ID1, char *ID2, char *type)$/;"	function	line:417	signature:(char *ID1, char *ID2, char *type)
-dbFriendsCount	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbFriendsCount(char *ID)$/;"	function	line:441	signature:(char *ID)
-dbFriends	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbFriends(char *ID, int sC, int length)$/;"	function	line:468	signature:(char *ID, int sC, int length)
-dbOnlineCount	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbOnlineCount(char *ID)$/;"	function	line:496	signature:(char *ID)
-dbOnline	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbOnline(char *ID, int sC, int length)$/;"	function	line:526	signature:(char *ID, int sC, int length)
-dbInsertPost	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbInsertPost(char *ID, char *post, char *posttype)$/;"	function	line:554	signature:(char *ID, char *post, char *posttype)
-dbSetProfile	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbSetProfile(char *ID, char *value, char *col)$/;"	function	line:578	signature:(char *ID, char *value, char *col)
+cbDSlines	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int cbDSlines(int *data, int argc, char **argv, char **azColName)$/;"	function	line:30	signature:(int *data, int argc, char **argv, char **azColName)
+cbSendMsg	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int cbSendMsg(char **data, int argc, char **argv, char **azColName)$/;"	function	line:43	signature:(char **data, int argc, char **argv, char **azColName)
+dbInsertUser	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbInsertUser(const char *ID, const char *PASS, const char *FULLNAME, const char *SEX, const char *ABOUT,$/;"	function	line:58	signature:(const char *ID, const char *PASS, const char *FULLNAME, const char *SEX, const char *ABOUT, const char *TYPE)
+dbRegCheckUser	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbRegCheckUser(const char *ID)$/;"	function	line:85	signature:(const char *ID)
+dbCheckUser	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbCheckUser(const char *ID)$/;"	function	line:111	signature:(const char *ID)
+dbLogCheck	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbLogCheck(const char *ID, const char *PASS)$/;"	function	line:137	signature:(const char *ID, const char *PASS)
+dbSetOnline	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbSetOnline(const char *ID)$/;"	function	line:163	signature:(const char *ID)
+dbSetOffline	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbSetOffline(const char *ID)$/;"	function	line:188	signature:(const char *ID)
+dbForceQuit	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbForceQuit(void)$/;"	function	line:211	signature:(void)
+dbRequestCheckType	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbRequestCheckType(const char *ID1, const char *ID2, const char *type)$/;"	function	line:234	signature:(const char *ID1, const char *ID2, const char *type)
+dbFriendCheck	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbFriendCheck(const char *ID1, const char *ID2)$/;"	function	line:260	signature:(const char *ID1, const char *ID2)
+dbRequestSend	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbRequestSend(const char *ID1, const char *ID2, const char *type, const char *friendtype)$/;"	function	line:286	signature:(const char *ID1, const char *ID2, const char *type, const char *friendtype)
+dbRequestCheckCount	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbRequestCheckCount(const char *ID, int mode)$/;"	function	line:311	signature:(const char *ID, int mode)
+dbRequestCheck	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbRequestCheck(const char *ID, int sC, int mode)$/;"	function	line:341	signature:(const char *ID, int sC, int mode)
+dbInsertFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbInsertFriend(const char *ID1, const char *ID2, const char *friendtype)$/;"	function	line:371	signature:(const char *ID1, const char *ID2, const char *friendtype)
+dbGetFTypeFromReq	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^char *dbGetFTypeFromReq(const char *ID1, const char *ID2)$/;"	function	line:395	signature:(const char *ID1, const char *ID2)
+dbDeleteRequestType	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbDeleteRequestType(const char *ID1, const char *ID2, const char *type)$/;"	function	line:422	signature:(const char *ID1, const char *ID2, const char *type)
+dbFriendsCount	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbFriendsCount(const char *ID)$/;"	function	line:446	signature:(const char *ID)
+dbFriends	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbFriends(const char *ID, int sC)$/;"	function	line:471	signature:(const char *ID, int sC)
+dbOnlineCount	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbOnlineCount(const char *ID)$/;"	function	line:497	signature:(const char *ID)
+dbOnline	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbOnline(const char *ID, int sC)$/;"	function	line:522	signature:(const char *ID, int sC)
+dbInsertPost	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbInsertPost(const char *ID, const char *post, const char *posttype)$/;"	function	line:549	signature:(const char *ID, const char *post, const char *posttype)
+dbSetProfile	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbSetProfile(const char *ID, const char *value, const char *col)$/;"	function	line:579	signature:(const char *ID, const char *value, const char *col)
+dbGetUserType	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^char *dbGetUserType(const char *ID)$/;"	function	line:603	signature:(const char *ID)
+dbGetFType	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^char *dbGetFType(const char *ID1, const char *ID2)$/;"	function	line:630	signature:(const char *ID1, const char *ID2)
+dbGetInfoUser	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbGetInfoUser(const char *ID, int sC)$/;"	function	line:656	signature:(const char *ID, int sC)
+dbGetPostsCount	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbGetPostsCount(const char *ID, const char *posttype, int limit)$/;"	function	line:680	signature:(const char *ID, const char *posttype, int limit)
+dbGetPosts	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbGetPosts(const char *ID, int sC, const char *posttype, int limit)$/;"	function	line:708	signature:(const char *ID, int sC, const char *posttype, int limit)
+dbCheckRoom	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbCheckRoom(const char *ROOM)$/;"	function	line:732	signature:(const char *ROOM)
+dbInsertRoom	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbInsertRoom(const char *ROOM, const char *ID)$/;"	function	line:759	signature:(const char *ROOM, const char *ID)
+dbGetRoomsCount	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbGetRoomsCount(const char *ID)$/;"	function	line:783	signature:(const char *ID)
+dbGetRooms	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbGetRooms(const char *ID, int sC)$/;"	function	line:811	signature:(const char *ID, int sC)
+dbIsEmptyRoom	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbIsEmptyRoom(const char *ROOM)$/;"	function	line:835	signature:(const char *ROOM)
+dbIsOwnerRoom	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbIsOwnerRoom(const char *ID, const char *ROOM)$/;"	function	line:860	signature:(const char *ID, const char *ROOM)
+dbDeleteRoom	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbDeleteRoom(const char *ROOM)$/;"	function	line:885	signature:(const char *ROOM)
+dbJoinRoom	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbJoinRoom(const char *ID, const char *ROOM, int sC)$/;"	function	line:908	signature:(const char *ID, const char *ROOM, int sC)
+dbLeaveRoom	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbLeaveRoom(const char *ID)$/;"	function	line:932	signature:(const char *ID)
+dbCheckRoomFriends	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbCheckRoomFriends(const char *ID, const char *ROOM)$/;"	function	line:955	signature:(const char *ID, const char *ROOM)
+dbSendMsgToRoom	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbSendMsgToRoom(char *ID, const char *ROOM, const char *MESG)$/;"	function	line:980	signature:(char *ID, const char *ROOM, const char *MESG)
+dbGetPrivilege	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbGetPrivilege(const char *ID)$/;"	function	line:1016	signature:(const char *ID)
+dbSetPrivilege	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbSetPrivilege(const char *ID, const char *priv)$/;"	function	line:1041	signature:(const char *ID, const char *priv)
+dbDeleteFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbDeleteFriend(const char *ID, const char *friend)$/;"	function	line:1064	signature:(const char *ID, const char *friend)
+dbDeleteRequests	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbDeleteRequests(const char *ID, int mode)$/;"	function	line:1087	signature:(const char *ID, int mode)
+dbDeleteUser	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^void dbDeleteUser(const char *ID, int mode)$/;"	function	line:1113	signature:(const char *ID, int mode)
+dbGetSock	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^int dbGetSock(const char *ID)$/;"	function	line:1139	signature:(const char *ID)
+dbGetStatus	/home/shagrath/Documents/FII/VirtualSoc/lib/server/db_fcnts.c	/^bool dbGetStatus(const char *ID)$/;"	function	line:1168	signature:(const char *ID)
+VSOC_H	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define VSOC_H$/;"	macro	line:2
+RESET	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define RESET /;"	macro	line:27
+BLACK	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BLACK /;"	macro	line:28
+RED	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define RED /;"	macro	line:29
+GREEN	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define GREEN /;"	macro	line:30
+YELLOW	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define YELLOW /;"	macro	line:31
+BLUE	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BLUE /;"	macro	line:32
+MAGENTA	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define MAGENTA /;"	macro	line:33
+CYAN	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define CYAN /;"	macro	line:34
+WHITE	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define WHITE /;"	macro	line:35
+BOLDBLACK	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDBLACK /;"	macro	line:36
+BOLDRED	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDRED /;"	macro	line:37
+BOLDGREEN	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDGREEN /;"	macro	line:38
+BOLDYELLOW	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDYELLOW /;"	macro	line:39
+BOLDBLUE	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDBLUE /;"	macro	line:40
+BOLDMAGENTA	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDMAGENTA /;"	macro	line:41
+BOLDCYAN	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDCYAN /;"	macro	line:42
+BOLDWHITE	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define BOLDWHITE /;"	macro	line:43
+PORT	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^#define PORT /;"	macro	line:44
+oflags	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^struct termios oflags, nflags;$/;"	variable	line:46	typeref:struct:termios
+nflags	/home/shagrath/Documents/FII/VirtualSoc/lib/client/vsoc.h	/^struct termios oflags, nflags;$/;"	variable	line:46	typeref:struct:
+main	/home/shagrath/Documents/FII/VirtualSoc/lib/client/client.c	/^int main(int argc, char *argv[])$/;"	function	line:3	signature:(int argc, char *argv[])
+CLIENT	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^#define CLIENT /;"	macro	line:1	file:
+getPassV2	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^int getPassV2(const char *prompt, char *pass, int length)$/;"	function	line:4	signature:(const char *prompt, char *pass, int length)
+safeStdinRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void safeStdinRead(const char *print, char *text, int size)$/;"	function	line:30	signature:(const char *print, char *text, int size)
+safeRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safeRead(int sock, void *buffer, size_t length)$/;"	function	line:44	signature:(int sock, void *buffer, size_t length)
+safeWrite	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safeWrite(int sock, const void *buffer, size_t length)$/;"	function	line:56	signature:(int sock, const void *buffer, size_t length)
+safePrefRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safePrefRead(int sock, void *buffer)$/;"	function	line:69	signature:(int sock, void *buffer)
+safePrefWrite	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safePrefWrite(int sock, const void *buffer)$/;"	function	line:90	signature:(int sock, const void *buffer)
+help	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void help(bool check)$/;"	function	line:111	signature:(bool check)
+login	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^bool login(int sC, bool check, char *currentUser)$/;"	function	line:118	signature:(int sC, bool check, char *currentUser)
+register_now	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void register_now(int sC, bool check)$/;"	function	line:170	signature:(int sC, bool check)
+infoUserPrints	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^static void infoUserPrints(int i, char *info)$/;"	function	line:262	file:	signature:(int i, char *info)
+userPrints	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^static void userPrints(int sC, const char *user)$/;"	function	line:300	file:	signature:(int sC, const char *user)
+viewProfile	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void viewProfile(int sC, bool check)$/;"	function	line:343	signature:(int sC, bool check)
+logout	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^bool logout(int sC, bool check, char *currentUser)$/;"	function	line:393	signature:(int sC, bool check, char *currentUser)
+addFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void addFriend(int sC, bool check)$/;"	function	line:409	signature:(int sC, bool check)
+addPost	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void addPost(int sC, bool check)$/;"	function	line:475	signature:(int sC, bool check)
+setProfile	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void setProfile(int sC, bool check)$/;"	function	line:518	signature:(int sC, bool check)
+recvReq	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void recvReq(int sC, bool check)$/;"	function	line:658	signature:(int sC, bool check)
+accFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void accFriend(int sC, bool check)$/;"	function	line:731	signature:(int sC, bool check)
+friends	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void friends(int sC, bool check)$/;"	function	line:806	signature:(int sC, bool check)
+online	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^bool online(int sC)$/;"	function	line:875	signature:(int sC)
+createChat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void createChat(int sC, bool check)$/;"	function	line:954	signature:(int sC, bool check)
+chat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void chat(int sC, bool check)$/;"	function	line:993	signature:(int sC, bool check)
+deleteChat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteChat(int sC, bool check)$/;"	function	line:1057	signature:(int sC, bool check)
+joinChat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void joinChat(int sC, bool check)$/;"	function	line:1096	signature:(int sC, bool check)
+activeChat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void activeChat(int sC, const char *room)$/;"	function	line:1138	signature:(int sC, const char *room)
+setPriv	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void setPriv(int sC, bool check)$/;"	function	line:1288	signature:(int sC, bool check)
+deleteFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteFriend(int sC, bool check)$/;"	function	line:1346	signature:(int sC, bool check)
+deleteRecvReq	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteRecvReq(int sC, bool check)$/;"	function	line:1402	signature:(int sC, bool check)
+sentReq	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void sentReq(int sC, bool check)$/;"	function	line:1447	signature:(int sC, bool check)
+deleteSentReq	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteSentReq(int sC, bool check)$/;"	function	line:1521	signature:(int sC, bool check)
+deleteUser	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteUser(int sC, bool check)$/;"	function	line:1566	signature:(int sC, bool check)
+encodeCommand	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^int encodeCommand(const char *clientCommandChar)$/;"	function	line:1609	signature:(const char *clientCommandChar)
+quit	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void quit(int sC, bool check)$/;"	function	line:1660	signature:(int sC, bool check)
+quitforce	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^__sighandler_t quitforce(void)$/;"	function	line:1666	signature:(void)
 safeRead	/home/shagrath/Documents/FII/VirtualSoc/lib/server/user_cmds.c	/^ssize_t safeRead(int sock, void *buffer, size_t length)$/;"	function	line:3	signature:(int sock, void *buffer, size_t length)
 safeWrite	/home/shagrath/Documents/FII/VirtualSoc/lib/server/user_cmds.c	/^ssize_t safeWrite(int sock, const void *buffer, size_t length)$/;"	function	line:16	signature:(int sock, const void *buffer, size_t length)
 safePrefRead	/home/shagrath/Documents/FII/VirtualSoc/lib/server/user_cmds.c	/^ssize_t safePrefRead(int sock, void *buffer)$/;"	function	line:30	signature:(int sock, void *buffer)
@@ -97,38 +153,3 @@ deleteUser	/home/shagrath/Documents/FII/VirtualSoc/lib/server/user_cmds.c	/^void
 quit	/home/shagrath/Documents/FII/VirtualSoc/lib/server/user_cmds.c	/^void quit(int sC, char *currentUser)$/;"	function	line:1632	signature:(int sC, char *currentUser)
 forcequit	/home/shagrath/Documents/FII/VirtualSoc/lib/server/user_cmds.c	/^__sighandler_t forcequit(void)$/;"	function	line:1648	signature:(void)
 answer	/home/shagrath/Documents/FII/VirtualSoc/lib/server/user_cmds.c	/^void answer(void *arg)$/;"	function	line:1656	signature:(void *arg)
-CLIENT	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^#define CLIENT /;"	macro	line:1	file:
-getPassV2	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^int getPassV2(const char *prompt, char *pass, int length)$/;"	function	line:4	signature:(const char *prompt, char *pass, int length)
-safeStdinRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void safeStdinRead(const char *print, char *text, int size)$/;"	function	line:30	signature:(const char *print, char *text, int size)
-safeRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safeRead(int sock, void *buffer, size_t length)$/;"	function	line:44	signature:(int sock, void *buffer, size_t length)
-safeWrite	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safeWrite(int sock, const void *buffer, size_t length)$/;"	function	line:56	signature:(int sock, const void *buffer, size_t length)
-safePrefRead	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safePrefRead(int sock, void *buffer)$/;"	function	line:69	signature:(int sock, void *buffer)
-safePrefWrite	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^ssize_t safePrefWrite(int sock, const void *buffer)$/;"	function	line:90	signature:(int sock, const void *buffer)
-help	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void help(bool check)$/;"	function	line:111	signature:(bool check)
-login	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^int login(int sC, bool check, char *currentUser)$/;"	function	line:118	signature:(int sC, bool check, char *currentUser)
-register_now	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void register_now(int sC, bool check)$/;"	function	line:170	signature:(int sC, bool check)
-infoUserPrints	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^static void infoUserPrints(int i, char *info)$/;"	function	line:262	file:	signature:(int i, char *info)
-userPrints	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^static void userPrints(int sC, const char *user)$/;"	function	line:300	file:	signature:(int sC, const char *user)
-viewProfile	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void viewProfile(int sC, bool check)$/;"	function	line:343	signature:(int sC, bool check)
-logout	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^int logout(int sC, bool check, char *currentUser)$/;"	function	line:393	signature:(int sC, bool check, char *currentUser)
-addFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void addFriend(int sC, bool check)$/;"	function	line:409	signature:(int sC, bool check)
-addPost	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void addPost(int sC, bool check)$/;"	function	line:475	signature:(int sC, bool check)
-setProfile	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void setProfile(int sC, bool check)$/;"	function	line:518	signature:(int sC, bool check)
-recvReq	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void recvReq(int sC, bool check)$/;"	function	line:658	signature:(int sC, bool check)
-accFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void accFriend(int sC, bool check)$/;"	function	line:731	signature:(int sC, bool check)
-friends	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void friends(int sC, bool check)$/;"	function	line:806	signature:(int sC, bool check)
-online	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void online(int sC, bool check)$/;"	function	line:875	signature:(int sC, bool check)
-createChat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void createChat(int sC, bool check)$/;"	function	line:952	signature:(int sC, bool check)
-chat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void chat(int sC, bool check)$/;"	function	line:991	signature:(int sC, bool check)
-deleteChat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteChat(int sC, bool check)$/;"	function	line:1055	signature:(int sC, bool check)
-joinChat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void joinChat(int sC, bool check)$/;"	function	line:1094	signature:(int sC, bool check)
-activeChat	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void activeChat(int sC, const char *room)$/;"	function	line:1136	signature:(int sC, const char *room)
-setPriv	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void setPriv(int sC, bool check)$/;"	function	line:1286	signature:(int sC, bool check)
-deleteFriend	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteFriend(int sC, bool check)$/;"	function	line:1344	signature:(int sC, bool check)
-deleteRecvReq	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteRecvReq(int sC, bool check)$/;"	function	line:1400	signature:(int sC, bool check)
-sentReq	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void sentReq(int sC, bool check)$/;"	function	line:1445	signature:(int sC, bool check)
-deleteSentReq	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteSentReq(int sC, bool check)$/;"	function	line:1519	signature:(int sC, bool check)
-deleteUser	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void deleteUser(int sC, bool check)$/;"	function	line:1564	signature:(int sC, bool check)
-encodeCommand	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^int encodeCommand(const char *clientCommandChar)$/;"	function	line:1607	signature:(const char *clientCommandChar)
-quit	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^void quit(int sC, bool check)$/;"	function	line:1658	signature:(int sC, bool check)
-quitforce	/home/shagrath/Documents/FII/VirtualSoc/lib/client/user_cmdc.c	/^__sighandler_t quitforce(void)$/;"	function	line:1664	signature:(void)

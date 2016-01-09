@@ -104,7 +104,8 @@ void dbGetInfoUser(const char *, int);
 int dbGetPostsCount(const char *, const char *, int);
 void dbGetPosts(const char *, int, const char *, int);
 int dbCheckRoom(const char *);
-void dbInsertRoom(const char *, const char *);
+int dbCheckRoomPass(const char *, const char *);
+void dbInsertRoom(const char *, const char *, const char *);
 int dbGetRoomsCount(const char *);
 void dbGetRooms(const char *, int);
 int dbIsEmptyRoom(const char *);
@@ -121,6 +122,7 @@ void dbDeleteFriend(const char *, const char *);
 void dbDeleteRequests(const char *, int);
 void dbDeleteUser(const char *, int);
 int dbGetSock(const char *);
+bool dbGetStatus(const char *);
 
 // end_functii server
 

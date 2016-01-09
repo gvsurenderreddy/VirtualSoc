@@ -942,12 +942,12 @@ void friends(int sC, const char *currentUser)
 void online(int sC, const char *currentUser)
 {
 	int resultAnswer = 1313, onlineCount, userPriv;
-	bool check;
 
 	char user[33];
 	memset(user, 0, 33);
 
-	safeRead(sC, &check, sizeof(bool));
+	bool check = dbGetStatus(currentUser);
+	safeWrite(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
@@ -1008,8 +1008,9 @@ void createChat(int sC, const char *currentUser)
 	int resultAnswer = 1414;
 	bool check;
 
-	char room[33];
+	char room[33], password[33];
 	memset(room, 0, 33);
+	memset(password, 0, 33);
 
 	safeRead(sC, &check, sizeof(bool));
 
@@ -1020,6 +1021,7 @@ void createChat(int sC, const char *currentUser)
 	else
 	{
 		safePrefRead(sC, room);
+		safePrefRead(sC, password);
 
 		size_t i;
 
@@ -1047,7 +1049,14 @@ void createChat(int sC, const char *currentUser)
 			return;
 		}
 
-		dbInsertRoom(room, currentUser);
+		if ((strchr(password, '\"') != NULL) || strlen(password) < 5)
+		{
+			resultAnswer = 1403;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		dbInsertRoom(room, password, currentUser);
 		safeWrite(sC, &resultAnswer, sizeof(int));
 	}
 	return;
@@ -1168,8 +1177,9 @@ void joinChat(int sC, char *currentUser)
 	int resultAnswer = 1717;
 	bool check;
 
-	char room[33];
+	char room[33], password[33];
 	memset(room, 0, 33);
+	memset(password, 0, 33);
 
 	safeRead(sC, &check, sizeof(bool));
 
@@ -1180,6 +1190,7 @@ void joinChat(int sC, char *currentUser)
 	else
 	{
 		safePrefRead(sC, room);
+		safePrefRead(sC, password);
 
 		if (strchr(room, '\"') != NULL || strlen(room) < 5)
 		{
@@ -1200,6 +1211,20 @@ void joinChat(int sC, char *currentUser)
 			if (dbCheckRoomFriends(currentUser, room) == 0)
 			{
 				resultAnswer = 1702;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+
+			if (strchr(password, '\"') != NULL || strlen(password) < 5)
+			{
+				resultAnswer = 1703;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+
+			if (dbCheckRoomPass(room, password) == 0)
+			{
+				resultAnswer = 1703;
 				safeWrite(sC, &resultAnswer, sizeof(int));
 				return;
 			}
@@ -1659,12 +1684,14 @@ void answer(void *arg)
 	tdL = *((struct thData *)arg);
 
 	int clientCommand = -1;
+	//bool logged;
 
 	char clientID[33];
 	memset(clientID, 0, 33);
 
 	while (clientCommand != 0)
 	{
+
 		if (read(tdL.client, &clientCommand, sizeof(int)) <= 0)
 		{
 			printf("[thread %d]Client with conn. sock %d - ", tdL.idThread, tdL.client);

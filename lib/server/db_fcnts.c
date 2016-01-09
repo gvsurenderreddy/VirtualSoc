@@ -756,14 +756,14 @@ int dbCheckRoom(const char *ROOM)
 	return atoi((char *)&data);
 }
 
-void dbInsertRoom(const char *ROOM, const char *ID)
+void dbInsertRoom(const char *ROOM, const char *PASS, const char *ID)
 {
-	// adauga in chats ROOM cu owneru ID
+	// adauga in chats ROOM cu owneru ID si parola PASS
 	char *sql;
 	sql = calloc(60 + strlen(ID) + strlen(ROOM), sizeof(char));
 
-	sprintf(sql, "INSERT INTO chats (room,owner) VALUES (\"%s\",\"%s\");",
-			ROOM, ID);
+	sprintf(sql, "INSERT INTO chats (room,pass,owner) VALUES (\"%s\",\"%s\",\"%s\");",
+			ROOM, PASS, ID);
 
 	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
 
@@ -863,7 +863,7 @@ int dbIsOwnerRoom(const char *ID, const char *ROOM)
 	char *sql;
 	sql = calloc(65 + strlen(ROOM) + strlen(ID), sizeof(char));
 
-	sprintf(sql, "SELECT COUNT(*) FROM chats WHERE room=\"%s\" AND owner=\"%s\"", ROOM, ID);
+	sprintf(sql, "SELECT COUNT(*) FROM chats WHERE room=\"%s\" AND owner=\"%s\";", ROOM, ID);
 
 	char *data;
 
@@ -1163,4 +1163,56 @@ int dbGetSock(const char *ID)
 	free(sql);
 
 	return sock;
+}
+
+bool dbGetStatus(const char *ID)
+{
+	//verifica daca ID este ownerul camerei ROOM
+	char *sql;
+	sql = calloc(50 + strlen(ID), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM online WHERE id=\"%s\";", ID);
+
+	char *data;
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbGetStatus:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbGetStatus:Succes \n");
+	}
+
+	free(sql);
+	return atoi((char *)&data);
+}
+
+int dbCheckRoomPass(const char *ROOM, const char *PASS)
+{
+	//verifica daca exista o camera de chat ROOM
+
+	char *sql;
+	sql = calloc(65 + strlen(ROOM) + strlen(PASS), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM chats WHERE room=\"%s\" AND pass=\"%s\";", ROOM, PASS);
+
+	char *data;
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbCheckRoomPass:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbCheckRoomPass:Succes \n");
+	}
+
+
+	free(sql);
+	return atoi((char *)&data);
 }

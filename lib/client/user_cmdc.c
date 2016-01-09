@@ -115,7 +115,7 @@ void help(bool check)
 		   "/viewProfile\n /addFriend\n /addPost\n /recvReq\n /sentReq\n /accFriend\n /friends\n /online\n /setProfile\n /createChat\n /chat\n /deleteChat\n /joinChat\n /deleteRecvReq\n /deleteSentReq\n /deleteFriend\n\n");
 }
 
-int login(int sC, bool check, char *currentUser)
+bool login(int sC, bool check, char *currentUser)
 {
 	int resultAnswer = -1;
 
@@ -390,7 +390,7 @@ void viewProfile(int sC, bool check)
 	return;
 }
 
-int logout(int sC, bool check, char *currentUser)
+bool logout(int sC, bool check, char *currentUser)
 {
 	safeWrite(sC, &check, sizeof(bool));
 
@@ -872,7 +872,7 @@ void friends(int sC, bool check)
 	return;
 }
 
-void online(int sC, bool check)
+bool online(int sC)
 {
 	int resultAnswer = -1, onlineCount, userPriv;
 
@@ -881,11 +881,13 @@ void online(int sC, bool check)
 	memset(friendType, 0, 5);
 	memset(user, 0, 33);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
@@ -901,7 +903,7 @@ void online(int sC, bool check)
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return;
+				return 1;
 			}
 		}
 		else
@@ -915,7 +917,7 @@ void online(int sC, bool check)
 		{
 		case 1301:
 			printf("There are NO friends online at the moment for '%s' !\n", user);
-			return;
+			return 1;
 
 		case 1313:
 			safeRead(sC, &onlineCount, sizeof(int));
@@ -946,15 +948,16 @@ void online(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
 void createChat(int sC, bool check)
 {
 	int resultAnswer = -1;
 
-	char room[33];
+	char room[33], password[33];
 	memset(room, 0, 33);
+	memset(password, 0, 33);
 
 	safeWrite(sC, &check, sizeof(bool));
 
@@ -965,8 +968,10 @@ void createChat(int sC, bool check)
 	else
 	{
 		safeStdinRead("Room name (5-32 ch.): ", room, 33);
+		getPassV2("Room password (5-32 ch.): ", password, 33);
 
 		safePrefWrite(sC, room);
+		safePrefWrite(sC, password);
 
 		safeRead(sC, &resultAnswer, sizeof(int));
 
@@ -978,6 +983,10 @@ void createChat(int sC, bool check)
 
 		case 1402:
 			printf("A room with name '%s' already exists !\n", room);
+			break;
+
+		case 1403:
+			printf("Invalid room password !(5-32 ch., no quotes)\n");
 			break;
 
 		case 1414:
@@ -1095,8 +1104,9 @@ void joinChat(int sC, bool check)
 {
 	int resultAnswer = -1;
 
-	char room[33];
+	char room[33], password[33];
 	memset(room, 0, 33);
+	memset(password, 0, 33);
 
 	safeWrite(sC, &check, sizeof(bool));
 
@@ -1107,8 +1117,10 @@ void joinChat(int sC, bool check)
 	else
 	{
 		safeStdinRead("Join chat: ", room, 33);
+		getPassV2("Chat password: ", password, 33);
 
 		safePrefWrite(sC, room);
+		safePrefWrite(sC, password);
 
 		safeRead(sC, &resultAnswer, sizeof(int));
 
@@ -1120,6 +1132,10 @@ void joinChat(int sC, bool check)
 
 		case 1702:
 			printf("Room '%s' doesn't belong to you or to your friends !\n", room);
+			break;
+
+		case 1703:
+			printf("Wrong password !\n");
 			break;
 
 		case 1717:

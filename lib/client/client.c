@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 			printf(RED "[offline] @ vSoc >>: " RESET);
 			fflush(stdout);
 		}
-		else if (logged == 1)
+		if (logged == 1)
 		{
 			printf(GREEN "%s @ vSoc >>: " RESET, currentID);
 			fflush(stdout);
@@ -77,7 +77,8 @@ int main(int argc, char *argv[])
 
 		clientCommand = encodeCommand(clientCommandChar);
 
-		if (clientCommand == -1)
+
+		if (clientCommand == -1 && clientCommandChar[0] != 0)
 		{
 			printf("Wrong command ! Check /help ! \nCommands are "
 				   "case-sensitive. \n");
@@ -89,6 +90,8 @@ int main(int argc, char *argv[])
 			help(logged);
 			continue;
 		}
+
+
 
 		if (write(socketConnect, &clientCommand, sizeof(int)) <= 0)
 		{
@@ -145,7 +148,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 13:
-			online(socketConnect, logged);
+			logged = online(socketConnect);
 			break;
 
 		case 14:
