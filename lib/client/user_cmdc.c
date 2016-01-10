@@ -112,7 +112,7 @@ void help(bool check)
 {
 	printf("\n Available commands :\n /login\n /logout\n /register\n "
 		   "/quit\n "
-		   "/viewProfile\n /addFriend\n /addPost\n /recvReq\n /sentReq\n /accFriend\n /friends\n /online\n /setProfile\n /createChat\n /chat\n /deleteChat\n /joinChat\n /deleteRecvReq\n /deleteSentReq\n /deleteFriend\n\n");
+		   "/viewProfile\n /addFriend\n /addPost\n /recvReq\n /sentReq\n /accFriend\n /friends\n /online\n /setProfile\n /createChat\n /chat\n /deleteChat\n /joinChat\n /deleteRecvReq\n /deleteSentReq\n /deleteFriend\n /deletePost\n /setPriv\n /wall\n\n");
 }
 
 bool login(int sC, bool check, char *currentUser)
@@ -300,7 +300,7 @@ static void infoUserPrints(int i, char *info)
 static void userPrints(int sC, const char *user)
 {
 	int i, postsCount;
-	char info[520], postType[5], date[60];
+	char info[520], postType[5], date[65], id[33];
 
 	for (i = 0; i < 6; i++)
 	{
@@ -314,10 +314,12 @@ static void userPrints(int sC, const char *user)
 
 	for (i = 0; i < postsCount; i++)
 	{
+		memset(id, 0, 33);
 		memset(info, 0, 520);
 		memset(postType, 0, 5);
-		memset(date, 0, 60);
+		memset(date, 0, 65);
 
+		safePrefRead(sC, id);
 		safePrefRead(sC, info);
 		safePrefRead(sC, postType);
 		safePrefRead(sC, date);
@@ -325,15 +327,15 @@ static void userPrints(int sC, const char *user)
 		switch (atoi(postType))
 		{
 		case 1:
-			printf(GREEN "[%s][publ]:" RESET "%s\n", date, info);
+			printf(GREEN "[ID:%s][%s][publ]:" RESET "%s\n", id, date, info);
 			break;
 
 		case 2:
-			printf(GREEN "[%s][frnd]:" RESET "%s\n", date, info);
+			printf(GREEN "[ID:%s][%s][frnd]:" RESET "%s\n", id, date, info);
 			break;
 
 		case 3:
-			printf(GREEN "[%s][cf/f]:" RESET "%s\n", date, info);
+			printf(GREEN "[ID:%s][%s][cf/f]:" RESET "%s\n", id, date, info);
 			break;
 		}
 	}
@@ -489,7 +491,7 @@ void addPost(int sC, bool check)
 	else
 	{
 		safeStdinRead("Post (10-512 ch.):", post, 513);
-		safeStdinRead("Type - 1(public) / 2(friends) / 3(close-friends/family) ", postType, 5);
+		safeStdinRead("Type - 1(public) / 2(friends) / 3(close-friends/family): ", postType, 5);
 
 		safePrefWrite(sC, post);
 		safePrefWrite(sC, postType);
@@ -1620,6 +1622,137 @@ void deleteUser(int sC, bool check)
 	return;
 }
 
+void deletePost(int sC, bool check)
+{
+	int resultAnswer = -1, userPriv;
+
+	char user[33], id[33];
+	memset(user, 0, 33);
+	memset(id, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+		return;
+	}
+	else
+	{
+		safeRead(sC, &userPriv, sizeof(int));
+
+		safeStdinRead("Delete post with ID: ", id, 33);
+		safePrefWrite(sC, id);
+
+		if (userPriv != 1)
+		{
+			safeStdinRead("From this user's profile: ", user, 33);
+			safePrefWrite(sC, user);
+		}
+		else
+		{
+			strcpy(user, "you");
+		}
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 2424:
+			printf("Delete post with ID '%s' from '%s' !\n", id, user);
+			break;
+
+		case 2401:
+			printf("Post '%s' doesn't exist or is invalid !\n", id);
+			break;
+
+		case 2402:
+			printf("User '%s' doesn't exist or is invalid !\n", user);
+			break;
+
+		case 2403:
+			printf("Post with ID '%s' is not yours ! !\n", id);
+			break;
+		}
+	}
+	return;
+}
+
+void wall(int sC, bool check)
+{
+	int i, resultAnswer = -1, postsCount;
+
+	char postsNumber[33], id[33], post[513], user[33], postType[5], date[65];
+
+	memset(postsNumber, 0, 33);
+
+	safeWrite(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		printf("You're not logged in !\n");
+		return;
+	}
+	else
+	{
+
+		safeStdinRead("View last (number) posts: ", postsNumber, 33);
+		safePrefWrite(sC, postsNumber);
+
+		safeRead(sC, &resultAnswer, sizeof(int));
+
+		switch (resultAnswer)
+		{
+		case 2501:
+			printf("Invalid number !\n");
+			break;
+
+		case 2525:
+			safeRead(sC, &postsCount, sizeof(int));
+
+			printf("Last %d posts from your friends and you : \n\n", postsCount);
+
+			for (i = 0; i < postsCount; i++)
+			{
+
+				memset(id, 0, 33);
+				memset(user, 0, 33);
+				memset(date, 0, 65);
+				memset(postType, 0, 5);
+				memset(post, 0, 520);
+
+				safePrefRead(sC, id);
+				safePrefRead(sC, user);
+				safePrefRead(sC, date);
+				safePrefRead(sC, postType);
+				safePrefRead(sC, post);
+
+				switch (atoi(postType))
+				{
+				case 1:
+					printf(GREEN "[ID:%s][%s][%s][publ]:" RESET "%s\n", id, user, date, post);
+					break;
+
+				case 2:
+					printf(GREEN "[ID:%s][%s][%s][frnd]:" RESET "%s\n", id, user, date, post);
+					break;
+
+				case 3:
+					printf(GREEN "[ID:%s][%s][%s][cf/f]:" RESET "%s\n", id, user, date, post);
+					break;
+				}
+			}
+			printf("\n\n");
+			break;
+
+		default:
+			printf("ERROR !\n");
+			break;
+		}
+	}
+	return;
+}
+
 int encodeCommand(const char *clientCommandChar)
 {
 	if (strcmp(clientCommandChar, "/login") == 0)
@@ -1668,6 +1801,12 @@ int encodeCommand(const char *clientCommandChar)
 		return 22;
 	if (strcmp(clientCommandChar, "/deleteUser") == 0)
 		return 23;
+	if (strcmp(clientCommandChar, "/deletePost") == 0)
+		return 24;
+	if (strcmp(clientCommandChar, "/wall") == 0)
+		return 25;
+
+
 	return -1;
 }
 

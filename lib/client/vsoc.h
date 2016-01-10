@@ -75,6 +75,8 @@ void deleteFriend(int, bool);
 void deleteRecvReq(int, bool);
 void deleteSentReq(int, bool);
 void deleteUser(int, bool);
+void deletePost(int, bool);
+void wall(int, bool);
 int encodeCommand(const char *);
 __sighandler_t quitforce(void);
 

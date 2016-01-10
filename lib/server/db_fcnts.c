@@ -556,7 +556,7 @@ void dbInsertPost(const char *ID, const char *post, const char *posttype)
 	sprintf(currTime, "strftime('%%H:%%M:%%S - %%d.%%m.%%Y','now','+2 hours')");
 
 	sql = calloc(120 + strlen(ID) + strlen(post) + strlen(posttype), sizeof(char));
-	sprintf(sql, "INSERT INTO POSTS(user,post,type,date) VALUES (\"%s\",\"%s\",\"%s\",%s);", ID, post, posttype, currTime);
+	sprintf(sql, "INSERT INTO POST (user,post,type,date) VALUES (\"%s\",\"%s\",\"%s\",%s);", ID, post, posttype, currTime);
 
 	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
 
@@ -684,7 +684,7 @@ int dbGetPostsCount(const char *ID, const char *posttype, int limit)
 	char *sql;
 	sql = calloc(80 + strlen(ID) + strlen(posttype) + 1, sizeof(char));
 
-	sprintf(sql, "SELECT COUNT(*) FROM POSTS WHERE user=\"%s\" AND type<=\"%s\" LIMIT %d;", ID, posttype, limit);
+	sprintf(sql, "SELECT COUNT(*) FROM POST WHERE user=\"%s\" AND type<=\"%s\" LIMIT %d;", ID, posttype, limit);
 
 	char *data;
 
@@ -710,7 +710,7 @@ void dbGetPosts(const char *ID, int sC, const char *posttype, int limit)
 	// trimite la sC toate postarile de tip posttype, limitate de limit ale lui ID
 	char *sql;
 	sql = calloc(75 + strlen(ID) + strlen(posttype) + 1, sizeof(char));
-	sprintf(sql, "SELECT post,type,date FROM POSTS WHERE user=\"%s\" AND type<=\"%s\" LIMIT %d;", ID, posttype, limit);
+	sprintf(sql, "SELECT id,post,type,date FROM POST WHERE user=\"%s\" AND type<=\"%s\" LIMIT %d;", ID, posttype, limit);
 
 	int data[3];
 	data[0] = sC;
@@ -1117,7 +1117,7 @@ void dbDeleteUser(const char *ID, int mode)
 	sql = calloc(200 + 6 * strlen(ID), sizeof(char));
 
 	if (mode == 1)
-		sprintf(sql, "DELETE FROM requests WHERE toUser=\"%s\" OR fromUser=\"%s\";DELETE FROM users WHERE id=\"%s\";DELETE FROM posts WHERE user = \"%s\";DELETE FROM friends WHERE owner=\"%s\" OR friend=\"%s\";", ID, ID, ID, ID, ID, ID);
+		sprintf(sql, "DELETE FROM requests WHERE toUser=\"%s\" OR fromUser=\"%s\";DELETE FROM users WHERE id=\"%s\";DELETE FROM post WHERE user = \"%s\";DELETE FROM friends WHERE owner=\"%s\" OR friend=\"%s\";", ID, ID, ID, ID, ID, ID);
 	if (mode == 2)
 		sprintf(sql, "DELETE FROM chats WHERE owner=\"%s\";DELETE FROM online where id=\"%s\";", ID, ID);
 
@@ -1215,4 +1215,134 @@ int dbCheckRoomPass(const char *ROOM, const char *PASS)
 
 	free(sql);
 	return atoi((char *)&data);
+}
+
+int dbPostCheck(const char *postID)
+{
+	// verifica daca exista postul cu numaru postID
+	char *sql;
+	sql = calloc(70 + strlen(postID), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM POST WHERE id=\"%s\";", postID);
+
+	char *data;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbPostCheck:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbPostCheck:Succes \n");
+	}
+
+	free(sql);
+
+	return atoi((char *)&data);
+}
+
+int dbPostCheckOwner(const char *ID, const char *postID)
+{
+	// verifica daca ID are postul cu numaru postID
+	char *sql;
+	sql = calloc(70 + strlen(ID) + strlen(postID), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM POST WHERE user=\"%s\" AND id=\"%s\";", ID, postID);
+
+	char *data;
+
+	/* Execute SQL statement */
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbPostCheckOwner:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbPostCheckOwner:Succes \n");
+	}
+
+	free(sql);
+
+	return atoi((char *)&data);
+}
+
+void dbDeletePost(const char *ID, const char *postID)
+{
+	// sterge postul cu numaru postID a lui ID
+	char *sql;
+	sql = calloc(60 + strlen(ID) + strlen(postID), sizeof(char));
+
+	sprintf(sql, "DELETE FROM post WHERE user=\"%s\" AND id=\"%s\";", ID, postID);
+
+	rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbDeletePost:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbDeletePost:Succes \n");
+	}
+
+	free(sql);
+}
+
+int dbWallCount(const char *ID, const char *limit)
+{
+	//numarul de postari totale ale userului ID si al prietenilor sai
+
+	char *sql;
+	sql = calloc(300 + 3 * strlen(ID) + strlen(limit), sizeof(char));
+
+	sprintf(sql, "select count(*) from (select distinct p.id from post p, friends f where f.owner = \"%s\" and p.user = f.friend and p.type <= 1 + (select ff.type from friends ff where ff.friend = f.owner and f.friend = ff.owner) or f.owner = \"%s\" and p.user = \"%s\" order by p.id desc limit \"%s\");", ID, ID, ID, limit);
+
+	char *data;
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbWallCount:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbWallCount:Succes \n");
+	}
+
+
+	free(sql);
+	return atoi((char *)&data);
+}
+
+void dbWall(const char *ID, int sC, const char *limit)
+{
+	// trimite la sC toate postarile lui ID si ale prietenilor sai,limitate de atoi(limit) / -1 = toate
+
+	char *sql;
+	sql = calloc(300 + 3 * strlen(ID) + strlen(limit), sizeof(char));
+
+	sprintf(sql, "select distinct p.id,p.user,p.date,p.type,p.post from post p, friends f where f.owner = \"%s\" and p.user = f.friend and p.type <= 1 + (select ff.type from friends ff where ff.friend = f.owner and f.friend = ff.owner) or f.owner = \"%s\" and p.user = \"%s\" order by p.id desc limit \"%s\";", ID, ID, ID, limit);
+
+	int data[3];
+	data[0] = sC;
+
+	rc = sqlite3_exec(db, sql, (void *)cbDSlines, data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbWall:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbWall:Succes \n");
+	}
+
+	free(sql);
 }

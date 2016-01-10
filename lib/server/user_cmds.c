@@ -337,6 +337,8 @@ void viewProfile(int sC, const char *currentUser)
 		return;
 	}
 
+
+
 	//ce tip de user e ?
 	userType = dbGetUserType(user);
 
@@ -1653,6 +1655,142 @@ void deleteUser(int sC, const char *currentUser)
 	return;
 }
 
+void deletePost(int sC, const char *currentUser)
+{
+	int resultAnswer = 2424, userPriv;
+	bool check;
+	size_t i;
+	char id[33], user[33];
+	memset(id, 0, 33);
+	memset(user, 0, 33);
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		userPriv = dbGetPrivilege(currentUser);
+		safeWrite(sC, &userPriv, sizeof(int));
+
+		if (userPriv != 1)
+		{
+			safePrefRead(sC, id);
+			safePrefRead(sC, user);
+		}
+		else
+		{
+			safePrefRead(sC, id);
+			strcpy(user, currentUser);
+		}
+
+		for (i = 0; i < strlen(id); i++)
+			if (id[i] < '0' || id[i] > '9')
+			{
+				resultAnswer = 2401;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+
+		if (strchr(id, '\"') != NULL)
+		{
+			resultAnswer = 2401;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (dbPostCheck(id) == 0)
+		{
+			resultAnswer = 2401;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		if (userPriv != 1)
+		{
+			if (strchr(user, '\"') != NULL || strlen(user) < 5)
+			{
+				resultAnswer = 2402;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+
+			if (dbCheckUser(user) == 0)
+			{
+				resultAnswer = 2402;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+		}
+
+		if (userPriv == 1)
+		{
+			if (dbPostCheckOwner(currentUser, id) == 0)
+			{
+				resultAnswer = 2403;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+		}
+
+
+		dbDeletePost(user, id);
+		safeWrite(sC, &resultAnswer, sizeof(int));
+	}
+
+	return;
+}
+
+void wall(int sC, const char *currentUser)
+{
+	int resultAnswer = 2525, postsCount;
+	size_t i;
+	char postsNumber[33];
+	memset(postsNumber, 0, 33);
+
+	bool check;
+
+
+
+	safeRead(sC, &check, sizeof(bool));
+
+	if (check == 0)
+	{
+		return;
+	}
+	else
+	{
+		safePrefRead(sC, postsNumber);
+
+		if (strchr(postsNumber, '\"') != NULL)
+		{
+			resultAnswer = 2501;
+			safeWrite(sC, &resultAnswer, sizeof(int));
+			return;
+		}
+
+		for (i = 0; i < strlen(postsNumber); i++)
+			if ((postsNumber[i] < '0' || postsNumber[i] > '9') && postsNumber[i] != '-')
+			{
+				resultAnswer = 2501;
+				safeWrite(sC, &resultAnswer, sizeof(int));
+				return;
+			}
+
+
+		safeWrite(sC, &resultAnswer, sizeof(int));
+
+		postsCount = dbWallCount(currentUser, postsNumber);
+		safeWrite(sC, &postsCount, sizeof(int));
+
+
+		dbWall(currentUser, sC, postsNumber);
+	}
+
+	return;
+}
 
 void quit(int sC, char *currentUser)
 {
@@ -1792,6 +1930,14 @@ void answer(void *arg)
 
 		case 23:
 			deleteUser(tdL.client, clientID);
+			break;
+
+		case 24:
+			deletePost(tdL.client, clientID);
+			break;
+
+		case 25:
+			wall(tdL.client, clientID);
 			break;
 		}
 	}

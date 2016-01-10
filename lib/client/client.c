@@ -190,6 +190,14 @@ int main(int argc, char *argv[])
 		case 23:
 			deleteUser(socketConnect, logged);
 			break;
+
+		case 24:
+			deletePost(socketConnect, logged);
+			break;
+
+		case 25:
+			wall(socketConnect, logged);
+			break;
 		}
 	}
 	close(socketConnect);

@@ -68,6 +68,8 @@ void deleteFriend(int, const char *);
 void deleteRecvReq(int, const char *);
 void deleteSentReq(int, const char *);
 void deleteUser(int, const char *);
+void deletePost(int, const char *);
+void wall(int, const char *);
 void quit(int, char *);
 __sighandler_t forcequit(void);
 void answer(void *);
@@ -123,6 +125,11 @@ void dbDeleteRequests(const char *, int);
 void dbDeleteUser(const char *, int);
 int dbGetSock(const char *);
 bool dbGetStatus(const char *);
+int dbPostCheck(const char *);
+int dbPostCheckOwner(const char *, const char *);
+void dbDeletePost(const char *, const char *);
+int dbWallCount(const char *, const char *);
+void dbWall(const char *, int, const char *);
 
 // end_functii server
 
