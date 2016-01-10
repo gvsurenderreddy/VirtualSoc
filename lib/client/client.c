@@ -9,34 +9,29 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	cliPrepare();
 
 	struct sockaddr_in server;
 	int socketConnect;
 	socketConnect = connTcpSock(argv[1], PORT, server);
 
-	signal(SIGINT, (__sighandler_t)quitforce);
-	signal(SIGWINCH, NULL);
-	tcgetattr(fileno(stdin), &oflags);
-
-
 	int clientCommand = -1;
-	char clientCommandChar[65];
-	char currentID[33];
 	bool logged = 0;
+	char clientCommandChar[65], currentID[33];
 
 	printf(RED "\n\n	Welcome to VirtualSoc ~ by Cristea Alexandru\n	/help  - "
 			   " syntax and available commands !\n\n\n" RESET);
 
 
-	while (1)
+	while (true)
 	{
 
-		if (logged == 0)
+		if (logged == false)
 		{
 			printf(RED "[offline] @ vSoc >>: " RESET);
 			fflush(stdout);
 		}
-		if (logged == 1)
+		if (logged == true)
 		{
 			printf(GREEN "%s @ vSoc >>: " RESET, currentID);
 			fflush(stdout);
@@ -75,7 +70,6 @@ int main(int argc, char *argv[])
 			help(logged);
 			continue;
 		}
-
 
 
 		if (write(socketConnect, &clientCommand, sizeof(int)) <= 0)

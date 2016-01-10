@@ -134,6 +134,15 @@ int connTcpSock(const char *ip, int port, struct sockaddr_in server)
 	return sock;
 }
 
+void cliPrepare()
+{
+	signal(SIGINT, (__sighandler_t)quitforce);
+	signal(SIGWINCH, NULL);
+	tcgetattr(fileno(stdin), &oflags);
+
+	return;
+}
+
 void help(bool check)
 {
 	printf("\n Available commands :\n /login\n /logout\n /register\n "
@@ -1189,16 +1198,16 @@ void activeChat(int sC, const char *room)
 	initscr();
 	raw();
 	getmaxyx(stdscr, winrows, wincols);
-	winput = newwin(1, wincols, winrows - 1, 0);
-	woutput = newwin(winrows - 1, wincols, 0, 0);
+	winput = newwin(3, wincols, winrows - 3, 0);
+	woutput = newwin(winrows - 3, wincols, 0, 0);
 	keypad(winput, true);
 	scrollok(woutput, true);
-	//scrollok(winput, true);
+	scrollok(winput, true);
 	wrefresh(woutput);
 	wrefresh(winput);
 
-	fd_set all;
-	fd_set read_fds;
+
+	fd_set all, read_fds;
 	FD_ZERO(&all);
 	FD_ZERO(&read_fds);
 	FD_SET(0, &all);
@@ -1207,6 +1216,7 @@ void activeChat(int sC, const char *room)
 	wprintw(woutput, "	Welcome to room '%s' \n	Use /quit to exit or ESC !\n\n", room);
 	wrefresh(woutput);
 	wrefresh(winput);
+	signal(SIGWINCH, NULL);
 
 	while (true)
 	{
@@ -1236,6 +1246,13 @@ void activeChat(int sC, const char *room)
 				wrefresh(winput);
 				break;
 
+			case '<':
+				strcpy(user, user + 1);
+				wprintw(woutput, "%s exited the room '%s' !\n", user, room);
+				wrefresh(woutput);
+				wrefresh(winput);
+				break;
+
 			case '!':
 				safePrefWrite(sC, "/quit");
 				delwin(winput);
@@ -1246,12 +1263,24 @@ void activeChat(int sC, const char *room)
 				quitforce();
 				return;
 
-			case '<':
-				strcpy(user, user + 1);
-				wprintw(woutput, "%s exited the room '%s' !\n", user, room);
+			case '@':
+			{
+				int onCount = atoi(inMesg);
+				wprintw(woutput, "\n	Online in room '%s': \n", room);
+				wrefresh(woutput);
+
+				for (i = 0; i < onCount; i++)
+				{
+					safePrefRead(sC, user);
+					wprintw(woutput, "		%s\n", user);
+					wrefresh(woutput);
+				}
+				i = i - onCount; // fix pentru null invizibil
+				wprintw(woutput, "\n");
 				wrefresh(woutput);
 				wrefresh(winput);
-				break;
+			}
+			break;
 
 			default:
 				wprintw(woutput, "%s : %s\n", user, inMesg);
@@ -1262,17 +1291,18 @@ void activeChat(int sC, const char *room)
 		}
 
 
-
 		if (FD_ISSET(0, &read_fds))
 		{
-
-
 			inChar = wgetch(winput);
 
 			if (inChar == 27)
 			{
 				safePrefWrite(sC, "/quit");
 				break;
+			}
+
+			if (inChar == KEY_F(1))
+			{
 			}
 
 			if (inChar == KEY_UP || inChar == KEY_DOWN || inChar == KEY_LEFT || inChar == KEY_RIGHT)
@@ -1290,8 +1320,11 @@ void activeChat(int sC, const char *room)
 			}
 			else
 			{
-				outMesg[i] = (char)inChar;
-				i++;
+				if (i != 513)
+				{
+					outMesg[i] = (char)inChar;
+					i++;
+				}
 			}
 
 
@@ -1311,7 +1344,7 @@ void activeChat(int sC, const char *room)
 
 				safePrefWrite(sC, outMesg);
 				delwin(winput);
-				winput = newwin(1, wincols, winrows - 1, 0);
+				winput = newwin(3, wincols, winrows - 3, 0);
 				keypad(winput, true);
 				wrefresh(winput);
 				memset(outMesg, 0, 513);

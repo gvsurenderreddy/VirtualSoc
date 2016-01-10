@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
 	signal(SIGPIPE, (__sighandler_t)forcequit);
 	int i = 0;
 	pthread_t th[100];
+
 	if (argc < 2)
 	{
 		fprintf(stderr, "Usage: ./server 1/0 (1 for normal, 0 for debugging)\n");
@@ -55,11 +56,10 @@ int main(int argc, char *argv[])
 
 		printf("[server]Waiting at port %d \n", PORT);
 		fflush(stdout);
-		thData *td; // initial in while, ptr free
-		while (1)
+		thData *td;
+		while (true)
 		{
 			int socketClient;
-
 			int length = sizeof(from);
 
 			if ((socketClient = accept(socketConnect, (struct sockaddr *)&from, (socklen_t * restrict) & length)) < 0)
@@ -87,7 +87,11 @@ int main(int argc, char *argv[])
 	{ // debugging mode
 		printf("[server]Debug Mode\n");
 
-		printf("sock lu userteeeeeest: %d\n", dbGetSock("UserTeeeest"));
+		int nr = dbInChatCount("room1");
+		printf("nr: %d\n", nr);
+		dbInChat("room1", 1);
+
+
 
 		sqlite3_close(db);
 		return 0;

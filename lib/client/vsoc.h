@@ -54,7 +54,7 @@ ssize_t safeRead(int, void *, size_t);
 ssize_t safeWrite(int, const void *, size_t);
 
 int connTcpSock(const char *, int, struct sockaddr_in);
-
+void cliPrepare();
 void help(bool);
 bool login(int, bool, char *);
 void register_now(int, bool);

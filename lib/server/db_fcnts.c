@@ -1346,3 +1346,54 @@ void dbWall(const char *ID, int sC, const char *limit)
 
 	free(sql);
 }
+
+int dbInChatCount(const char *ROOM)
+{
+	// intoarce numarul de useri din roomul ROOM
+	char *sql;
+	sql = calloc(50 + strlen(ROOM), sizeof(char));
+
+	sprintf(sql, "SELECT COUNT(*) FROM chatusers WHERE room=\"%s\";", ROOM);
+
+	char *data;
+
+	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbInChatCount:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbInChatCount:Succes \n");
+	}
+
+	free(sql);
+
+	return atoi((char *)&data);
+}
+
+void dbInChat(const char *ROOM, int sC)
+{
+	// intoarce numarul de useri din roomul ROOM
+	char *sql;
+	sql = calloc(50 + strlen(ROOM), sizeof(char));
+
+	sprintf(sql, "SELECT user FROM chatusers WHERE room=\"%s\";", ROOM);
+
+	int data[2];
+	data[0] = sC;
+
+	rc = sqlite3_exec(db, sql, (void *)cbDSlines, data, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "dbInChat:Error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	else
+	{
+		fprintf(stdout, "dbInChat:Succes \n");
+	}
+
+	free(sql);
+}

@@ -130,6 +130,9 @@ int dbPostCheckOwner(const char *, const char *);
 void dbDeletePost(const char *, const char *);
 int dbWallCount(const char *, const char *);
 void dbWall(const char *, int, const char *);
+int dbInChatCount(const char *);
+void dbInChat(const char *, int);
+
 
 // end_functii server
 

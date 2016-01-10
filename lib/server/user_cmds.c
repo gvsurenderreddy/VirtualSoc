@@ -1242,6 +1242,7 @@ void joinChat(int sC, char *currentUser)
 	return;
 }
 
+
 void activeChat(int sC, char *currentUser, const char *room)
 {
 	bool run = true;
@@ -1253,6 +1254,7 @@ void activeChat(int sC, char *currentUser, const char *room)
 
 	while (run)
 	{
+		memset(actionUser, 0, 35);
 		memset(mesg, 0, 513);
 		safePrefRead(sC, mesg);
 		if (strcmp(mesg, "/quit") == 0)
@@ -1260,18 +1262,26 @@ void activeChat(int sC, char *currentUser, const char *room)
 			run = false;
 			sprintf(actionUser, "<%s", currentUser);
 			dbSendMsgToRoom(actionUser, room, "");
+			continue;
 		}
-		/*if (strcmp(mesg, "/online") == 0)
+		if (strcmp(mesg, "/online") == 0)
 		{
-			// implmenteaza functie onlineChat
-		}*/
-		else
-		{
-			safePrefWrite(sC, currentUser);
+			int onCount = dbInChatCount(room);
+			memset(actionUser, 0, 35);
+			memset(mesg, 0, 513);
+			sprintf(actionUser, "@");
+			sprintf(mesg, "%d", onCount);
+			safePrefWrite(sC, actionUser);
 			safePrefWrite(sC, mesg);
-
-			dbSendMsgToRoom(currentUser, room, mesg);
+			dbInChat(room, sC);
+			continue;
 		}
+
+
+		safePrefWrite(sC, currentUser);
+		safePrefWrite(sC, mesg);
+
+		dbSendMsgToRoom(currentUser, room, mesg);
 	}
 
 	return;
