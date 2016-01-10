@@ -108,6 +108,32 @@ ssize_t safePrefWrite(int sock, const void *buffer)
 	return nbytesW;
 }
 
+int connTcpSock(const char *ip, int port, struct sockaddr_in server)
+{
+	int sock;
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+
+	if (sock == -1)
+	{
+		perror("[client]socket() creation error ! \n");
+		exit(errno);
+	}
+
+	server.sin_family = AF_INET;
+	server.sin_addr.s_addr = inet_addr(ip);
+	server.sin_port = htons(port);
+
+	if (connect(sock, (struct sockaddr *)&server,
+				sizeof(struct sockaddr)) == -1)
+	{
+		perror("[client]connect() error ! \n");
+		exit(errno);
+	}
+
+
+	return sock;
+}
+
 void help(bool check)
 {
 	printf("\n Available commands :\n /login\n /logout\n /register\n "

@@ -9,31 +9,14 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	int socketConnect;
-	if ((socketConnect = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-	{
-		perror("[client]socket() creation error ! \n");
-		return errno;
-	}
-
 
 	struct sockaddr_in server;
-	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = inet_addr(argv[1]);
-	server.sin_port = htons(PORT);
-
-	if (connect(socketConnect, (struct sockaddr *)&server,
-				sizeof(struct sockaddr)) == -1)
-	{
-		perror("[client]connect() error ! \n");
-		return errno;
-	}
+	int socketConnect;
+	socketConnect = connTcpSock(argv[1], PORT, server);
 
 	signal(SIGINT, (__sighandler_t)quitforce);
 	signal(SIGWINCH, NULL);
 	tcgetattr(fileno(stdin), &oflags);
-
-	//##############################CLIENT##################################
 
 
 	int clientCommand = -1;
@@ -43,6 +26,8 @@ int main(int argc, char *argv[])
 
 	printf(RED "\n\n	Welcome to VirtualSoc ~ by Cristea Alexandru\n	/help  - "
 			   " syntax and available commands !\n\n\n" RESET);
+
+
 	while (1)
 	{
 
