@@ -25,6 +25,13 @@
 // end_librarii
 
 #define PORT 6047
+#define TYPE_LEN 5
+#define LTYPE_LEN 17
+#define SHORT_LEN 33
+#define LONG_LEN 65
+#define TEXT_LEN 513
+
+
 
 // globale server
 // structura pentru thread-uri
@@ -32,21 +39,23 @@ typedef struct thData
 {
 	int idThread;
 	int client;
+
 } thData;
 
-sqlite3 *db;
 int rc;
+sqlite3 *db;
 char *zErrMsg;
 
-// end_globare server
+// end_globale server
 
 // functii server
 ssize_t safePrefRead(int, void *);
 ssize_t safePrefWrite(int, const void *);
 ssize_t safeRead(int, void *, size_t);
 ssize_t safeWrite(int, const void *, size_t);
-int createConnSocketR();
-void register_now(int);
+
+int servPrepare(int, struct sockaddr_in);
+void register_now(int, const char *);
 void login(int, char *);
 void logout(int, char *);
 void viewProfile(int, const char *);

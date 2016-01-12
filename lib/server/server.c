@@ -8,107 +8,76 @@ int main(int argc, char *argv[])
 	signal(SIGPIPE, (__sighandler_t)forcequit);
 	int i = 0;
 	pthread_t th[100];
+	thData *td;
 
-	if (argc < 2)
+	//pregatim serverul pentru conexiuni
+	struct sockaddr_in server;
+	struct sockaddr_in from;
+	memset(&server, 0, sizeof(server));
+	memset(&from, 0, sizeof(from));
+	int socketConnect = servPrepare(PORT, server);
+
+	printf("[server]Waiting at port %d \n", PORT);
+	fflush(stdout);
+
+	while (true)
 	{
-		fprintf(stderr, "Usage: ./server 1/0 (1 for normal, 0 for debugging)\n");
-		exit(EXIT_FAILURE);
-	}
+		int socketClient;
+		int length = sizeof(from);
 
-	int rc = sqlite3_open("vsoc.db", &db);
-
-	if (rc)
-	{
-		fprintf(stderr, "Can't open Database %s !\n", sqlite3_errmsg(db));
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		fprintf(stdout, "[server]Opened database succesfully !\n");
-	}
-
-	if (atoi(argv[1]) == 1)
-	{ // normal mode
-		printf("[server]Normal Mode\n");
-		struct sockaddr_in server;
-		struct sockaddr_in from;
-		memset(&server, 0, sizeof(server));
-		memset(&from, 0, sizeof(from));
-		server.sin_family = AF_INET;
-		server.sin_addr.s_addr = htonl(INADDR_ANY);
-		server.sin_port = htons(PORT);
-
-		int socketConnect = createConnSocketR();
-		if (bind(socketConnect, (struct sockaddr *)&server,
-				 sizeof(struct sockaddr)) == -1)
+		//acceptam conexiuni una cate una
+		if ((socketClient = accept(socketConnect, (struct sockaddr *)&from, (socklen_t * restrict) & length)) < 0)
 		{
-			perror("[server]Socket bind error ! bind(). \n");
-			printf("[server]Errno: %d", errno);
-			exit(EXIT_FAILURE);
+			perror("[server]Connection accept error ! "
+				   "accept()");
+			continue;
 		}
 
-		if (listen(socketConnect, 10) == -1)
+		//cream un nou thread pentru fiecare conexiune
+		td = (struct thData *)malloc(sizeof(struct thData));
+		td->idThread = i++;
+		td->client = socketClient;
+
+		if (pthread_create(&th[i], NULL, &treat, td) < 0)
 		{
-			perror("[server]Socket listen error ! listen(). \n");
-			printf("[server]Errno: %d", errno);
-			exit(EXIT_FAILURE);
+			perror("[server]Could not create thread !\n");
 		}
-
-		printf("[server]Waiting at port %d \n", PORT);
-		fflush(stdout);
-		thData *td;
-		while (true)
-		{
-			int socketClient;
-			int length = sizeof(from);
-
-			if ((socketClient = accept(socketConnect, (struct sockaddr *)&from, (socklen_t * restrict) & length)) < 0)
-			{
-				perror("[server]Connection accept error ! "
-					   "accept()");
-				continue;
-			}
-			td = (struct thData *)malloc(sizeof(struct thData));
-
-			td->idThread = i++;
-			td->client = socketClient;
-
-			if (pthread_create(&th[i], NULL, &treat, td) < 0)
-			{
-				perror("[server]Could not create thread !\n");
-			}
-		} // while - connection
-		free(td);
-		sqlite3_close(db);
-		return 0;
-	} //end of normal mode
-
-	if (atoi(argv[1]) == 0)
-	{ // debugging mode
-		printf("[server]Debug Mode\n");
-
-		int nr = dbInChatCount("room1");
-		printf("nr: %d\n", nr);
-		dbInChat("room1", 1);
-
-
-
-		sqlite3_close(db);
-		return 0;
 	}
+
+	free(td);
+	return EXIT_SUCCESS;
 }
 
 static void *treat(void *arg)
 {
 	struct thData tdL;
 	tdL = *((struct thData *)arg);
+
 	printf("[thread %d]Serving client with conn. sock %d !\n", tdL.idThread, tdL.client);
 	fflush(stdout);
 
 	pthread_detach(pthread_self());
+
+	//deschidere baza de date
+
+	if ((rc = sqlite3_open("vsoc.db", &db)) != 0)
+	{
+		fprintf(stderr, "Can't open Database %s !\n", sqlite3_errmsg(db));
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		fprintf(stdout, "[thread %d]Opened database succesfully for %d !\n", tdL.idThread, tdL.client);
+	}
+
+	//raspunde clientului
 	answer((struct thData *)arg);
+
+	//inchidere baza de date
+	sqlite3_close(db);
 
 	printf("[thread]Closing connection for %d !\n", tdL.client);
 	close(tdL.client);
+
 	return (NULL);
 }

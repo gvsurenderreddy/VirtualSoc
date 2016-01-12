@@ -121,12 +121,12 @@ int dbCheckUser(const char *ID)
 	rc = sqlite3_exec(db, sql, (void *)cbSingle, &data, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
-		fprintf(stderr, "dbLogCheckUser:Error: %s\n", zErrMsg);
+		fprintf(stderr, "dbCheckUser:Error: %s\n", zErrMsg);
 		sqlite3_free(zErrMsg);
 	}
 	else
 	{
-		fprintf(stdout, "dbLogCheckUser:Succes \n");
+		fprintf(stdout, "dbCheckUser:Succes \n");
 	}
 
 	free(sql);
@@ -1183,7 +1183,7 @@ bool dbGetStatus(const char *ID)
 	}
 	else
 	{
-		fprintf(stdout, "dbGetStatus:Succes \n");
+		fprintf(stdout, "dbGetStatus %d:Succes \n", atoi((char *)&data));
 	}
 
 	free(sql);

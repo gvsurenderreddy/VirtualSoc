@@ -42,6 +42,12 @@
 #define BOLDCYAN "\033[1m\033[36m" /* Bold Cyan */
 #define BOLDWHITE "\033[1m\033[37m" /* Bold White */
 #define PORT 6047
+#define PORT 6047
+#define TYPE_LEN 5
+#define LTYPE_LEN 17
+#define SHORT_LEN 33
+#define LONG_LEN 65
+#define TEXT_LEN 513
 
 struct termios oflags, nflags;
 
@@ -56,32 +62,32 @@ ssize_t safeWrite(int, const void *, size_t);
 int connTcpSock(const char *, int, struct sockaddr_in);
 void cliPrepare();
 void help(bool);
-bool login(int, bool, char *);
-void register_now(int, bool);
-void viewProfile(int, bool);
-bool logout(int, bool, char *);
-void addFriend(int, bool);
-void addPost(int, bool);
-void setProfile(int, bool);
-void recvReq(int, bool);
-void sentReq(int, bool);
-void accFriend(int, bool);
-void friends(int, bool);
+bool login(int, char *);
+bool register_now(int);
+void viewProfile(int);
+bool logout(int, char *);
+bool addFriend(int);
+bool addPost(int);
+bool setProfile(int);
+bool recvReq(int);
+bool sentReq(int);
+bool accFriend(int);
+bool friends(int);
 bool online(int);
-void quit(int, bool);
-void createChat(int, bool);
-void chat(int, bool);
-void deleteChat(int, bool);
-void joinChat(int, bool);
+bool createChat(int);
+bool chat(int);
+bool deleteChat(int);
+bool joinChat(int);
 void activeChat(int, const char *);
-void setPriv(int, bool);
-void deleteFriend(int, bool);
-void deleteRecvReq(int, bool);
-void deleteSentReq(int, bool);
-void deleteUser(int, bool);
-void deletePost(int, bool);
-void wall(int, bool);
-int encodeCommand(const char *);
+bool setPriv(int);
+bool deleteFriend(int);
+bool deleteRecvReq(int);
+bool deleteSentReq(int);
+bool deleteUser(int);
+bool deletePost(int);
+bool wall(int);
+void quit(void);
+int encodeCommand(char *);
 __sighandler_t quitforce(void);
 
 

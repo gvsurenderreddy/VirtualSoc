@@ -9,20 +9,23 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	//pregatire client
 	cliPrepare();
 
+	//conectam clientul la server cu ip argv[1]
 	struct sockaddr_in server;
 	int socketConnect;
 	socketConnect = connTcpSock(argv[1], PORT, server);
 
 	int clientCommand = -1;
 	bool logged = 0;
-	char clientCommandChar[65], currentID[33];
+	char clientCommandChar[LONG_LEN], currentID[SHORT_LEN];
 
 	printf(RED "\n\n	Welcome to VirtualSoc ~ by Cristea Alexandru\n	/help  - "
 			   " syntax and available commands !\n\n\n" RESET);
 
 
+	//introducem comenzi
 	while (true)
 	{
 
@@ -38,30 +41,20 @@ int main(int argc, char *argv[])
 		}
 
 
-		memset(clientCommandChar, 0, sizeof(clientCommandChar));
 		read(0, clientCommandChar, sizeof(clientCommandChar));
 		if (clientCommandChar[0] == '\n')
 		{
 			continue;
 		}
+
+
 		clientCommandChar[strlen(clientCommandChar) - 1] = 0;
-
-		/*
-        safeStdinRead("", clientCommandChar, 65);
-
-        if (clientCommandChar[0] == 0)
-        {
-            continue;
-        }
-		*/
-
 		clientCommand = encodeCommand(clientCommandChar);
 
 
 		if (clientCommand == -1 && clientCommandChar[0] != 0)
 		{
-			printf("Wrong command ! Check /help ! \nCommands are "
-				   "case-sensitive. \n");
+			printf("Wrong command ! Check /help !\n");
 			continue;
 		}
 
@@ -72,58 +65,54 @@ int main(int argc, char *argv[])
 		}
 
 
-		if (write(socketConnect, &clientCommand, sizeof(int)) <= 0)
-		{
-			perror("[client]Write error to server ! \n");
-			return errno;
-		}
+		safeWrite(socketConnect, &clientCommand, sizeof(int));
 
 		if (clientCommand == 0)
 		{
-			quit(socketConnect, logged);
+			quit();
 			break;
 		}
 
 		switch (clientCommand)
 		{
 		case 1:
-			logged = login(socketConnect, logged, currentID);
+			logged = login(socketConnect, currentID);
 			break;
 
 		case 2:
-			register_now(socketConnect, logged);
+			logged = register_now(socketConnect);
 			break;
 
 		case 4:
-			viewProfile(socketConnect, logged);
+			viewProfile(socketConnect);
 			break;
 
 		case 5:
-			logged = logout(socketConnect, logged, currentID);
+			logged = logout(socketConnect, currentID);
 			break;
 
 		case 6:
-			addFriend(socketConnect, logged);
+			logged = addFriend(socketConnect);
 			break;
 
 		case 7:
-			addPost(socketConnect, logged);
+			logged = addPost(socketConnect);
 			break;
 
 		case 8:
-			setProfile(socketConnect, logged);
+			logged = setProfile(socketConnect);
 			break;
 
 		case 9:
-			recvReq(socketConnect, logged);
+			logged = recvReq(socketConnect);
 			break;
 
 		case 10:
-			accFriend(socketConnect, logged);
+			logged = accFriend(socketConnect);
 			break;
 
 		case 12:
-			friends(socketConnect, logged);
+			logged = friends(socketConnect);
 			break;
 
 		case 13:
@@ -131,54 +120,56 @@ int main(int argc, char *argv[])
 			break;
 
 		case 14:
-			createChat(socketConnect, logged);
+			logged = createChat(socketConnect);
 			break;
 
 		case 15:
-			chat(socketConnect, logged);
+			logged = chat(socketConnect);
 			break;
 
 		case 16:
-			deleteChat(socketConnect, logged);
+			logged = deleteChat(socketConnect);
 			break;
 
 		case 17:
-			joinChat(socketConnect, logged);
+			logged = joinChat(socketConnect);
 			break;
 
 		case 18:
-			setPriv(socketConnect, logged);
+			logged = setPriv(socketConnect);
 			break;
 
 		case 19:
-			deleteFriend(socketConnect, logged);
+			logged = deleteFriend(socketConnect);
 			break;
 
 		case 20:
-			deleteRecvReq(socketConnect, logged);
+			logged = deleteRecvReq(socketConnect);
 			break;
 
 		case 21:
-			sentReq(socketConnect, logged);
+			logged = sentReq(socketConnect);
 			break;
 
 		case 22:
-			deleteSentReq(socketConnect, logged);
+			logged = deleteSentReq(socketConnect);
 			break;
 
 		case 23:
-			deleteUser(socketConnect, logged);
+			logged = deleteUser(socketConnect);
 			break;
 
 		case 24:
-			deletePost(socketConnect, logged);
+			logged = deletePost(socketConnect);
 			break;
 
 		case 25:
-			wall(socketConnect, logged);
+			logged = wall(socketConnect);
 			break;
 		}
+
+		memset(clientCommandChar, 0, SHORT_LEN);
 	}
 	close(socketConnect);
-	return 0;
+	return EXIT_SUCCESS;
 }

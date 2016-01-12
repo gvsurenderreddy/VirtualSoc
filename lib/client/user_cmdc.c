@@ -150,15 +150,16 @@ void help(bool check)
 		   "/viewProfile\n /addFriend\n /addPost\n /recvReq\n /sentReq\n /accFriend\n /friends\n /online\n /setProfile\n /createChat\n /chat\n /deleteChat\n /joinChat\n /deleteRecvReq\n /deleteSentReq\n /deleteFriend\n /deletePost\n /setPriv\n /wall\n\n");
 }
 
-bool login(int sC, bool check, char *currentUser)
+bool login(int sC, char *currentUser)
 {
 	int resultAnswer = -1;
 
-	char user[33], password[33];
-	memset(user, 0, 33);
-	memset(password, 0, 33);
+	char user[SHORT_LEN], password[SHORT_LEN];
+	memset(user, 0, SHORT_LEN);
+	memset(password, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 1)
 	{
@@ -167,8 +168,8 @@ bool login(int sC, bool check, char *currentUser)
 	}
 	else
 	{
-		safeStdinRead("User: ", user, 33);
-		getPassV2("Password: ", password, 33);
+		safeStdinRead("User: ", user, SHORT_LEN);
+		getPassV2("Password: ", password, SHORT_LEN);
 
 		safePrefWrite(sC, user);
 		safePrefWrite(sC, password);
@@ -202,42 +203,42 @@ bool login(int sC, bool check, char *currentUser)
 	return 0;
 }
 
-void register_now(int sC, bool check)
+bool register_now(int sC)
 {
 	int resultAnswer = -1;
 
-	char user[33], password[33], fullname[65], sex[5], about[513],
-		type[17];
-	memset(user, 0, 33);
-	memset(password, 0, 33);
-	memset(fullname, 0, 65);
-	memset(sex, 0, 5);
-	memset(about, 0, 513);
-	memset(type, 0, 17);
+	char user[SHORT_LEN], password[SHORT_LEN], fullname[LONG_LEN], sex[TYPE_LEN], about[TEXT_LEN],
+		type[LTYPE_LEN];
+	memset(user, 0, SHORT_LEN);
+	memset(password, 0, SHORT_LEN);
+	memset(fullname, 0, LONG_LEN);
+	memset(sex, 0, TYPE_LEN);
+	memset(about, 0, TEXT_LEN);
+	memset(type, 0, LTYPE_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 1)
 	{
 		printf("You're logged in ! Please log out to register a new "
 			   "account !\n");
-		return;
+		return 1;
 	}
-
 	else
 	{
-		safeStdinRead("User (10-32 ch. alpha-numerical): ", user, 33);
+		safeStdinRead("User (10-32 ch. alpha-numerical): ", user, SHORT_LEN);
 
-		getPassV2("Password (10-32 ch.): ", password, 33);
+		getPassV2("Password (10-32 ch.): ", password, SHORT_LEN);
 
 
-		safeStdinRead("Fullname (10-64 ch. alpha-numerical and spaces): ", fullname, 65);
+		safeStdinRead("Fullname (10-64 ch. alpha-numerical and spaces): ", fullname, LONG_LEN);
 
-		safeStdinRead("Sex (F/M): ", sex, 5);
+		safeStdinRead("Sex (F/M): ", sex, TYPE_LEN);
 
-		safeStdinRead("About (10-512 ch.): ", about, 513);
+		safeStdinRead("About (10-512 ch.): ", about, TEXT_LEN);
 
-		safeStdinRead("Profile type (public/private):", type, 17);
+		safeStdinRead("Profile type (public/private):", type, LTYPE_LEN);
 
 		safePrefWrite(sC, user);
 		safePrefWrite(sC, password);
@@ -291,7 +292,7 @@ void register_now(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 0;
 }
 
 static void infoUserPrints(int i, char *info)
@@ -335,11 +336,11 @@ static void infoUserPrints(int i, char *info)
 static void userPrints(int sC, const char *user)
 {
 	int i, postsCount;
-	char info[520], postType[5], date[65], id[33];
+	char info[TEXT_LEN], postType[TYPE_LEN], date[SHORT_LEN], id[SHORT_LEN];
 
 	for (i = 0; i < 6; i++)
 	{
-		memset(info, 0, 520);
+		memset(info, 0, TEXT_LEN);
 		safePrefRead(sC, info);
 		infoUserPrints(i, info);
 	}
@@ -349,10 +350,10 @@ static void userPrints(int sC, const char *user)
 
 	for (i = 0; i < postsCount; i++)
 	{
-		memset(id, 0, 33);
-		memset(info, 0, 520);
-		memset(postType, 0, 5);
-		memset(date, 0, 65);
+		memset(id, 0, SHORT_LEN);
+		memset(info, 0, TEXT_LEN);
+		memset(postType, 0, TYPE_LEN);
+		memset(date, 0, SHORT_LEN);
 
 		safePrefRead(sC, id);
 		safePrefRead(sC, info);
@@ -377,16 +378,14 @@ static void userPrints(int sC, const char *user)
 	printf("\n");
 }
 
-void viewProfile(int sC, bool check)
+void viewProfile(int sC)
 {
 	int resultAnswer = -1;
 
-	char user[33];
-	memset(user, 0, 33);
+	char user[SHORT_LEN];
+	memset(user, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
-
-	safeStdinRead("View profile of user:", user, 33);
+	safeStdinRead("View profile of user:", user, SHORT_LEN);
 	safePrefWrite(sC, user);
 
 	safeRead(sC, &resultAnswer, sizeof(int));
@@ -427,44 +426,48 @@ void viewProfile(int sC, bool check)
 	return;
 }
 
-bool logout(int sC, bool check, char *currentUser)
+bool logout(int sC, char *currentUser)
 {
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
-		printf("You're not logged in ! \n");
+		printf("You're not logged in !\n");
 	}
 	else
 	{
 		printf("Logged out succesfully !\n");
 	}
-	memset(currentUser, 0, 33);
+
+	memset(currentUser, 0, SHORT_LEN);
 	return 0;
 }
 
-void addFriend(int sC, bool check)
+bool addFriend(int sC)
 {
 	int resultAnswer = -1;
 
-	char user[33], friendType[33];
-	memset(user, 0, 33);
-	memset(friendType, 0, 33);
+	char user[SHORT_LEN], friendType[TYPE_LEN];
+	memset(user, 0, SHORT_LEN);
+	memset(friendType, 0, TYPE_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return;
+		return 0;
 	}
+
 	else
 	{
-		safeStdinRead("Add Friend: ", user, 33);
+		safeStdinRead("Add Friend: ", user, SHORT_LEN);
 
 		safeStdinRead("Group - 1(friends) / 2(close-friends) / 3 "
 					  "(family)): ",
-					  friendType, 33);
+					  friendType, TYPE_LEN);
 
 		safePrefWrite(sC, user);
 		safePrefWrite(sC, friendType);
@@ -506,27 +509,29 @@ void addFriend(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
-void addPost(int sC, bool check)
+bool addPost(int sC)
 {
 	int resultAnswer = -1;
 
-	char post[513], postType[5];
-	memset(post, 0, 513);
-	memset(postType, 0, 5);
+	char post[TEXT_LEN], postType[TYPE_LEN];
+	memset(post, 0, TEXT_LEN);
+	memset(postType, 0, TYPE_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
-		safeStdinRead("Post (10-512 ch.):", post, 513);
-		safeStdinRead("Type - 1(public) / 2(friends) / 3(close-friends/family): ", postType, 5);
+		safeStdinRead("Post (10-512 ch.):", post, TEXT_LEN);
+		safeStdinRead("Type - 1(public) / 2(friends) / 3(close-friends/family): ", postType, TYPE_LEN);
 
 		safePrefWrite(sC, post);
 		safePrefWrite(sC, postType);
@@ -548,37 +553,40 @@ void addPost(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
 
-void setProfile(int sC, bool check)
+bool setProfile(int sC)
 {
 	int resultAnswer = -1, userPriv;
 
 
-	char option[3], fullname[65], sex[5], about[513], type[17], password[33], user[33];
-	memset(option, 0, 3);
-	memset(fullname, 0, 65);
-	memset(sex, 0, 5);
-	memset(about, 0, 513);
-	memset(type, 0, 17);
-	memset(password, 0, 33);
-	memset(user, 0, 33);
+	char option[TYPE_LEN], fullname[LONG_LEN], sex[TYPE_LEN], about[TEXT_LEN], type[LTYPE_LEN], password[SHORT_LEN], user[SHORT_LEN];
+	memset(option, 0, TYPE_LEN);
+	memset(fullname, 0, LONG_LEN);
+	memset(sex, 0, TYPE_LEN);
+	memset(about, 0, TEXT_LEN);
+	memset(type, 0, LTYPE_LEN);
+	memset(password, 0, SHORT_LEN);
+	memset(user, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
-		printf("You're not logged in ! \n");
+		printf("You're not logged in !\n");
+		return 0;
 	}
+
 	else
 	{
 		safeRead(sC, &userPriv, sizeof(int));
 
 		if (userPriv != 1)
 		{
-			safeStdinRead("Set profile of user: ", user, 33);
+			safeStdinRead("Set profile of user: ", user, SHORT_LEN);
 			safePrefWrite(sC, user);
 
 			bool validUser;
@@ -586,7 +594,7 @@ void setProfile(int sC, bool check)
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return;
+				return 1;
 			}
 		}
 		else
@@ -596,47 +604,47 @@ void setProfile(int sC, bool check)
 
 
 
-		safeStdinRead("Choose what you'd like to modify:\n 1-Fullname\n 2-Sex\n 3-About\n 4-Password\n 5-Account Type\n\n", option, 3);
+		safeStdinRead("Choose what you'd like to modify:\n 1-Fullname\n 2-Sex\n 3-About\n 4-Password\n 5-Account Type\n\n", option, TYPE_LEN);
 
 		safePrefWrite(sC, option);
 
 		if (strlen(option) > 1)
 		{
 			printf("Invalid option !\n");
-			return;
+			return 1;
 		}
 
 
 		switch (atoi(option))
 		{
 		case 1:
-			safeStdinRead("Fullname (10-64 ch. alpha-numerical and spaces): ", fullname, 65);
+			safeStdinRead("Fullname (10-64 ch. alpha-numerical and spaces): ", fullname, LONG_LEN);
 			safePrefWrite(sC, fullname);
 			break;
 
 		case 2:
-			safeStdinRead("Sex (F/M): ", sex, 5);
+			safeStdinRead("Sex (F/M): ", sex, TYPE_LEN);
 			safePrefWrite(sC, sex);
 			break;
 
 		case 3:
-			safeStdinRead("About (10-512 ch.): ", about, 513);
+			safeStdinRead("About (10-512 ch.): ", about, TEXT_LEN);
 			safePrefWrite(sC, about);
 			break;
 
 		case 4:
-			getPassV2("Password (10-32 ch.): ", password, 33);
+			getPassV2("Password (10-32 ch.): ", password, SHORT_LEN);
 			safePrefWrite(sC, password);
 			break;
 
 		case 5:
-			safeStdinRead("Profile type (public/private):", type, 17);
+			safeStdinRead("Profile type (public/private):", type, LTYPE_LEN);
 			safePrefWrite(sC, type);
 			break;
 
 		default:
 			printf("Invalid option !\n");
-			return;
+			return 1;
 		}
 
 		safeRead(sC, &resultAnswer, sizeof(int));
@@ -690,20 +698,23 @@ void setProfile(int sC, bool check)
 			break;
 		}
 	}
+	return 1;
 }
 
-void recvReq(int sC, bool check)
+bool recvReq(int sC)
 {
 	int resultAnswer = -1, requestsCount, userPriv;
 
-	char request[40], type[5], user[33];
-	memset(user, 0, 33);
+	char request[SHORT_LEN], type[TYPE_LEN], user[SHORT_LEN];
+	memset(user, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
+
 	if (check == 0)
 	{
-		printf("You're not logged in ! \n");
-		return;
+		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
@@ -711,7 +722,7 @@ void recvReq(int sC, bool check)
 
 		if (userPriv != 1)
 		{
-			safeStdinRead("Received requests of: ", user, 33);
+			safeStdinRead("Received requests of: ", user, SHORT_LEN);
 			safePrefWrite(sC, user);
 
 			bool validUser;
@@ -719,7 +730,7 @@ void recvReq(int sC, bool check)
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return;
+				return 1;
 			}
 		}
 		else
@@ -733,7 +744,7 @@ void recvReq(int sC, bool check)
 		{
 		case 901:
 			printf("'%s' received no requests !\n", user);
-			return;
+			return 1;
 
 		case 99:
 			safeRead(sC, &requestsCount, sizeof(int));
@@ -741,8 +752,8 @@ void recvReq(int sC, bool check)
 
 			while (requestsCount != 0)
 			{
-				memset(request, 0, sizeof(request));
-				memset(type, 0, 5);
+				memset(request, 0, SHORT_LEN);
+				memset(type, 0, TYPE_LEN);
 				safePrefRead(sC, request);
 				safePrefRead(sC, type);
 
@@ -758,34 +769,35 @@ void recvReq(int sC, bool check)
 				}
 				requestsCount--;
 			}
-			return;
+			break;
 		}
 	}
-
-	return;
+	return 1;
 }
 
-void accFriend(int sC, bool check)
+bool accFriend(int sC)
 {
 	int resultAnswer = -1;
 
-	char user[33], friendType[33];
-	memset(user, 0, 33);
-	memset(friendType, 0, 33);
+	char user[SHORT_LEN], friendType[TYPE_LEN];
+	memset(user, 0, SHORT_LEN);
+	memset(friendType, 0, TYPE_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
-		printf("You are not logged in !\n");
+		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
-		safeStdinRead("Accept: ", user, 33);
+		safeStdinRead("Accept: ", user, SHORT_LEN);
 
 		safeStdinRead("Group - 1(friends) / 2(close-friends) / 3 "
 					  "(family): ",
-					  friendType, 33);
+					  friendType, TYPE_LEN);
 
 		safePrefWrite(sC, user);
 		safePrefWrite(sC, friendType);
@@ -836,26 +848,28 @@ void accFriend(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
 
-void friends(int sC, bool check)
+bool friends(int sC)
 {
 	int resultAnswer = -1, friendsCount;
 
-	char user[33], friend[35], friendType[5];
-	memset(user, 0, 33);
+	char user[SHORT_LEN], friend[SHORT_LEN], friendType[TYPE_LEN];
+	memset(user, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
-		safeStdinRead("Friends of: ", user, 33);
+		safeStdinRead("Friends of: ", user, SHORT_LEN);
 
 		safePrefWrite(sC, user);
 
@@ -881,8 +895,8 @@ void friends(int sC, bool check)
 
 			while (friendsCount != 0)
 			{
-				memset(friend, 0, 35);
-				memset(friendType, 0, 5);
+				memset(friend, 0, SHORT_LEN);
+				memset(friendType, 0, TYPE_LEN);
 				safePrefRead(sC, friend);
 				safePrefRead(sC, friendType);
 
@@ -906,17 +920,17 @@ void friends(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
 bool online(int sC)
 {
 	int resultAnswer = -1, onlineCount, userPriv;
 
-	char online[35], friendType[5], user[33];
-	memset(online, 0, 35);
-	memset(friendType, 0, 5);
-	memset(user, 0, 33);
+	char online[SHORT_LEN], friendType[TYPE_LEN], user[SHORT_LEN];
+	memset(online, 0, SHORT_LEN);
+	memset(friendType, 0, TYPE_LEN);
+	memset(user, 0, SHORT_LEN);
 
 	bool check;
 	safeRead(sC, &check, sizeof(bool));
@@ -932,7 +946,7 @@ bool online(int sC)
 
 		if (userPriv != 1)
 		{
-			safeStdinRead("Online friends of user: ", user, 33);
+			safeStdinRead("Online friends of user: ", user, SHORT_LEN);
 			safePrefWrite(sC, user);
 
 			bool validUser;
@@ -962,8 +976,8 @@ bool online(int sC)
 
 			while (onlineCount != 0)
 			{
-				memset(online, 0, 35);
-				memset(friendType, 0, 5);
+				memset(online, 0, SHORT_LEN);
+				memset(friendType, 0, TYPE_LEN);
 				safePrefRead(sC, online);
 				safePrefRead(sC, friendType);
 
@@ -988,24 +1002,27 @@ bool online(int sC)
 	return 1;
 }
 
-void createChat(int sC, bool check)
+bool createChat(int sC)
 {
 	int resultAnswer = -1;
 
-	char room[33], password[33];
-	memset(room, 0, 33);
-	memset(password, 0, 33);
+	char room[SHORT_LEN], password[SHORT_LEN];
+	memset(room, 0, SHORT_LEN);
+	memset(password, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
+		return 0;
 	}
+
 	else
 	{
-		safeStdinRead("Room name (5-32 ch.): ", room, 33);
-		getPassV2("Room password (5-32 ch.): ", password, 33);
+		safeStdinRead("Room name (5-32 ch.): ", room, SHORT_LEN);
+		getPassV2("Room password (5-32 ch.): ", password, SHORT_LEN);
 
 		safePrefWrite(sC, room);
 		safePrefWrite(sC, password);
@@ -1031,20 +1048,22 @@ void createChat(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
-void chat(int sC, bool check)
+bool chat(int sC)
 {
 	int resultAnswer = -1, roomsCount, userPriv;
 
-	char user[33], room[33];
+	char user[SHORT_LEN], room[SHORT_LEN];
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check, validUser;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
@@ -1052,15 +1071,15 @@ void chat(int sC, bool check)
 
 		if (userPriv != 1)
 		{
-			safeStdinRead("Available rooms of user: ", user, 33);
+			safeStdinRead("Available rooms of user: ", user, SHORT_LEN);
 			safePrefWrite(sC, user);
 
-			bool validUser;
+
 			safeRead(sC, &validUser, sizeof(bool));
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return;
+				return 1;
 			}
 		}
 		else
@@ -1082,8 +1101,8 @@ void chat(int sC, bool check)
 			printf("There are %d rooms available for '%s' : \n\n", roomsCount, user);
 			while (roomsCount != 0)
 			{
-				memset(room, 0, 33);
-				memset(user, 0, 33);
+				memset(room, 0, SHORT_LEN);
+				memset(user, 0, SHORT_LEN);
 				safePrefRead(sC, room);
 				safePrefRead(sC, user);
 				printf("%s	[Owner: %s]\n", room, user);
@@ -1095,25 +1114,27 @@ void chat(int sC, bool check)
 		}
 	}
 
-	return;
+	return 1;
 }
 
-void deleteChat(int sC, bool check)
+bool deleteChat(int sC)
 {
 	int resultAnswer = -1;
 
-	char room[33];
-	memset(room, 0, 33);
+	char room[SHORT_LEN];
+	memset(room, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
-		safeStdinRead("Delete room: ", room, 33);
+		safeStdinRead("Delete room: ", room, SHORT_LEN);
 
 		safePrefWrite(sC, room);
 
@@ -1134,27 +1155,29 @@ void deleteChat(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
-void joinChat(int sC, bool check)
+bool joinChat(int sC)
 {
 	int resultAnswer = -1;
 
-	char room[33], password[33];
-	memset(room, 0, 33);
-	memset(password, 0, 33);
+	char room[SHORT_LEN], password[SHORT_LEN];
+	memset(room, 0, SHORT_LEN);
+	memset(password, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
-		safeStdinRead("Join chat: ", room, 33);
-		getPassV2("Chat password: ", password, 33);
+		safeStdinRead("Join chat: ", room, SHORT_LEN);
+		getPassV2("Chat password: ", password, SHORT_LEN);
 
 		safePrefWrite(sC, room);
 		safePrefWrite(sC, password);
@@ -1181,7 +1204,7 @@ void joinChat(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
 // chat part -----------------------------------------------------
@@ -1190,10 +1213,10 @@ void activeChat(int sC, const char *room)
 {
 	WINDOW *winput, *woutput;
 	int winrows, wincols, i = 0, inChar;
-	char inMesg[513], outMesg[513], user[33];
-	memset(inMesg, 0, 513);
-	memset(outMesg, 0, 513);
-	memset(user, 0, 33);
+	char inMesg[TEXT_LEN], outMesg[TEXT_LEN], user[SHORT_LEN];
+	memset(inMesg, 0, TEXT_LEN);
+	memset(outMesg, 0, TEXT_LEN);
+	memset(user, 0, SHORT_LEN);
 
 	initscr();
 	raw();
@@ -1232,8 +1255,8 @@ void activeChat(int sC, const char *room)
 		if (FD_ISSET(sC, &read_fds))
 		{
 			//interpreteaza date(mesaje / comenzi)
-			memset(user, 0, 33);
-			memset(inMesg, 0, 513);
+			memset(user, 0, SHORT_LEN);
+			memset(inMesg, 0, TEXT_LEN);
 			safePrefRead(sC, user);
 			safePrefRead(sC, inMesg);
 
@@ -1271,6 +1294,7 @@ void activeChat(int sC, const char *room)
 
 				for (i = 0; i < onCount; i++)
 				{
+					memset(user, 0, SHORT_LEN);
 					safePrefRead(sC, user);
 					wprintw(woutput, "		%s\n", user);
 					wrefresh(woutput);
@@ -1320,7 +1344,7 @@ void activeChat(int sC, const char *room)
 			}
 			else
 			{
-				if (i != 513)
+				if (i != TEXT_LEN)
 				{
 					outMesg[i] = (char)inChar;
 					i++;
@@ -1347,7 +1371,7 @@ void activeChat(int sC, const char *room)
 				winput = newwin(3, wincols, winrows - 3, 0);
 				keypad(winput, true);
 				wrefresh(winput);
-				memset(outMesg, 0, 513);
+				memset(outMesg, 0, TEXT_LEN);
 			}
 		}
 	}
@@ -1360,24 +1384,26 @@ void activeChat(int sC, const char *room)
 
 //chat end ---------------------------------------------------------
 
-void setPriv(int sC, bool check)
+bool setPriv(int sC)
 {
 	int resultAnswer = -1;
 
-	char user[33], priv[5];
-	memset(user, 0, 33);
-	memset(priv, 0, 5);
+	char user[SHORT_LEN], priv[TYPE_LEN];
+	memset(user, 0, SHORT_LEN);
+	memset(priv, 0, TYPE_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
-		safeStdinRead("Set privilege of user: ", user, 33);
-		safeStdinRead("Privilege (1 - common /2 - admin): ", priv, 5);
+		safeStdinRead("Set privilege of user: ", user, SHORT_LEN);
+		safeStdinRead("Privilege (1 - common /2 - admin): ", priv, TYPE_LEN);
 		safePrefWrite(sC, user);
 		safePrefWrite(sC, priv);
 
@@ -1416,33 +1442,35 @@ void setPriv(int sC, bool check)
 			break;
 		}
 	}
+	return 1;
 }
 
-void deleteFriend(int sC, bool check)
+bool deleteFriend(int sC)
 {
 	int resultAnswer = -1, userPriv;
 
-	char user[33], friend[33];
-	memset(user, 0, 33);
-	memset(friend, 0, 33);
+	char user[SHORT_LEN], friend[SHORT_LEN];
+	memset(user, 0, SHORT_LEN);
+	memset(friend, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return;
+		return 0;
 	}
 	else
 	{
 		safeRead(sC, &userPriv, sizeof(int));
 
-		safeStdinRead("Delete friend: ", friend, 33);
+		safeStdinRead("Delete friend: ", friend, SHORT_LEN);
 		safePrefWrite(sC, friend);
 
 		if (userPriv != 1)
 		{
-			safeStdinRead("From this user's list: ", user, 33);
+			safeStdinRead("From this user's list: ", user, SHORT_LEN);
 			safePrefWrite(sC, user);
 		}
 		else
@@ -1471,22 +1499,23 @@ void deleteFriend(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
-void deleteRecvReq(int sC, bool check)
+bool deleteRecvReq(int sC)
 {
 	int resultAnswer = -1, userPriv;
 
-	char user[33];
-	memset(user, 0, 33);
+	char user[SHORT_LEN];
+	memset(user, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return;
+		return 0;
 	}
 	else
 	{
@@ -1495,7 +1524,7 @@ void deleteRecvReq(int sC, bool check)
 
 		if (userPriv != 1)
 		{
-			safeStdinRead("Delete requests received by: ", user, 33);
+			safeStdinRead("Delete requests received by: ", user, SHORT_LEN);
 			safePrefWrite(sC, user);
 		}
 		else
@@ -1516,21 +1545,23 @@ void deleteRecvReq(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
-void sentReq(int sC, bool check)
+bool sentReq(int sC)
 {
 	int resultAnswer = -1, requestsCount, userPriv;
 
-	char request[40], type[5], user[33];
-	memset(user, 0, 33);
+	char request[SHORT_LEN], type[TYPE_LEN], user[SHORT_LEN];
+	memset(user, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
+
 	if (check == 0)
 	{
-		printf("You're not logged in ! \n");
-		return;
+		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
@@ -1538,7 +1569,7 @@ void sentReq(int sC, bool check)
 
 		if (userPriv != 1)
 		{
-			safeStdinRead("Received requests of: ", user, 33);
+			safeStdinRead("Received requests of: ", user, SHORT_LEN);
 			safePrefWrite(sC, user);
 
 			bool validUser;
@@ -1546,7 +1577,7 @@ void sentReq(int sC, bool check)
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return;
+				return 1;
 			}
 		}
 		else
@@ -1560,7 +1591,7 @@ void sentReq(int sC, bool check)
 		{
 		case 2101:
 			printf("'%s' sent no requests !\n", user);
-			return;
+			return 1;
 
 		case 2121:
 			safeRead(sC, &requestsCount, sizeof(int));
@@ -1568,8 +1599,8 @@ void sentReq(int sC, bool check)
 
 			while (requestsCount != 0)
 			{
-				memset(request, 0, sizeof(request));
-				memset(type, 0, 5);
+				memset(request, 0, SHORT_LEN);
+				memset(type, 0, TYPE_LEN);
 				safePrefRead(sC, request);
 				safePrefRead(sC, type);
 
@@ -1585,27 +1616,28 @@ void sentReq(int sC, bool check)
 				}
 				requestsCount--;
 			}
-			return;
+			break;
 		}
 	}
 
-	return;
+	return 1;
 }
 
 
-void deleteSentReq(int sC, bool check)
+bool deleteSentReq(int sC)
 {
 	int resultAnswer = -1, userPriv;
 
-	char user[33];
-	memset(user, 0, 33);
+	char user[SHORT_LEN];
+	memset(user, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return;
+		return 0;
 	}
 	else
 	{
@@ -1614,7 +1646,7 @@ void deleteSentReq(int sC, bool check)
 
 		if (userPriv != 1)
 		{
-			safeStdinRead("Delete requests sent by: ", user, 33);
+			safeStdinRead("Delete requests sent by: ", user, SHORT_LEN);
 			safePrefWrite(sC, user);
 		}
 		else
@@ -1635,25 +1667,27 @@ void deleteSentReq(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
-void deleteUser(int sC, bool check)
+bool deleteUser(int sC)
 {
 	int resultAnswer = -1;
 
-	char user[33];
-	memset(user, 0, 33);
+	char user[SHORT_LEN];
+	memset(user, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
+		return 0;
 	}
 	else
 	{
-		safeStdinRead("!!!   Warning   !!!\n!!! It will delete everything about that user !!!\nDelete user: ", user, 33);
+		safeStdinRead("!!!   Warning   !!!\n!!! It will delete everything about that user !!!\nDelete user: ", user, SHORT_LEN);
 
 		safePrefWrite(sC, user);
 
@@ -1678,34 +1712,35 @@ void deleteUser(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
-void deletePost(int sC, bool check)
+bool deletePost(int sC)
 {
 	int resultAnswer = -1, userPriv;
 
-	char user[33], id[33];
-	memset(user, 0, 33);
-	memset(id, 0, 33);
+	char user[SHORT_LEN], id[SHORT_LEN];
+	memset(user, 0, SHORT_LEN);
+	memset(id, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return;
+		return 0;
 	}
 	else
 	{
 		safeRead(sC, &userPriv, sizeof(int));
 
-		safeStdinRead("Delete post with ID: ", id, 33);
+		safeStdinRead("Delete post with ID: ", id, SHORT_LEN);
 		safePrefWrite(sC, id);
 
 		if (userPriv != 1)
 		{
-			safeStdinRead("From this user's profile: ", user, 33);
+			safeStdinRead("From this user's profile: ", user, SHORT_LEN);
 			safePrefWrite(sC, user);
 		}
 		else
@@ -1734,28 +1769,29 @@ void deletePost(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
-void wall(int sC, bool check)
+bool wall(int sC)
 {
 	int i, resultAnswer = -1, postsCount;
 
-	char postsNumber[33], id[33], post[513], user[33], postType[5], date[65];
+	char postsNumber[SHORT_LEN], id[SHORT_LEN], post[TEXT_LEN], user[SHORT_LEN], postType[TYPE_LEN], date[SHORT_LEN];
 
-	memset(postsNumber, 0, 33);
+	memset(postsNumber, 0, SHORT_LEN);
 
-	safeWrite(sC, &check, sizeof(bool));
+	bool check;
+	safeRead(sC, &check, sizeof(bool));
 
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return;
+		return 0;
 	}
 	else
 	{
 
-		safeStdinRead("View last (number) posts: ", postsNumber, 33);
+		safeStdinRead("View last (number) posts: ", postsNumber, SHORT_LEN);
 		safePrefWrite(sC, postsNumber);
 
 		safeRead(sC, &resultAnswer, sizeof(int));
@@ -1774,11 +1810,11 @@ void wall(int sC, bool check)
 			for (i = 0; i < postsCount; i++)
 			{
 
-				memset(id, 0, 33);
-				memset(user, 0, 33);
-				memset(date, 0, 65);
-				memset(postType, 0, 5);
-				memset(post, 0, 520);
+				memset(id, 0, SHORT_LEN);
+				memset(user, 0, SHORT_LEN);
+				memset(date, 0, SHORT_LEN);
+				memset(postType, 0, TYPE_LEN);
+				memset(post, 0, TEXT_LEN);
 
 				safePrefRead(sC, id);
 				safePrefRead(sC, user);
@@ -1809,69 +1845,80 @@ void wall(int sC, bool check)
 			break;
 		}
 	}
-	return;
+	return 1;
 }
 
-int encodeCommand(const char *clientCommandChar)
+static char *strlwr(char *command)
 {
-	if (strcmp(clientCommandChar, "/login") == 0)
+	size_t i;
+
+	for (i = 0; i < strlen(command); i++)
+		if (command[i] >= 'A' && command[i] <= 'Z')
+			command[i] = command[i] + 32;
+
+	return command;
+}
+
+int encodeCommand(char *clientCommandChar)
+{
+	if (strcmp(strlwr(clientCommandChar), "/login") == 0)
 		return 1;
-	if (strcmp(clientCommandChar, "/register") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/register") == 0)
 		return 2;
-	if (strcmp(clientCommandChar, "/quit") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/quit") == 0)
 		return 0;
-	if (strcmp(clientCommandChar, "/help") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/help") == 0)
 		return 3;
-	if (strcmp(clientCommandChar, "/viewProfile") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/viewprofile") == 0)
 		return 4;
-	if (strcmp(clientCommandChar, "/logout") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/logout") == 0)
 		return 5;
-	if (strcmp(clientCommandChar, "/addFriend") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/addfriend") == 0)
 		return 6;
-	if (strcmp(clientCommandChar, "/addPost") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/addfost") == 0)
 		return 7;
-	if (strcmp(clientCommandChar, "/setProfile") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/setprofile") == 0)
 		return 8;
-	if (strcmp(clientCommandChar, "/recvReq") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/recvreq") == 0)
 		return 9;
-	if (strcmp(clientCommandChar, "/accFriend") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/accfriend") == 0)
 		return 10;
-	if (strcmp(clientCommandChar, "/friends") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/friends") == 0)
 		return 12;
-	if (strcmp(clientCommandChar, "/online") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/online") == 0)
 		return 13;
-	if (strcmp(clientCommandChar, "/createChat") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/createchat") == 0)
 		return 14;
-	if (strcmp(clientCommandChar, "/chat") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/chat") == 0)
 		return 15;
-	if (strcmp(clientCommandChar, "/deleteChat") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/deletechat") == 0)
 		return 16;
-	if (strcmp(clientCommandChar, "/joinChat") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/joinchat") == 0)
 		return 17;
-	if (strcmp(clientCommandChar, "/setPriv") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/setpriv") == 0)
 		return 18;
-	if (strcmp(clientCommandChar, "/deleteFriend") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/deletefriend") == 0)
 		return 19;
-	if (strcmp(clientCommandChar, "/deleteRecvReq") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/deleterecvreq") == 0)
 		return 20;
-	if (strcmp(clientCommandChar, "/sentReq") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/sentreq") == 0)
 		return 21;
-	if (strcmp(clientCommandChar, "/deleteSentReq") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/deletesentreq") == 0)
 		return 22;
-	if (strcmp(clientCommandChar, "/deleteUser") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/deleteuser") == 0)
 		return 23;
-	if (strcmp(clientCommandChar, "/deletePost") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/deletepost") == 0)
 		return 24;
-	if (strcmp(clientCommandChar, "/wall") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/wall") == 0)
 		return 25;
 
 
 	return -1;
 }
 
-void quit(int sC, bool check)
+void quit(void)
 {
-	safeWrite(sC, &check, sizeof(bool));
+	printf(RED "You've quit VirtualSoc !\n" RESET);
 	return;
 }
 
