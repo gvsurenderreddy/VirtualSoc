@@ -17,13 +17,13 @@ int main(int argc, char *argv[])
 	int socketConnect;
 	socketConnect = connTcpSock(argv[1], PORT, server);
 
-	int clientCommand = -1;
-	bool logged = 0;
-	char clientCommandChar[LONG_LEN], currentID[SHORT_LEN];
 
 	printf(RED "\n\n	Welcome to VirtualSoc ~ by Cristea Alexandru\n	/help  - "
 			   " syntax and available commands !\n\n\n" RESET);
 
+	int clientCommand = -1;
+	bool logged = 0;
+	char clientCommandChar[LONG_LEN], currentID[SHORT_LEN];
 
 	//introducem comenzi
 	while (true)
@@ -41,7 +41,12 @@ int main(int argc, char *argv[])
 		}
 
 
-		read(0, clientCommandChar, sizeof(clientCommandChar));
+		if (read(0, clientCommandChar, LONG_LEN) < 0)
+		{
+			perror("read() error ! ");
+			exit(EXIT_FAILURE);
+		}
+
 		if (clientCommandChar[0] == '\n')
 		{
 			continue;

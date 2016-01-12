@@ -23,10 +23,13 @@ compile:
 	@clear screen
 	@echo -e '\033[31m	>>> Make file for VirtualSoc ! <<<\e[0m\n\n'
 	@echo -e '\033[31m >>>[make]\033[32mBuilding\033[31m SERVER objects\e[0m'
+	mkdir -p build
 	$(CC) $(CFLAGS) $(LIBS_SERVER)
+	mkdir -p build/server
 	mv *.o build/server/
 	@echo -e '\033[31m >>>[make]\033[32mBuilding\033[31m CLIENT objects\e[0m'
 	$(CC) $(CFLAGS) $(LIBS_CLIENT)
+	mkdir -p build/client
 	mv *.o build/client/
 
 clean:

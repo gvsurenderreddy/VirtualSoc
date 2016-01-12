@@ -58,9 +58,13 @@ ssize_t safePrefWrite(int, const void *);
 ssize_t safePrefRead(int, void *);
 ssize_t safeRead(int, void *, size_t);
 ssize_t safeWrite(int, const void *, size_t);
-
 int connTcpSock(const char *, int, struct sockaddr_in);
 void cliPrepare();
+char *strlwr(char *);
+int encodeCommand(char *);
+__sighandler_t quitforce(void);
+
+
 void help(bool);
 bool login(int, char *);
 bool register_now(int);
@@ -87,8 +91,7 @@ bool deleteUser(int);
 bool deletePost(int);
 bool wall(int);
 void quit(void);
-int encodeCommand(char *);
-__sighandler_t quitforce(void);
+
 
 
 #endif
