@@ -41,10 +41,11 @@ int main(int argc, char *argv[])
 		if (pthread_create(&th[i], NULL, &treat, td) < 0)
 		{
 			perror("[server]Could not create thread !\n");
+			free(td);
 		}
+		free(td);
 	}
 
-	free(td);
 	return EXIT_SUCCESS;
 }
 
