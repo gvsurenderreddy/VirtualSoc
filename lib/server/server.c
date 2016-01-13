@@ -17,12 +17,11 @@ int main(int argc, char *argv[])
 	memset(&from, 0, sizeof(from));
 	int socketConnect = servPrepare(PORT, server);
 
-	printf("[server]Waiting at port %d \n", PORT);
-	fflush(stdout);
+	fprintf(stdout, "[server]Waiting at port %d \n", PORT);
 
 	while (true)
 	{
-		int socketClient;
+		int socketClient = 0;
 		int length = sizeof(from);
 
 		//acceptam conexiuni una cate una
@@ -43,9 +42,8 @@ int main(int argc, char *argv[])
 			perror("[server]Could not create thread !\n");
 			free(td);
 		}
-		free(td);
 	}
-
+	sqlite3_close(db);
 	return EXIT_SUCCESS;
 }
 
@@ -74,11 +72,10 @@ static void *treat(void *arg)
 	//raspunde clientului
 	answer((struct thData *)arg);
 
-	//inchidere baza de date
-	sqlite3_close(db);
-
-	printf("[thread]Closing connection for %d !\n", tdL.client);
+	//inchidere conexiune
+	printf("[thread]Closing connection & database for %d !\n", tdL.client);
 	close(tdL.client);
+	//free(arg);
 
 	return (NULL);
 }

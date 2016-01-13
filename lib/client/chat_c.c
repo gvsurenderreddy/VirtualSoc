@@ -1,9 +1,18 @@
 #include "vsoc.h"
 
+enum
+{
+	USR,
+	USR2,
+	SEP,
+	MSG
+};
+
 void activeChat(int sC, const char *room)
 {
 	WINDOW *winput, *woutput;
 	int winrows, wincols, i = 0, inChar;
+
 	char inMesg[TEXT_LEN], outMesg[TEXT_LEN], user[SHORT_LEN];
 	memset(inMesg, 0, TEXT_LEN);
 	memset(outMesg, 0, TEXT_LEN);
@@ -17,8 +26,15 @@ void activeChat(int sC, const char *room)
 	keypad(winput, true);
 	scrollok(woutput, true);
 	scrollok(winput, true);
-	wrefresh(woutput);
-	wrefresh(winput);
+
+	if (has_colors() == TRUE)
+	{
+		start_color();
+		init_pair(USR, COLOR_RED, COLOR_BLACK);
+		init_pair(USR2, COLOR_GREEN, COLOR_BLACK);
+		init_pair(SEP, COLOR_YELLOW, COLOR_BLACK);
+		init_pair(MSG, COLOR_WHITE, COLOR_BLACK);
+	}
 
 
 	fd_set all, read_fds;
@@ -55,14 +71,14 @@ void activeChat(int sC, const char *room)
 			{
 			case '>':
 				strcpy(user, user + 1);
-				wprintw(woutput, "%s entered the room '%s'!\n", user, room);
+				wprintw(woutput, "\n%s entered the room '%s'!\n\n", user, room);
 				wrefresh(woutput);
 				wrefresh(winput);
 				break;
 
 			case '<':
 				strcpy(user, user + 1);
-				wprintw(woutput, "%s exited the room '%s' !\n", user, room);
+				wprintw(woutput, "\n%s exited the room '%s' !\n\n", user, room);
 				wrefresh(woutput);
 				wrefresh(winput);
 				break;
@@ -98,7 +114,26 @@ void activeChat(int sC, const char *room)
 			break;
 
 			default:
-				wprintw(woutput, "%s : %s\n", user, inMesg);
+
+				if (has_colors() == TRUE)
+					wattron(woutput, COLOR_PAIR(USR2));
+				wprintw(woutput, "%*.*s", 16, 16, user);
+				if (has_colors() == TRUE)
+					wattroff(woutput, COLOR_PAIR(USR2));
+
+				if (has_colors() == TRUE)
+					wattron(woutput, COLOR_PAIR(SEP));
+				wprintw(woutput, " | ");
+				if (has_colors() == TRUE)
+					wattroff(woutput, COLOR_PAIR(SEP));
+
+				if (has_colors() == TRUE)
+					wattron(woutput, COLOR_PAIR(MSG));
+				wprintw(woutput, "%s\n", inMesg);
+				if (has_colors() == TRUE)
+					wattroff(woutput, COLOR_PAIR(MSG));
+
+
 				wrefresh(woutput);
 				wrefresh(winput);
 				break;

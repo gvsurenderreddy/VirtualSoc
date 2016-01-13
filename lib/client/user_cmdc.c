@@ -22,7 +22,7 @@ bool login(int sC, char *currentUser)
 	if (check == 1)
 	{
 		printf("You're already logged in !\n");
-		return 1;
+		return true;
 	}
 	else
 	{
@@ -39,26 +39,26 @@ bool login(int sC, char *currentUser)
 		case 11:
 			printf("Login Complete !\n");
 			strcpy(currentUser, user);
-			return 1;
+			return true;
 
 		case 101:
 			printf("User doesn't exist ! \n");
-			return 0;
+			return false;
 
 		case 102:
 			printf("Wrong Password ! \n");
-			return 0;
+			return false;
 
 		case 103:
 			printf("Invalid ID \\ Password ! \n");
-			return 0;
+			return false;
 
 		case 104:
 			printf("You're already logged in ! (probably in a different terminal)\n");
-			return 0;
+			return false;
 		}
 	}
-	return 0;
+	return false;
 }
 
 bool register_now(int sC)
@@ -81,7 +81,7 @@ bool register_now(int sC)
 	{
 		printf("You're logged in ! Please log out to register a new "
 			   "account !\n");
-		return 1;
+		return true;
 	}
 	else
 	{
@@ -108,12 +108,12 @@ bool register_now(int sC)
 			break;
 
 		case 201:
-			printf("User not long enough or invalid ! (min. 10 ch, only "
-				   "alpha-numerical and . _ )\n");
+			printf("User not long enough or invalid ! (10 - 32 ch.  "
+				   "alpha-numerical and '.', '_' )\n");
 			break;
 
 		case 202:
-			printf("Password not long enough ! (min. 10 ch)\n");
+			printf("Password not long enough ! (10 - 32 ch.)\n");
 			break;
 
 		case 203:
@@ -144,11 +144,13 @@ bool register_now(int sC)
 			break;
 		}
 	}
-	return 0;
+	return false;
 }
 
 static void infoUserPrints(int i, char *info)
 {
+
+
 	switch (i)
 	{
 	case 0:
@@ -190,15 +192,17 @@ static void userPrints(int sC, const char *user)
 	int i, postsCount;
 	char info[TEXT_LEN], postType[TYPE_LEN], date[SHORT_LEN], id[SHORT_LEN];
 
+	printf("\n___________________________________________________________________\n\n");
 	for (i = 0; i < 6; i++)
 	{
 		memset(info, 0, TEXT_LEN);
 		safePrefRead(sC, info);
 		infoUserPrints(i, info);
 	}
+	printf("___________________________________________________________________\n\n");
 
 	safeRead(sC, &postsCount, sizeof(int));
-	printf(GREEN "%s has %d posts \n" RESET, user, postsCount);
+	printf("%s has %d post(s) \n\n", user, postsCount);
 
 	for (i = 0; i < postsCount; i++)
 	{
@@ -215,15 +219,15 @@ static void userPrints(int sC, const char *user)
 		switch (atoi(postType))
 		{
 		case 1:
-			printf(GREEN "[ID:%s][%s][publ]:" RESET "%s\n", id, date, info);
+			printf(GREEN "[ID:%s]" YELLOW "[%s]" GREEN "[publ]:" RESET "%s\n", id, date, info);
 			break;
 
 		case 2:
-			printf(GREEN "[ID:%s][%s][frnd]:" RESET "%s\n", id, date, info);
+			printf(GREEN "[ID:%s]" YELLOW "[%s]" YELLOW "[frnd]:" RESET "%s\n", id, date, info);
 			break;
 
 		case 3:
-			printf(GREEN "[ID:%s][%s][cf/f]:" RESET "%s\n", id, date, info);
+			printf(GREEN "[ID:%s]" YELLOW "[%s]" RED "[cf/f]:" RESET "%s\n", id, date, info);
 			break;
 		}
 	}
@@ -253,12 +257,12 @@ void viewProfile(int sC)
 		break;
 
 	case 441:
-		printf("You're not logged in ! \n\n");
+		printf(RED "\nYou're not logged in ! \n" RESET);
 		userPrints(sC, user);
 		break;
 
 	case 442:
-		printf("You're not friend with '%s' !\n\n", user);
+		printf(YELLOW "\nYou're not friend with '%s' !\n" RESET, user);
 		userPrints(sC, user);
 		break;
 
@@ -267,7 +271,7 @@ void viewProfile(int sC)
 		userPrints(sC, user);
 		break;
 	case 445:
-		printf("It's you !\n\n");
+		printf("\nIt's you !\n");
 		userPrints(sC, user);
 		break;
 
@@ -293,7 +297,7 @@ bool logout(int sC, char *currentUser)
 	}
 
 	memset(currentUser, 0, SHORT_LEN);
-	return 0;
+	return false;
 }
 
 bool addFriend(int sC)
@@ -310,7 +314,7 @@ bool addFriend(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 
 	else
@@ -318,7 +322,7 @@ bool addFriend(int sC)
 		safeStdinRead("Add Friend: ", user, SHORT_LEN);
 
 		safeStdinRead("Group - 1(friends) / 2(close-friends) / 3 "
-					  "(family)): ",
+					  "(family): ",
 					  friendType, TYPE_LEN);
 
 		safePrefWrite(sC, user);
@@ -361,7 +365,7 @@ bool addFriend(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool addPost(int sC)
@@ -378,7 +382,7 @@ bool addPost(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -405,7 +409,7 @@ bool addPost(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 
@@ -429,7 +433,7 @@ bool setProfile(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 
 	else
@@ -446,7 +450,7 @@ bool setProfile(int sC)
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return 1;
+				return true;
 			}
 		}
 		else
@@ -456,14 +460,14 @@ bool setProfile(int sC)
 
 
 
-		safeStdinRead("Choose what you'd like to modify:\n 1-Fullname\n 2-Sex\n 3-About\n 4-Password\n 5-Account Type\n\n", option, TYPE_LEN);
+		safeStdinRead("Choose what you'd like to modify:\n 1-Fullname\n 2-Sex\n 3-About\n 4-Password\n 5-Account Type\n\n\n Option:", option, TYPE_LEN);
 
 		safePrefWrite(sC, option);
 
 		if (strlen(option) > 1)
 		{
 			printf("Invalid option !\n");
-			return 1;
+			return true;
 		}
 
 
@@ -496,7 +500,7 @@ bool setProfile(int sC)
 
 		default:
 			printf("Invalid option !\n");
-			return 1;
+			return true;
 		}
 
 		safeRead(sC, &resultAnswer, sizeof(int));
@@ -510,10 +514,10 @@ bool setProfile(int sC)
 				printf("Fullname of '%s' changed to '%s' !\n", user, fullname);
 				break;
 			case 2:
-				printf("Sex of '%s' changed to '%s' \n", user, sex);
+				printf("Sex of '%s' changed to '%s' !\n", user, sex);
 				break;
 			case 3:
-				printf("Description of '%s' changed to : %s \n", user, about);
+				printf("Description of '%s' changed to : %s !\n", user, about);
 				break;
 			case 4:
 				printf("Password of '%s' changed !\n", user);
@@ -550,7 +554,7 @@ bool setProfile(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool recvReq(int sC)
@@ -566,7 +570,7 @@ bool recvReq(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -582,7 +586,7 @@ bool recvReq(int sC)
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return 1;
+				return true;
 			}
 		}
 		else
@@ -596,7 +600,7 @@ bool recvReq(int sC)
 		{
 		case 901:
 			printf("'%s' received no requests !\n", user);
-			return 1;
+			return true;
 
 		case 99:
 			safeRead(sC, &requestsCount, sizeof(int));
@@ -624,7 +628,7 @@ bool recvReq(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool accFriend(int sC)
@@ -641,7 +645,7 @@ bool accFriend(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -700,7 +704,7 @@ bool accFriend(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 
@@ -717,7 +721,7 @@ bool friends(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -757,13 +761,13 @@ bool friends(int sC)
 				switch (atoi(friendType))
 				{
 				case 1:
-					printf("%s	[friends] \n", friend);
+					printf("%s	" GREEN "[friends] \n" RESET, friend);
 					break;
 				case 2:
-					printf("%s	[close-friends] \n", friend);
+					printf("%s	" YELLOW "[close-friends] \n" RESET, friend);
 					break;
 				case 3:
-					printf("%s	[family] \n", friend);
+					printf("%s	" RED "[family] \n" RESET, friend);
 					break;
 				}
 				friendsCount--;
@@ -772,7 +776,7 @@ bool friends(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool online(int sC)
@@ -790,7 +794,7 @@ bool online(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -806,7 +810,7 @@ bool online(int sC)
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return 1;
+				return true;
 			}
 		}
 		else
@@ -820,7 +824,7 @@ bool online(int sC)
 		{
 		case 1301:
 			printf("There are NO friends online at the moment for '%s' !\n", user);
-			return 1;
+			return true;
 
 		case 1313:
 			safeRead(sC, &onlineCount, sizeof(int));
@@ -836,13 +840,13 @@ bool online(int sC)
 				switch (atoi(friendType))
 				{
 				case 1:
-					printf("%s	[friends] \n", online);
+					printf("%s	" GREEN "[friends] \n" RESET, online);
 					break;
 				case 2:
-					printf("%s	[close-friends] \n", online);
+					printf("%s	" YELLOW "[close-friends] \n" RESET, online);
 					break;
 				case 3:
-					printf("%s	[family] \n", online);
+					printf("%s	" RED "[family] \n" RESET, online);
 					break;
 				}
 				onlineCount--;
@@ -851,7 +855,7 @@ bool online(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool createChat(int sC)
@@ -868,7 +872,7 @@ bool createChat(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 
 	else
@@ -900,7 +904,7 @@ bool createChat(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool chat(int sC)
@@ -915,7 +919,7 @@ bool chat(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -931,7 +935,7 @@ bool chat(int sC)
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return 1;
+				return true;
 			}
 		}
 		else
@@ -966,7 +970,7 @@ bool chat(int sC)
 		}
 	}
 
-	return 1;
+	return true;
 }
 
 bool deleteChat(int sC)
@@ -982,7 +986,7 @@ bool deleteChat(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -1007,7 +1011,7 @@ bool deleteChat(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool joinChat(int sC)
@@ -1024,7 +1028,7 @@ bool joinChat(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -1056,7 +1060,7 @@ bool joinChat(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 
@@ -1074,7 +1078,7 @@ bool setPriv(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -1118,7 +1122,7 @@ bool setPriv(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool deleteFriend(int sC)
@@ -1135,7 +1139,7 @@ bool deleteFriend(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -1175,7 +1179,7 @@ bool deleteFriend(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool deleteRecvReq(int sC)
@@ -1191,7 +1195,7 @@ bool deleteRecvReq(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -1221,7 +1225,7 @@ bool deleteRecvReq(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool sentReq(int sC)
@@ -1237,7 +1241,7 @@ bool sentReq(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -1253,7 +1257,7 @@ bool sentReq(int sC)
 			if (validUser == 0)
 			{
 				printf("User '%s' doesn't exist or invalid !\n", user);
-				return 1;
+				return true;
 			}
 		}
 		else
@@ -1267,7 +1271,7 @@ bool sentReq(int sC)
 		{
 		case 2101:
 			printf("'%s' sent no requests !\n", user);
-			return 1;
+			return true;
 
 		case 2121:
 			safeRead(sC, &requestsCount, sizeof(int));
@@ -1296,7 +1300,7 @@ bool sentReq(int sC)
 		}
 	}
 
-	return 1;
+	return true;
 }
 
 
@@ -1313,7 +1317,7 @@ bool deleteSentReq(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -1343,7 +1347,7 @@ bool deleteSentReq(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool deleteUser(int sC)
@@ -1359,11 +1363,11 @@ bool deleteUser(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
-		safeStdinRead("!!!   Warning   !!!\n!!! It will delete everything about that user !!!\nDelete user: ", user, SHORT_LEN);
+		safeStdinRead(RED "!!!   Warning   !!!\n!!! It will delete everything about that user !!!\n" RESET "Delete user: ", user, SHORT_LEN);
 
 		safePrefWrite(sC, user);
 
@@ -1388,7 +1392,7 @@ bool deleteUser(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool deletePost(int sC)
@@ -1405,7 +1409,7 @@ bool deletePost(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -1445,7 +1449,7 @@ bool deletePost(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool wall(int sC)
@@ -1462,7 +1466,7 @@ bool wall(int sC)
 	if (check == 0)
 	{
 		printf("You're not logged in !\n");
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -1501,15 +1505,15 @@ bool wall(int sC)
 				switch (atoi(postType))
 				{
 				case 1:
-					printf(GREEN "[ID:%s][%s][%s][publ]:" RESET "%s\n", id, user, date, post);
+					printf(GREEN "[ID:%s]" WHITE "[%s]" YELLOW "[%s]" GREEN "[publ]:" RESET "%s\n", id, user, date, post);
 					break;
 
 				case 2:
-					printf(GREEN "[ID:%s][%s][%s][frnd]:" RESET "%s\n", id, user, date, post);
+					printf(GREEN "[ID:%s]" WHITE "[%s]" YELLOW "[%s][frnd]:" RESET "%s\n", id, user, date, post);
 					break;
 
 				case 3:
-					printf(GREEN "[ID:%s][%s][%s][cf/f]:" RESET "%s\n", id, user, date, post);
+					printf(GREEN "[ID:%s]" WHITE "[%s]" YELLOW "[%s]" RED "[cf/f]:" RESET "%s\n", id, user, date, post);
 					break;
 				}
 			}
@@ -1521,7 +1525,7 @@ bool wall(int sC)
 			break;
 		}
 	}
-	return 1;
+	return true;
 }
 
 

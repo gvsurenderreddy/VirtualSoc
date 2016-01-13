@@ -51,7 +51,6 @@
 
 struct termios oflags, nflags;
 
-
 int getPassV2(const char *, char *, int);
 void safeStdinRead(const char *, char *, int);
 ssize_t safePrefWrite(int, const void *);
