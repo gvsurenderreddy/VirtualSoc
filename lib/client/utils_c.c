@@ -169,7 +169,7 @@ int encodeCommand(char *clientCommandChar)
 		return 5;
 	if (strcmp(strlwr(clientCommandChar), "/addfriend") == 0)
 		return 6;
-	if (strcmp(strlwr(clientCommandChar), "/addfost") == 0)
+	if (strcmp(strlwr(clientCommandChar), "/addpost") == 0)
 		return 7;
 	if (strcmp(strlwr(clientCommandChar), "/setprofile") == 0)
 		return 8;

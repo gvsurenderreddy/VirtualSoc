@@ -43,7 +43,7 @@ void activeChat(int sC, const char *room)
 	FD_SET(0, &all);
 	FD_SET(sC, &all);
 
-	wprintw(woutput, "	Welcome to room '%s' \n	Use /quit to exit or ESC !\n\n", room);
+	wprintw(woutput, "	Welcome to room '%s' \n	/online to see what users are in this room !\n	Use /quit to exit or ESC !\n\n", room);
 	wrefresh(woutput);
 	wrefresh(winput);
 	signal(SIGWINCH, NULL);
@@ -149,10 +149,6 @@ void activeChat(int sC, const char *room)
 			{
 				safePrefWrite(sC, "/quit");
 				break;
-			}
-
-			if (inChar == KEY_F(1))
-			{
 			}
 
 			if (inChar == KEY_UP || inChar == KEY_DOWN || inChar == KEY_LEFT || inChar == KEY_RIGHT)

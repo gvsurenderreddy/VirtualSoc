@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 			fflush(stdout);
 		}
 
-
+		memset(clientCommandChar, 0, LONG_LEN);
 		if (read(0, clientCommandChar, LONG_LEN) < 0)
 		{
 			perror("read() error ! ");
@@ -172,8 +172,6 @@ int main(int argc, char *argv[])
 			logged = wall(socketConnect);
 			break;
 		}
-
-		memset(clientCommandChar, 0, SHORT_LEN);
 	}
 	close(socketConnect);
 	return EXIT_SUCCESS;

@@ -6,6 +6,7 @@ int main(int argc, char *argv[])
 {
 	signal(SIGINT, (__sighandler_t)forcequit);
 	signal(SIGPIPE, (__sighandler_t)forcequit);
+
 	int i = 0;
 	pthread_t th[100];
 	thData *td;
